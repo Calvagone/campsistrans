@@ -1,8 +1,9 @@
 library(testthat)
+library(ggplot2)
 
 context("Test pmxtrans")
 
-testFolder <<- "C:/prj/pmxtrans/tests/testthat/"
+testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 test_that("ADVAN3 TRANS4 - no mapping", {
   
@@ -47,10 +48,8 @@ test_that("ADVAN3 TRANS4 - simulation", {
   sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
  
   # Plotting C2
-  library(ggplot2)
   plot(sim, CP) +
     ylab("Concentration") 
-  
 })
 
 test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
@@ -79,10 +78,8 @@ test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
   sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
   
   # Plotting C2
-  library(ggplot2)
   plot(sim, CP) +
-    ylab("Concentration") 
-  
+    ylab("Concentration")
 })
 
 test_that("Custom test with RxODE", {
@@ -128,8 +125,6 @@ test_that("Custom test with RxODE", {
   results <- results %>% dplyr::mutate(time=as.numeric(time)) %>% dplyr::filter(time==0)
   
   # Plotting C2
-  library(ggplot2)
   plot(sim, CP) +
     ylab("Concentration") 
-  
 })

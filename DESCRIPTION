@@ -6,14 +6,14 @@ Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
 Description: TODO.
-Depends: R (>= 4.0.2)
+Depends: R (>= 4.0.0)
 Imports: assertthat, dplyr, plyr, purrr, R6, reticulate, tibble, tidyr
 Remotes: 
 License: file LICENSE
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE
+Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, ggplot2
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 URL: 

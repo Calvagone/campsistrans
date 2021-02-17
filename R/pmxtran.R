@@ -1,7 +1,8 @@
 
 #' Import NONMEM control stream and results using Pharmpy.
 #' 
-#' @param model path to NONMEM control stream
+#' @param x path to NONMEM control stream
+#' @param mapping a possible PMX mapping object
 #' @return the Pharmpy model
 #' @importFrom reticulate import
 #' @export

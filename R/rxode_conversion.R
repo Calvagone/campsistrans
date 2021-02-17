@@ -176,7 +176,7 @@ rxodeParams <- function(model, nmtype, estimate=TRUE) {
 
 #' Get the THETA vector for RxODE.
 #' 
-#' @param params parameters definition table
+#' @param model PMX model
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @return named vector with THETA values
 #' @export
@@ -186,7 +186,7 @@ rxodeTheta <- function(model, estimate=TRUE) {
 
 #' Get the IIV matrix (omega) for RxODE.
 #' 
-#' @param params parameters definition table
+#' @param model PMX model
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @return named matrix with OMEGA values
 #' @export
@@ -218,7 +218,7 @@ rxodeOmega <- function(model, estimate=TRUE) {
 #' Get the RUV matrix (sigma) for RxODE.
 #' No correlations are possible for now.
 #' 
-#' @param params parameters definition table
+#' @param model PMX model
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @return named matrix with SIGMA values
 #' @export

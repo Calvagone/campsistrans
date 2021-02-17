@@ -1,4 +1,4 @@
 Sys.setenv("R_TESTS" = "")
 library(testthat)
-library(pmxtrans)
-test_check("pmxtrans")
+library(pmxtran)
+test_check("pmxtran")
