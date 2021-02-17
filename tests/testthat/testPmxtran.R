@@ -1,0 +1,135 @@
+library(testthat)
+
+context("Test pmxtrans")
+
+testFolder <<- "C:/prj/pmxtrans/tests/testthat/"
+
+test_that("ADVAN3 TRANS4 - no mapping", {
+  
+  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"))
+  code <- toRxODE(model)
+  expect_equal(length(code), 12)
+})
+
+test_that("ADVAN3 TRANS4 - mapping", {
+  
+  mapping <- mapping(theta=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
+                     omega=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
+                     sigma=c("PROP"=1))
+  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"), mapping=mapping)
+  code <- toRxODE(model)
+  expect_equal(length(code), 12)
+})
+
+test_that("ADVAN3 TRANS4 - simulation", {
+
+  # Import your NONMEM model using pharmpy
+  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"))
+  
+  # Convert to RxODE
+  code <- toRxODE(model)
+
+  # Loading model in RxODE
+  mod <- RxODE::RxODE(paste0(code, collapse="\n"))
+ 
+  # Reading THETA/OMEGA/SIGMA parameters initial values
+  theta <- rxodeTheta(model, estimate=FALSE)
+  omega <- rxodeOmega(model, estimate=FALSE)
+ 
+  # Dosing regimen
+  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
+    RxODE::et(amt=1000, cmt="A_CENTRAL")
+ 
+  # Sampling time
+  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+ 
+  # Simulate
+  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
+ 
+  # Plotting C2
+  library(ggplot2)
+  plot(sim, CP) +
+    ylab("Concentration") 
+  
+})
+
+test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
+  
+  # Import your NONMEM model using pharmpy
+  model <- importNONMEM(paste0(testFolder, "models/advan4_trans4.mod"))
+  
+  # Convert to RxODE
+  code <- toRxODE(model)
+  
+  # Loading model in RxODE
+  mod <- RxODE::RxODE(paste0(code, collapse="\n"))
+  
+  # Reading THETA/OMEGA/SIGMA parameters initial values
+  theta <- rxodeTheta(model, estimate=FALSE)
+  omega <- rxodeOmega(model, estimate=FALSE)
+  
+  # Dosing regimen
+  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
+    RxODE::et(amt=1000, cmt="A_DEPOT")
+  
+  # Sampling time
+  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+  
+  # Simulate
+  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
+  
+  # Plotting C2
+  library(ggplot2)
+  plot(sim, CP) +
+    ylab("Concentration") 
+  
+})
+
+test_that("Custom test with RxODE", {
+  
+  mapping <- mapping(theta=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
+                     omega=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
+                     sigma=c("PROP"=1))
+  
+  # Import your NONMEM model using pharmpy
+  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"), mapping)
+  
+  mod <- RxODE::RxODE("
+    CL=THETA_CL*exp(ETA_CL)
+    V1=THETA_V1*exp(ETA_V1)
+    if(V1 < 80) V1=40
+    V2=THETA_V2*exp(ETA_V2)
+    Q=THETA_Q*exp(ETA_Q)
+    S1=V1
+    d/dt(A_CENTRAL) = Q*A_PERIPHERAL/V2 +
+     (-CL/V1 - Q/V1)*A_CENTRAL
+    d/dt(A_PERIPHERAL) = -Q*A_PERIPHERAL/V2 + Q*A_CENTRAL/V1
+    d/dt(A_OUTPUT) = CL*A_CENTRAL/V1
+    F=A_CENTRAL/S1
+    CP=F
+    OBS_CP=CP*(EPS_PROP + 1)
+    Y=OBS_CP
+  ")
+  
+  theta <- rxodeTheta(model, estimate=FALSE)
+  omega <- rxodeOmega(model, estimate=FALSE)
+  
+  # Dosing regimen
+  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
+    RxODE::et(amt=1000, cmt="A_CENTRAL")
+  
+  # Sampling time
+  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+  
+  # Simulate
+  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_PROP=0), ev, omega=omega, nSub=100)
+  
+  results <- as.data.frame(sim) 
+  results <- results %>% dplyr::mutate(time=as.numeric(time)) %>% dplyr::filter(time==0)
+  
+  # Plotting C2
+  library(ggplot2)
+  plot(sim, CP) +
+    ylab("Concentration") 
+  
+})
