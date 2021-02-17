@@ -26,9 +26,30 @@ generateModel <- function(advan, trans) {
   return(code)
 }
 
+test_that("ADVAN3 TRANS1", {
+  advan <- 3
+  trans <- 1
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
+test_that("ADVAN3 TRANS3", {
+  advan <- 3
+  trans <- 3
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
 test_that("ADVAN3 TRANS4", {
   advan <- 3
   trans <- 4
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
+test_that("ADVAN3 TRANS5", {
+  advan <- 3
+  trans <- 5
   code <- generateModel(advan, trans)
   expect_equal(code, loadModel(advan, trans))
 })
