@@ -3,7 +3,7 @@ library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
 testFolder <<- ""
-#testFolder <<- "C:/prj/pmxtran/tests/testthat/"
+testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 modelPath <- function(advan, trans) {
   return(paste0(testFolder, "models/subroutine/advan", advan, "_trans", trans, ".mod"))
@@ -25,6 +25,20 @@ generateModel <- function(advan, trans) {
   toTmpFile(code, advan, trans)
   return(code)
 }
+
+test_that("ADVAN1 TRANS1", {
+  advan <- 1
+  trans <- 1
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
+test_that("ADVAN1 TRANS2", {
+  advan <- 1
+  trans <- 2
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
 
 test_that("ADVAN3 TRANS1", {
   advan <- 3

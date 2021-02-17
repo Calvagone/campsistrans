@@ -11,7 +11,7 @@ $PK
  S2 = V
 $ERROR 
  CP = F
- OBS_CP = CP *(1+ERR(1))
+ OBS_CP = CP *(1+EPS(1))
  Y = OBS_CP
 $THETA 1     ; KA	
 $THETA 0.0625; K
