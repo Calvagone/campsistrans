@@ -1,4 +1,5 @@
 
-# setwd("C:/prj/pmxtrans/")
+# setwd("C:/prj/pmxtran/")
 # roxygen2::roxygenise()
-# setwd("C:/prj/pmxtrans/tests/")
+# setwd("C:/prj/pmxtran/tests/")
+# testFolder <<- "C:/prj/pmxtran/tests/testthat/"

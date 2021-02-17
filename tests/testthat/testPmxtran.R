@@ -2,12 +2,11 @@ library(testthat)
 library(ggplot2)
 
 context("Test pmxtrans")
-
-testFolder <<- "C:/prj/pmxtran/tests/testthat/"
+testFolder <<- ""
 
 test_that("ADVAN3 TRANS4 - no mapping", {
   
-  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"))
+  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
   code <- toRxODE(model)
   expect_equal(length(code), 12)
 })
@@ -17,7 +16,7 @@ test_that("ADVAN3 TRANS4 - mapping", {
   mapping <- mapping(theta=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
                      omega=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
                      sigma=c("PROP"=1))
-  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"), mapping=mapping)
+  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping=mapping)
   code <- toRxODE(model)
   expect_equal(length(code), 12)
 })
@@ -25,7 +24,7 @@ test_that("ADVAN3 TRANS4 - mapping", {
 test_that("ADVAN3 TRANS4 - simulation", {
 
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"))
+  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
   
   # Convert to RxODE
   code <- toRxODE(model)
@@ -55,7 +54,7 @@ test_that("ADVAN3 TRANS4 - simulation", {
 test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
   
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/advan4_trans4.mod"))
+  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan4_trans4.mod"))
   
   # Convert to RxODE
   code <- toRxODE(model)
@@ -89,7 +88,7 @@ test_that("Custom test with RxODE", {
                      sigma=c("PROP"=1))
   
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/advan3_trans4.mod"), mapping)
+  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping)
   
   mod <- RxODE::RxODE("
     CL=THETA_CL*exp(ETA_CL)
