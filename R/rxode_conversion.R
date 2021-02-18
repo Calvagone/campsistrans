@@ -17,11 +17,14 @@ toRxODE <- function(model) {
     statement <- statements[[index]]
 
     if ("pharmpy.statements.CompartmentalSystem" %in% class(statement)) {
-      code <- c(code, compartmentSystemToRxODE(statement))
-      
+      tmp_code <- compartmentSystemToRxODE(statement)
+      code <- c(code, tmp_code)
+       
+    
     } else if ("pharmpy.statements.Assignment" %in% class(statement)){
-      code <- c(code, statementToRxODE(statement, model$params))
-      
+      tmp_code <- statementToRxODE(statement, model$params)
+      code <- c(code, tmp_code)
+
     } else {
       cat(paste("Unknown class", class(statement)))  
     }
@@ -54,7 +57,7 @@ statementToRxODE <- function(statement, params) {
   if ("sympy.functions.elementary.piecewise.Piecewise" %in% class(expression)) {
     return(piecewiseToRxODE(symbol, expression))
   } else {
-    return(paste0(symbol_chr, "=", as.character(expression)))
+    return(paste0(symbol_chr, "=", printSymPy(expression)))
   }
 }
 
@@ -63,10 +66,8 @@ statementToRxODE <- function(statement, params) {
 #' @param symbol SymPy statement symbol
 #' @param piecewise SymPy piecewise
 #' @return RxODE code
-#' @importFrom reticulate import py_capture_output
 #' @export
 piecewiseToRxODE <- function(symbol, piecewise) {
-  sympy <- reticulate::import("sympy")
   symbol_chr <- as.character(symbol)
   
   exprCondPair <- piecewise$args[[1]]
@@ -77,14 +78,8 @@ piecewiseToRxODE <- function(symbol, piecewise) {
   
   expression <- exprCondPair$args[[1]]
   condition <- exprCondPair$args[[2]]
-  
-  print1 <- reticulate::py_capture_output(sympy$print_ccode(condition))
-  print2 <- reticulate::py_capture_output(sympy$print_ccode(expression))
-  
-  print1 <- gsub("[\r\n]", "", print1)
-  print2 <- gsub("[\r\n]", "", print2)
-  
-  return(paste0("if (", print1, ") ", symbol_chr, "=", print2))
+
+  return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
 }
 
 #' Pharmpy compartment system conversion to RxODE code.
