@@ -40,6 +40,20 @@ test_that("ADVAN1 TRANS2", {
   expect_equal(code, loadModel(advan, trans))
 })
 
+test_that("ADVAN2 TRANS1", {
+  advan <- 2
+  trans <- 1
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
+test_that("ADVAN2 TRANS2", {
+  advan <- 2
+  trans <- 2
+  code <- generateModel(advan, trans)
+  expect_equal(code, loadModel(advan, trans))
+})
+
 test_that("ADVAN3 TRANS1", {
   advan <- 3
   trans <- 1
