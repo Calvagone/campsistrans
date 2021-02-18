@@ -8,7 +8,7 @@
 #' @export
 printSymPy <- function(x, output = "C") {
   sympy <- reticulate::import("sympy")
-  if (ouput == "C") {
+  if (output == "C") {
     print <- reticulate::py_capture_output(sympy$print_ccode(x))
     print <- gsub("[\r\n]", "", print)
   } else {

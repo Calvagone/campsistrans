@@ -1,7 +1,7 @@
 library(testthat)
 library(ggplot2)
 
-context("Non-regression test on subroutine conversion")
+context("Tests on custom model 1")
 
 testFolder <<- ""
 
