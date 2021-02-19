@@ -4,12 +4,14 @@
 \alias{importNONMEM}
 \title{Import NONMEM control stream and results using Pharmpy.}
 \usage{
-importNONMEM(x, mapping = NULL)
+importNONMEM(x, mapping = NULL, estimate = FALSE)
 }
 \arguments{
 \item{x}{path to NONMEM control stream}
 
 \item{mapping}{a possible PMX mapping object}
+
+\item{estimate}{if TRUE, estimated values are imported, if FALSE, initial values are used}
 }
 \value{
 the Pharmpy model

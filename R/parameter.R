@@ -42,9 +42,9 @@ addError <- function(error, errors) {
 setClass(
   "parameter",
   representation(
-    name = "character",   # Optional
+    name = "character",   # Optional, either name is provided or suffix
     index = "integer",    # Mandatory
-    suffix = "character", # Optional
+    suffix = "character", # Optional, either name is provided or suffix
     fix = "logical",      # Mandatory
     value = "numeric"     # Mandatory
   ),

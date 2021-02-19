@@ -2,15 +2,15 @@
 % Please edit documentation in R/pmxtran.R
 \name{modelToNONMEM}
 \alias{modelToNONMEM}
-\title{Write PMX model to NONMEM control stream file.}
+\title{Write PMXtran object to NONMEM control stream file.}
 \usage{
-modelToNONMEM(model, path)
+modelToNONMEM(pmxtran, path)
 }
 \arguments{
-\item{model}{PMX model}
-
 \item{path}{path to desired control stream file}
+
+\item{model}{PMX model}
 }
 \description{
-Write PMX model to NONMEM control stream file.
+Write PMXtran object to NONMEM control stream file.
 }

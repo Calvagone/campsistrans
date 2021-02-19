@@ -4,12 +4,14 @@
 \alias{params}
 \title{Define and annotate your parameters.}
 \usage{
-params(model, mapping = NULL)
+params(model, mapping, estimate)
 }
 \arguments{
 \item{model}{Pharmpy model}
 
 \item{mapping}{PMX mapping}
+
+\item{estimate}{if TRUE, estimated values are used, if FALSE, initial values are used}
 }
 \value{
 parameters definition table

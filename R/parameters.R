@@ -32,9 +32,9 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @param model Pharmpy model
 #' @param mapping PMX mapping
 #' @return parameters definition table
-#' @importFrom purrr map2_df
-#' @importFrom dplyr bind_rows filter left_join mutate select
-params <- function(model, mapping=NULL) {
+#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
+#' @importFrom purrr map map2
+params <- function(model, mapping, estimate) {
   
   assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
                           msg="model is not a Pharmpy model")
@@ -54,16 +54,16 @@ params <- function(model, mapping=NULL) {
     sigmas <- mapping$sigma
   }
   if (!exists("thetas") || is.null(thetas)) {
-    thetas <- params %>% maxLength(type="theta") %>% seq_len()
+    thetas <- params %>% maxIndex(type="theta") %>% seq_len()
     names(thetas) <- rep("", length(thetas))
   }
   if (!exists("omegas") || is.null(omegas)) {
-    omegas <- params %>% maxLength(type="omega") %>% seq_len()
-    names(omegas) <- rep("", length(thetas))
+    omegas <- params %>% maxIndex(type="omega") %>% seq_len()
+    names(omegas) <- rep("", length(omegas))
   }
   if (!exists("sigmas") || is.null(sigmas)) {
-    sigmas <- params %>% maxLength(type="sigma") %>% seq_len()
-    names(sigmas) <- rep("", length(thetas))
+    sigmas <- params %>% maxIndex(type="sigma") %>% seq_len()
+    names(sigmas) <- rep("", length(sigmas))
   }
 
   # Adding suffix to initial params based on mapping
@@ -100,30 +100,36 @@ params <- function(model, mapping=NULL) {
   
   params <- new("parameters", list=c(thetas, omegas, sigmas))
 
+  
+  if (!estimate) {
+    return(params)
+  }
+  
   # Reading estimated values with pharmpy
   estimates <- model$modelfit_results$parameter_estimates
   
-  if (!is.null(estimates)) {
-    estimatedParams <- params@list %>% purrr::map(.f=function(param) {
-      name <- param %>% getNONMEMName()
-      estimateIndex <- which(names(estimates)==name)
-      if (length(estimateIndex) == 0) {
-        if (!is.na(param@fix) && !param@fix) {
-          warning(paste0("No estimate for parameter ", name))
-        }
-      } else if (length(estimateIndex) == 1){
-        param@value <- estimates[[estimateIndex]]
-        
-      } else {
-        warning(paste0("Several values corresponding to ", name))
-      }
-      
-      return(param)
-    })
-    return(estimatedParams)
-  } else {
-    return(params)
+  if (is.null(estimates)) {
+    stop("No NONMEM results are available through Pharmpy")
   }
+  
+  estimatedParams <- params@list %>% purrr::map(.f=function(param) {
+    name <- param %>% getNONMEMName()
+    estimateIndex <- which(names(estimates)==name)
+    if (length(estimateIndex) == 0) {
+      if (!is.na(param@fix) && !param@fix) {
+        warning(paste0("No estimate for parameter ", name))
+      }
+    } else if (length(estimateIndex) == 1){
+      param@value <- estimates[[estimateIndex]]
+      
+    } else {
+      warning(paste0("Several values corresponding to ", name))
+    }
+    
+    return(param)
+  })
+  
+  return(estimatedParams)
 }
 
 #' Retrieve initial values from Pharmpy parameter set.

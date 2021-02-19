@@ -4,6 +4,7 @@ library(ggplot2)
 context("Non-regression test on subroutine conversion")
 
 testFolder <<- ""
+testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 source(paste0(testFolder, "testUtils.R"))
 
@@ -24,17 +25,17 @@ loadAdvanNonRegressionFile <- function(advan, trans) {
 }
 
 generateModel <- function(advan, trans) {
-  model <- importNONMEM(modelPath(advan, trans))
-  code <- toRxODE(model)
-  toFile(code, nonRegressionFilePath(advan, trans)) # TO DISABLE
-  return(code)
+  pmxtran <- importNONMEM(modelPath(advan, trans))
+  pmxmod <- toPmxModel(pmxtran)
+  toFile(pmxmod@code, nonRegressionFilePath(advan, trans)) # TO DISABLE
+  return(pmxmod)
 }
 
 test_that("ADVAN1 TRANS1", {
   advan <- 1
   trans <- 1
-  code <- generateModel(advan, trans)
-  expect_equal(code, loadAdvanNonRegressionFile(advan, trans))
+  pmxmod <- generateModel(advan, trans)
+  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN1 TRANS2", {

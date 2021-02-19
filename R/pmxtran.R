@@ -3,17 +3,18 @@
 #' 
 #' @param x path to NONMEM control stream
 #' @param mapping a possible PMX mapping object
+#' @param estimate if TRUE, estimated values are imported, if FALSE, initial values are used
 #' @return the Pharmpy model
 #' @importFrom reticulate import
 #' @export
-importNONMEM <- function(x, mapping=NULL) {
+importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(x)
   
   retValue <- structure(list(
     model=model,
-    params=params(model, mapping=mapping)
-  ), class="pmx_model")
+    params=params(model, mapping=mapping, estimate=estimate)
+  ), class="pmx_tran")
   
   return(retValue)
 }
@@ -112,16 +113,16 @@ toDiagonalMatrix <- function(diagVector) {
   return(retValue)
 }
 
-#' Write PMX model to NONMEM control stream file.
+#' Write PMXtran object to NONMEM control stream file.
 #' 
 #' @param model PMX model
 #' @param path path to desired control stream file
 #' @export
-modelToNONMEM <- function(model, path) {
-  assertthat::assert_that(inherits(model, "pmx_model"),
-                          msg="model is not a PMX model")
+modelToNONMEM <- function(pmxtran, path) {
+  assertthat::assert_that(inherits(pmxtran, "pmx_tran"),
+                          msg="not a pmxtran object")
   if (file.exists(path)) {
     file.remove(path)
   }
-  model$model$write(path)
+  pmxtran$model$write(path)
 }
