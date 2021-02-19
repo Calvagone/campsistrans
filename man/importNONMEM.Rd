@@ -14,7 +14,7 @@ importNONMEM(x, mapping = NULL, estimate = FALSE)
 \item{estimate}{if TRUE, estimated values are imported, if FALSE, initial values are used}
 }
 \value{
-the Pharmpy model
+a PMXtran object
 }
 \description{
 Import NONMEM control stream and results using Pharmpy.
