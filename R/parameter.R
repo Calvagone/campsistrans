@@ -93,6 +93,21 @@ setClass(
 )
 
 #_______________________________________________________________________________
+#----                               isDiag                                  ----
+#_______________________________________________________________________________
+
+
+isDiag <- function(object) TRUE
+
+setGeneric("isDiag", function(object) {
+  standardGeneric("isDiag")
+})
+
+setMethod("isDiag", signature(object = "double_array_parameter"), function(object) {
+  return(object@index==object@index2)
+})
+
+#_______________________________________________________________________________
 #----                            getNONMEMName                              ----
 #_______________________________________________________________________________
 

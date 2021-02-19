@@ -3,23 +3,18 @@ library(ggplot2)
 
 context("Test pmxtrans")
 testFolder <<- ""
-testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 test_that("ADVAN3 TRANS4 - simulation", {
 
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
+  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
   
-  # Convert to RxODE
-  code <- toRxODE(model)
+  # Convert to RxODE model
+  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
 
   # Loading model in RxODE
-  mod <- RxODE::RxODE(paste0(code, collapse="\n"))
- 
-  # Reading THETA/OMEGA/SIGMA parameters initial values
-  theta <- rxodeTheta(model, estimate=FALSE)
-  omega <- rxodeOmega(model, estimate=FALSE)
- 
+  mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
+
   # Dosing regimen
   ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
     RxODE::et(amt=1000, cmt="A_CENTRAL")
@@ -28,7 +23,7 @@ test_that("ADVAN3 TRANS4 - simulation", {
   ev <- ev %>% RxODE::et(0, 48, length.out=100)
  
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
+  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
  
   # Plotting C2
   plot(sim, CP) +
@@ -38,17 +33,13 @@ test_that("ADVAN3 TRANS4 - simulation", {
 test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
   
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan4_trans4.mod"))
+  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan4_trans4.mod"))
   
-  # Convert to RxODE
-  code <- toRxODE(model)
+  # Convert to RxODE model
+  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
   
   # Loading model in RxODE
-  mod <- RxODE::RxODE(paste0(code, collapse="\n"))
-  
-  # Reading THETA/OMEGA/SIGMA parameters initial values
-  theta <- rxodeTheta(model, estimate=FALSE)
-  omega <- rxodeOmega(model, estimate=FALSE)
+  mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
   
   # Dosing regimen
   ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
@@ -58,7 +49,7 @@ test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
   ev <- ev %>% RxODE::et(0, 48, length.out=100)
   
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_1=0), ev, omega=omega, nSub=100)
+  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
   # Plotting C2
   plot(sim, CP) +
@@ -72,7 +63,10 @@ test_that("Custom test with RxODE", {
                      sigma=c("PROP"=1))
   
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping)
+  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping)
+  
+  # Convert to RxODE model
+  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
   
   mod <- RxODE::RxODE("
     CL=THETA_CL*exp(ETA_CL)
@@ -90,10 +84,7 @@ test_that("Custom test with RxODE", {
     OBS_CP=CP*(EPS_PROP + 1)
     Y=OBS_CP
   ")
-  
-  theta <- rxodeTheta(model, estimate=FALSE)
-  omega <- rxodeOmega(model, estimate=FALSE)
-  
+
   # Dosing regimen
   ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
     RxODE::et(amt=1000, cmt="A_CENTRAL")
@@ -102,7 +93,7 @@ test_that("Custom test with RxODE", {
   ev <- ev %>% RxODE::et(0, 48, length.out=100)
   
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=c(theta, EPS_PROP=0), ev, omega=omega, nSub=100)
+  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
   results <- as.data.frame(sim) 
   results <- results %>% dplyr::mutate(time=as.numeric(time)) %>% dplyr::filter(time==0)

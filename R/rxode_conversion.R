@@ -1,96 +1,67 @@
 
-
-#' Access estimate and initial values from model.
-#' 
-#' @param model PMX model
-#' @param nmtype NONMEM type: THETA, OMEGA or SIGMA
-#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
-#' @return named vector with the requested parameters
-#' @export
-rxodeParams <- function(model, nmtype, estimate=TRUE) {
-  
-  assertthat::assert_that(inherits(model, "pmx_model"),
-                          msg="model is not a PMX model")
-  table <- model$params$table
-  parameters <- table %>% dplyr::filter(type==nmtype & (is.na(diag) | diag))
-  
-  if (nmtype=="OMEGA") {
-    names <- paste0("ETA", "_", parameters %>% dplyr::pull(suffix))
-  } else if(nmtype=="SIGMA") {
-    names <- paste0("EPS", "_", parameters %>% dplyr::pull(suffix))
-  } else {
-    names <- paste0(nmtype, "_", parameters %>% dplyr::pull(suffix))
-  }
-  
-  
-  if (estimate) {
-    if ("estimate" %in% colnames(table)) {
-      retValue <- parameters %>% dplyr::pull("estimate")
-    } else {
-      stop("Parameters table does not contain estimated parameters")
-    }
-  } else {
-    if ("initial_value" %in% colnames(table)) {
-      retValue <- parameters %>% dplyr::pull("initial_value")  
-    } else {
-      stop("Parameters table does not contain initial values")
-    }
-  }
-  
-  names(retValue) <- names
-  return(retValue)
-}
-
-#' Get the THETA vector for RxODE.
+#' Get the parameters vector for RxODE.
 #' 
 #' @param model PMX model
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @return named vector with THETA values
 #' @export
-rxodeTheta <- function(model, estimate=TRUE) {
-  return(rxodeParams(model=model, nmtype="THETA", estimate=estimate))
-}
-
-#' Get the IIV matrix (omega) for RxODE.
-#' 
-#' @param model PMX model
-#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
-#' @return named matrix with OMEGA values
-#' @export
-rxodeOmega <- function(model, estimate=TRUE) {
-  table <- model$params$table
-  diag <- rxodeParams(model=model, nmtype="OMEGA", estimate=estimate)
-  diagMatrix <- toDiagonalMatrix(diag)
+rxodeParams <- function(pmxmod) {
+  type <- "theta"
+  params <- pmxmod@parameters
+  maxIndex <- params %>% maxIndex(type=type)
+  retValue <- rep(NA, maxIndex)
+  names <- rep("", maxIndex)
   
-  # Adding ETA correlations to the matrix
-  corrEtas <- table %>% dplyr::filter(type=="OMEGA" & (!is.na(diag) & !diag))
-  for (rowIndex in seq_len(nrow(corrEtas))) {
-    row <- corrEtas[rowIndex,]
-    primary_index <- row %>% dplyr::pull(primary_index)
-    secondary_index <- row %>% dplyr::pull(secondary_index)
-    if (estimate) {
-      value <- row %>% dplyr::pull("estimate")
+  for (i in seq_len(maxIndex)) {
+    param <- params %>% getParameter(type=type, index=i)
+    if (length(param) == 0) {
+      stop(paste0("Missing param ", i, "in ", type, " vector"))
     } else {
-      value <- row %>% dplyr::pull(initial_value)
+      retValue[i] <- param@value
+      names[i] <- param %>% getName()
     }
-    
-    # Matrix is symmetric
-    diagMatrix[paste0("ETA_", primary_index), paste0("ETA_", secondary_index)] <- value
-    diagMatrix[paste0("ETA_", secondary_index), paste0("ETA_", primary_index)] <- value
   }
+  names(retValue) <- names
   
-  return(diagMatrix)
+  return(retValue)
 }
 
-#' Get the RUV matrix (sigma) for RxODE.
-#' No correlations are possible for now.
+#' Get the matrix for RxODE.
 #' 
 #' @param model PMX model
-#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
-#' @return named matrix with SIGMA values
+#' @param type either omega or sigma
+#' @return named matrix
 #' @export
-rxodeSigma <- function(model, estimate=TRUE) {
-  diag <- rxodeParams(model=model, nmtype="SIGMA", estimate=estimate)
-  diagMatrix <- toDiagonalMatrix(diag)
-  return(diagMatrix)
+rxodeMatrix <- function(pmxmod, type="omega") {
+  
+  params <- pmxmod@parameters
+  maxIndex <- params %>% maxIndex(type=type)
+  matrix <- matrix(0L, nrow=maxIndex, ncol=maxIndex)
+  names <- rep("", maxIndex)
+  
+  for (i in seq_len(maxIndex)) {
+    for (j in seq_len(maxIndex)) {
+      param <- params %>% getParameter(type=type, index=i, index2=j)
+      if (length(param) == 0) {
+        param <- params %>% getParameter(type=type, index=j, index2=i)
+      }
+      if (length(param) == 0) {
+        matrix[i, j] <- 0
+      } else {
+        matrix[i, j] <- param@value
+      }
+    } 
+  }
+  for (i in seq_len(maxIndex)) {
+    param <- params %>% getParameter(type=type, index=i, index2=i)
+    if (length(param) == 0) {
+      stop(paste0("Missing param ", i, "in ", type, " matrix"))
+    } else {
+      names[i] <- param %>% getName()
+    }
+  }
+  rownames(matrix) <- names
+  colnames(matrix) <- names
+  return(matrix)
 }
+

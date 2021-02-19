@@ -2,20 +2,18 @@
 % Please edit documentation in R/rxode_conversion.R
 \name{rxodeParams}
 \alias{rxodeParams}
-\title{Access estimate and initial values from model.}
+\title{Get the parameters vector for RxODE.}
 \usage{
-rxodeParams(model, nmtype, estimate = TRUE)
+rxodeParams(pmxmod)
 }
 \arguments{
 \item{model}{PMX model}
 
-\item{nmtype}{NONMEM type: THETA, OMEGA or SIGMA}
-
 \item{estimate}{if TRUE, estimated values are used, if FALSE, initial values are used}
 }
 \value{
-named vector with the requested parameters
+named vector with THETA values
 }
 \description{
-Access estimate and initial values from model.
+Get the parameters vector for RxODE.
 }
