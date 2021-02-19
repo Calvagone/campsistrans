@@ -2,18 +2,18 @@
 % Please edit documentation in R/pmxtran.R
 \name{nameParameter}
 \alias{nameParameter}
-\title{Name the given parameter type according to the parameters definition table.}
+\title{Name the given parameter type according to the parameters table.}
 \usage{
 nameParameter(type, params)
 }
 \arguments{
 \item{type}{parameter type}
 
-\item{params}{parameters definition table}
+\item{params}{parameters}
 }
 \value{
 a pretty parameter name
 }
 \description{
-Name the given parameter type according to the parameters definition table.
+Name the given parameter type according to the parameters table.
 }

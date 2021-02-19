@@ -1,21 +1,21 @@
 
-checkParameter <- function(x) {
+checkParameter <- function(object) {
   errors <- character()
   
   # Mandatory
-  errors <- addError(checkLength(x, "index"), errors)
-  errors <- addError(checkLength(x, "fix"), errors)
-  errors <- addError(checkLength(x, "value"), errors)
+  errors <- addError(checkLength(object, "index"), errors)
+  errors <- addError(checkLength(object, "fix"), errors)
+  errors <- addError(checkLength(object, "value"), errors)
   
   # Optional
-  errors <- addError(checkLengthOptional(x, "name"), errors)
-  errors <- addError(checkLengthOptional(x, "suffix"), errors)
+  errors <- addError(checkLengthOptional(object, "name"), errors)
+  errors <- addError(checkLengthOptional(object, "suffix"), errors)
   
   if (length(errors) == 0) TRUE else errors
 }
 
-checkLength <- function(x, slot, expected=1) {
-  lengthSlot <- length(eval(parse(text = paste0("x@", slot))))
+checkLength <- function(object, slot, expected=1) {
+  lengthSlot <- length(eval(parse(text = paste0("object@", slot))))
   error <- NULL
   if (lengthSlot != expected) {
     error <- paste0(slot, " is length ", lengthSlot, ". Should be ", expected)
@@ -109,6 +109,9 @@ setClass(
   )
 )
 
+#_______________________________________________________________________________
+#----                                 filter                                ----
+#_______________________________________________________________________________
 
 #' Filter.
 #' 
@@ -129,6 +132,9 @@ setMethod("filter", signature=c("parameters", "character"), definition=function(
   return(object)
 })
 
+#_______________________________________________________________________________
+#----                                maxIndex                               ----
+#_______________________________________________________________________________
 
 #' Max index.
 #' 
@@ -143,8 +149,12 @@ setGeneric("maxIndex", function(object, type) {
 })
 
 setMethod("maxIndex", signature=c("parameters", "character"), definition=function(object, type) {
-  return(object@list %>% purrr::map_int(~.x@index) %>% max())
+  return((object %>% filter(type=type))@list %>% purrr::map_int(~.x@index) %>% max())
 })
+
+#_______________________________________________________________________________
+#----                             getParameter                              ----
+#_______________________________________________________________________________
 
 #' Get parameter function (single index).
 #' 
@@ -194,6 +204,10 @@ setMethod("getParameter", signature=c("parameters", "character", "integer", "int
   return(parameter)
 })
 
+#_______________________________________________________________________________
+#----                            getNONMEMName                              ----
+#_______________________________________________________________________________
+
 #' Get NONMEM name.
 #' 
 #' @param object generic object
@@ -217,6 +231,51 @@ setMethod("getNONMEMName", signature=c("omega"), definition=function(object) {
 
 setMethod("getNONMEMName", signature=c("sigma"), definition=function(object) {
   return(paste0("OMEGA(", object@index, ",", object@index2, ")"))
+})
+
+#_______________________________________________________________________________
+#----                              getName                                  ----
+#_______________________________________________________________________________
+
+#' Get name in model code.
+#' 
+#' @param object generic object
+#' @param type parameter type
+#' @param index parameter index
+#' @return name
+#' @export
+getName <- function(object, type, index) {
+  stop("No default function is provided")
+}
+
+setGeneric("getName", function(object) {
+  standardGeneric("getName")
+})
+
+getBestName <- function(prefix, name, suffix, index) {
+  retValue <- ""
+  if (length(name)==0) {
+    if (length(suffix)==0) {
+      retValue <- paste0(prefix, "_", index)
+    } else {
+      retValue <- paste0(prefix, "_", suffix)
+    }
+  } else {
+    retValue <- name
+  }
+  return(retValue)
+}
+
+setMethod("getName", signature=c("theta"), definition=function(object) {
+  return(getBestName("THETA", object@name, object@suffix, object@index))
+})
+
+setMethod("getName", signature=c("omega"), definition=function(object) {
+  return(getBestName("ETA", object@name, object@suffix, object@index))
+})
+
+setMethod("getName", signature=c("sigma"), definition=function(object) {
+  return(getBestName("EPS", object@name, object@suffix, object@index))
 })
 
 

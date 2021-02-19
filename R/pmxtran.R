@@ -55,10 +55,10 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
   return(expression)
 }
 
-#' Name the given parameter type according to the parameters definition table.
+#' Name the given parameter type according to the parameters table.
 #' 
 #' @param type parameter type
-#' @param params parameters definition table
+#' @param params parameters
 #' @return a pretty parameter name
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr filter pull
@@ -66,25 +66,29 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 nameParameter <- function(type, params) {
   vec <- NULL
   paramType <- type$type
-  paramIndex <- type$index
+  index <- type$index
   
   if (type$type=="THETA") {
-    correspondingType <- "THETA"
+    pType <- "theta"
+    param <- params %>% getParameter(type=pType, index=as.integer(index))
     
   } else if (type$type=="ETA") {
-    correspondingType <- "OMEGA"
+    pType <- "omega"
+    param <- params %>% getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
     
   } else if (type$type=="EPS") {
-    correspondingType <- "SIGMA"
+    pType <- "sigma"
+    param <- params %>% getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
     
   } else {
     stop("Type must be THETA, ETA or EPS")
   }
   
-  row <- params$table %>% dplyr::filter(type==correspondingType & primary_index==paramIndex & (is.na(diag) | diag))
-  assertthat::assert_that(nrow(row)==1)
-  
-  return(paste0(type$type, "_", row %>% dplyr::pull(suffix)))
+  if (length(param)==0) {
+    stop(paste0("No parameter found for type ", pType, " and index ", index))
+  }
+
+  return(param %>% getName())
 }
 
 #' Retrieve compartment name based on left hand side expression.
