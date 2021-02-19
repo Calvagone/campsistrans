@@ -194,6 +194,31 @@ setMethod("getParameter", signature=c("parameters", "character", "integer", "int
   return(parameter)
 })
 
+#' Get NONMEM name.
+#' 
+#' @param object generic object
+#' @return NONMEM name
+#' @export
+getNONMEMName <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getNONMEMName", function(object) {
+  standardGeneric("getNONMEMName")
+})
+
+setMethod("getNONMEMName", signature=c("theta"), definition=function(object) {
+  return(paste0("THETA(", object@index, ")"))
+})
+
+setMethod("getNONMEMName", signature=c("omega"), definition=function(object) {
+  return(paste0("OMEGA(", object@index, ",", object@index2, ")"))
+})
+
+setMethod("getNONMEMName", signature=c("sigma"), definition=function(object) {
+  return(paste0("OMEGA(", object@index, ",", object@index2, ")"))
+})
+
 
 
 

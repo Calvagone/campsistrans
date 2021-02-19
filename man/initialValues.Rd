@@ -10,7 +10,7 @@ initialValues(parset)
 \item{parset}{Pharmpy parameter set}
 }
 \value{
-S4 parameters list
+S4 parameters object
 }
 \description{
 Retrieve initial values from Pharmpy parameter set.

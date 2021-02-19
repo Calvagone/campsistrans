@@ -72,7 +72,7 @@ params <- function(model, mapping=NULL) {
     param <- params %>% getParameter(type="theta", index=as.integer(index))
     if (length(param)==0) {
       param <- new("theta", name=character(), index=as.integer(index), suffix=character(), fix=NA, value=0)
-      cat(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
+      warning(paste0("THETA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
     return(param)
@@ -82,7 +82,7 @@ params <- function(model, mapping=NULL) {
     param <- params %>% getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
       param <- new("omega", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
-      cat(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
+      warning(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
     return(param)
@@ -92,7 +92,7 @@ params <- function(model, mapping=NULL) {
     param <- params %>% getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
       param <- new("sigma", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
-      cat(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
+      warning(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
     return(param)
@@ -100,19 +100,36 @@ params <- function(model, mapping=NULL) {
   
   params <- new("parameters", list=c(thetas, omegas, sigmas))
 
+  # Reading estimated values with pharmpy
   estimates <- model$modelfit_results$parameter_estimates
+  
   if (!is.null(estimates)) {
-    
+    estimatedParams <- params@list %>% purrr::map(.f=function(param) {
+      name <- param %>% getNONMEMName()
+      estimateIndex <- which(names(estimates)==name)
+      if (length(estimateIndex) == 0) {
+        if (!is.na(param@fix) && !param@fix) {
+          warning(paste0("No estimate for parameter ", name))
+        }
+      } else if (length(estimateIndex) == 1){
+        param@value <- estimates[[estimateIndex]]
+        
+      } else {
+        warning(paste0("Several values corresponding to ", name))
+      }
+      
+      return(param)
+    })
+    return(estimatedParams)
+  } else {
+    return(params)
   }
-  
-  
-  return(params)
 }
 
 #' Retrieve initial values from Pharmpy parameter set.
 #' 
 #' @param parset Pharmpy parameter set
-#' @return S4 parameters list
+#' @return S4 parameters object
 #' @importFrom purrr map2
 #' @importFrom dplyr mutate
 #' @export

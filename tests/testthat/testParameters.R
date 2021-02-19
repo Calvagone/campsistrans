@@ -42,6 +42,7 @@ test_that("Test method getParameter", {
   
   theta <- params %>% getParameter(type="theta", index=as.integer(2))
   expect_equal(length(theta), 1)
+  expect_equal(theta %>% getNONMEMName(), "THETA(2)")
   
   omega <- params %>% getParameter(type="theta", index=as.integer(2), index2=as.integer(2))
   expect_equal(length(omega), 1)
@@ -55,3 +56,4 @@ test_that("Test method params", {
                      sigma=c("ADD"=1))
   param
 })
+
