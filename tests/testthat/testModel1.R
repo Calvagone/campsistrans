@@ -4,7 +4,6 @@ library(ggplot2)
 context("Tests on custom model 1")
 
 testFolder <<- ""
-testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 source(paste0(testFolder, "testUtils.R"))
 
 modelPath <- function(number) {
@@ -17,11 +16,11 @@ nonRegressionFilePath <- function(number) {
 
 generateModel <- function(number, mapping) {
   # Import your NONMEM model using pharmpy
-  model <- importNONMEM(modelPath(number), mapping)
+  pmxtran <- importNONMEM(modelPath(number), mapping)
   
-  code <- toRxODE(model)
-  toFile(code, nonRegressionFilePath(number)) # TO DISABLE
-  return(code)
+  pmxmod <- toPmxModel(pmxtran)
+  toFile(pmxmod@code, nonRegressionFilePath(number)) # TO DISABLE
+  return(pmxmod)
 }
 
 test_that("Model 1", {
@@ -32,6 +31,6 @@ test_that("Model 1", {
                      omega={'names<-' (1:24, 1:24)},
                      sigma=c("ADD"=1))
   
-  code <- generateModel(number=number, mapping=mapping)
-  expect_equal(code, loadNonRegressionFile(nonRegressionFilePath(number)))
+  pmxmod <- generateModel(number=number, mapping=mapping)
+  expect_equal(pmxmod@code, loadNonRegressionFile(nonRegressionFilePath(number)))
 })

@@ -4,7 +4,7 @@
 #' @param x path to NONMEM control stream
 #' @param mapping a possible PMX mapping object
 #' @param estimate if TRUE, estimated values are imported, if FALSE, initial values are used
-#' @return the Pharmpy model
+#' @return a PMXtran object
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {

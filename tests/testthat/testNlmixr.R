@@ -1,6 +1,7 @@
 library(testthat)
 
 context("Test nlmixr conversion")
+
 testFolder <<- ""
 
 test_that("nlmixr conversion", {

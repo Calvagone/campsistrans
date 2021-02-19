@@ -3,23 +3,7 @@ library(ggplot2)
 
 context("Test pmxtrans")
 testFolder <<- ""
-
-test_that("ADVAN3 TRANS4 - no mapping", {
-  
-  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
-  code <- toRxODE(model)
-  expect_equal(length(code), 12)
-})
-
-test_that("ADVAN3 TRANS4 - mapping", {
-  
-  mapping <- mapping(theta=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
-                     omega=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
-                     sigma=c("PROP"=1))
-  model <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping=mapping)
-  code <- toRxODE(model)
-  expect_equal(length(code), 12)
-})
+testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 test_that("ADVAN3 TRANS4 - simulation", {
 

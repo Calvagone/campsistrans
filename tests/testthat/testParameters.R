@@ -3,7 +3,6 @@ library(testthat)
 context("Test parameters extraction")
 
 testFolder <<- ""
-testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 advanFilename <- function(advan, trans, ext="txt") {
   return(paste0("advan", advan, "_trans", trans, ".", ext))
@@ -48,12 +47,4 @@ test_that("Test method getParameter", {
   expect_equal(length(omega), 1)
 })
 
-test_that("Test method params", {
-  pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model("C:/Calvagone/Clients/ENYO/Simulations/RUN217/RUN217.CTL")
-  mapping <- mapping(theta=c("CL"=1, "V2"=2, "Q3"=3, "V3"=4, "KA"=5, "F1"=6, "W"=7, "NFOOD"=8, "LAMB"=9, "IMAX"=10, "CLBW"=11, "VDBW"=12, "CL99"=13),
-                     omega={'names<-' (1:24, 1:24)},
-                     sigma=c("ADD"=1))
-  param
-})
 
