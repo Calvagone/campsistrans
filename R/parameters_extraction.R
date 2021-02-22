@@ -69,30 +69,30 @@ params <- function(model, mapping, estimate) {
 
   # Adding suffix to initial params based on mapping
   thetas <- purrr::map2(thetas, names(thetas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {character(0)} else {suffix}
+    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
     param <- params %>% pmxmod::getParameter(type="theta", index=as.integer(index))
     if (length(param)==0) {
-      param <- new("theta", name=character(), index=as.integer(index), suffix=character(), fix=NA, value=0)
+      param <- new("theta", name=as.character(NA), index=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
       warning(paste0("THETA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
     return(param)
   })
   omegas <- purrr::map2(omegas, names(omegas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {character(0)} else {suffix}
+    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
     param <- params %>% pmxmod::getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
-      param <- new("omega", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
+      param <- new("omega", name=as.character(NA), index=as.integer(index), index2=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
       warning(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
     return(param)
   })
   sigmas <- purrr::map2(sigmas, names(sigmas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {character(0)} else {suffix}
+    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
     param <- params %>% pmxmod::getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
-      param <- new("sigma", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
+      param <- new("sigma", name=as.character(NA), index=as.integer(index), index2=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
       warning(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
     }
     param@suffix <- suffix_
@@ -149,19 +149,19 @@ initialValues <- function(parset) {
     index <- extractValueInParentheses(nm_name)
     
     if (isNMThetaParameter(nm_name)) {
-      param <- new("theta", name=character(), index=as.integer(index), suffix=character(), fix=fix, value=initial_value)
+      param <- new("theta", name=as.character(NA), index=as.integer(index), suffix=as.character(NA), fix=fix, value=initial_value)
 
     } else if (isNMOmegaParameter(nm_name)) {
       indexes <- strsplit(index, ",")
       index1 <- indexes[[1]][1]
       index2 <- indexes[[1]][2]
-      param <- new("omega", name=character(), index=as.integer(index1), index2=as.integer(index2), suffix=character(), fix=fix, value=initial_value)
+      param <- new("omega", name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), suffix=as.character(NA), fix=fix, value=initial_value)
       
     } else if (isNMSigmaParameter(nm_name)) {
       indexes <- strsplit(index, ",")
       index1 <- indexes[[1]][1]
       index2 <- indexes[[1]][2]
-      param <- new("sigma", name=character(), index=as.integer(index1), index2=as.integer(index2), suffix=character(), fix=fix, value=initial_value)
+      param <- new("sigma", name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), suffix=as.character(NA), fix=fix, value=initial_value)
       
     } else {
       stop(paste0("Unknown parameter ", nm_name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
