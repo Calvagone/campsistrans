@@ -1,4 +1,5 @@
 library(testthat)
+library(pmxmod)
 
 context("Test parameters extraction")
 
@@ -26,7 +27,7 @@ test_that("Test method filter and maxIndex", {
   model <- pharmpy$Model(modelPath(4,4))
   parset <- model$parameters
   params <- initialValues(parset)
-  omegas <- params %>% filter(type="omega")
+  omegas <- params %>% pmxmod::filter(type="omega")
   expect_equal(length(omegas@list), 5)
   
   maxIndex <- params %>% maxIndex(type="omega")

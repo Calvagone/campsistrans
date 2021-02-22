@@ -34,6 +34,7 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @return parameters definition table
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
+#' @importFrom pmxmod getParameter getNONMEMName maxIndex
 params <- function(model, mapping, estimate) {
   
   assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
@@ -54,22 +55,22 @@ params <- function(model, mapping, estimate) {
     sigmas <- mapping$sigma
   }
   if (!exists("thetas") || is.null(thetas)) {
-    thetas <- params %>% maxIndex(type="theta") %>% seq_len()
+    thetas <- params %>% pmxmod::maxIndex(type="theta") %>% seq_len()
     names(thetas) <- rep("", length(thetas))
   }
   if (!exists("omegas") || is.null(omegas)) {
-    omegas <- params %>% maxIndex(type="omega") %>% seq_len()
+    omegas <- params %>% pmxmod::maxIndex(type="omega") %>% seq_len()
     names(omegas) <- rep("", length(omegas))
   }
   if (!exists("sigmas") || is.null(sigmas)) {
-    sigmas <- params %>% maxIndex(type="sigma") %>% seq_len()
+    sigmas <- params %>% pmxmod::maxIndex(type="sigma") %>% seq_len()
     names(sigmas) <- rep("", length(sigmas))
   }
 
   # Adding suffix to initial params based on mapping
   thetas <- purrr::map2(thetas, names(thetas), .f=function(index, suffix) {
     suffix_ <- if(suffix=="") {character(0)} else {suffix}
-    param <- params %>% getParameter(type="theta", index=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type="theta", index=as.integer(index))
     if (length(param)==0) {
       param <- new("theta", name=character(), index=as.integer(index), suffix=character(), fix=NA, value=0)
       warning(paste0("THETA ", index, " was not present in Pharmpy\n"))
@@ -79,7 +80,7 @@ params <- function(model, mapping, estimate) {
   })
   omegas <- purrr::map2(omegas, names(omegas), .f=function(index, suffix) {
     suffix_ <- if(suffix=="") {character(0)} else {suffix}
-    param <- params %>% getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
       param <- new("omega", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
       warning(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
@@ -89,7 +90,7 @@ params <- function(model, mapping, estimate) {
   })
   sigmas <- purrr::map2(sigmas, names(sigmas), .f=function(index, suffix) {
     suffix_ <- if(suffix=="") {character(0)} else {suffix}
-    param <- params %>% getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
       param <- new("sigma", name=character(), index=as.integer(index), index2=as.integer(index), suffix=character(), fix=NA, value=0)
       warning(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
@@ -113,7 +114,7 @@ params <- function(model, mapping, estimate) {
   }
   
   estimatedParams <- params@list %>% purrr::map(.f=function(param) {
-    name <- param %>% getNONMEMName()
+    name <- param %>% pmxmod::getNONMEMName()
     estimateIndex <- which(names(estimates)==name)
     if (length(estimateIndex) == 0) {
       if (!is.na(param@fix) && !param@fix) {
@@ -137,7 +138,7 @@ params <- function(model, mapping, estimate) {
 #' @param parset Pharmpy parameter set
 #' @return S4 parameters object
 #' @importFrom purrr map2
-#' @importFrom dplyr mutate
+#' @importFrom assertthat assert_that
 #' @export
 initialValues <- function(parset) {
   assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),

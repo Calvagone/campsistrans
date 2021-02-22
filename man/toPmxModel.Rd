@@ -2,16 +2,16 @@
 % Please edit documentation in R/pmx_model_conversion.R
 \name{toPmxModel}
 \alias{toPmxModel}
-\title{Pharmpy model conversion to PMX model.}
+\title{PMXtran model conversion to PMX model.}
 \usage{
 toPmxModel(pmxtran)
 }
 \arguments{
-\item{model}{PMXtran model}
+\item{pmxtran}{PMXtran model}
 }
 \value{
 PMX model
 }
 \description{
-Pharmpy model conversion to PMX model.
+PMXtran model conversion to PMX model.
 }

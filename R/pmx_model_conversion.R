@@ -1,7 +1,7 @@
 
-#' Pharmpy model conversion to PMX model.
+#' PMXtran model conversion to PMX model.
 #' 
-#' @param model PMXtran model
+#' @param pmxtran PMXtran model
 #' @return PMX model
 #' @importFrom assertthat assert_that
 #' @export

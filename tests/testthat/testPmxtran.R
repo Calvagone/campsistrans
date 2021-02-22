@@ -10,7 +10,7 @@ test_that("ADVAN3 TRANS4 - simulation", {
   pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
+  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
 
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -36,7 +36,7 @@ test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
   pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan4_trans4.mod"))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
+  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
   
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -66,7 +66,7 @@ test_that("Custom test with RxODE", {
   pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping)
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% export(dest="RxODE")
+  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
   
   mod <- RxODE::RxODE("
     CL=THETA_CL*exp(ETA_CL)

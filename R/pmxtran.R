@@ -62,6 +62,7 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 #' @return a pretty parameter name
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr filter pull
+#' @importFrom pmxmod getName getParameter
 #' @export
 nameParameter <- function(type, params) {
   vec <- NULL
@@ -70,15 +71,15 @@ nameParameter <- function(type, params) {
   
   if (type$type=="THETA") {
     pType <- "theta"
-    param <- params %>% getParameter(type=pType, index=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index))
     
   } else if (type$type=="ETA") {
     pType <- "omega"
-    param <- params %>% getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
     
   } else if (type$type=="EPS") {
     pType <- "sigma"
-    param <- params %>% getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
     
   } else {
     stop("Type must be THETA, ETA or EPS")
@@ -88,7 +89,7 @@ nameParameter <- function(type, params) {
     stop(paste0("No parameter found for type ", pType, " and index ", index))
   }
 
-  return(param %>% getName())
+  return(param %>% pmxmod::getName())
 }
 
 #' Retrieve compartment name based on left hand side expression.
@@ -119,7 +120,7 @@ toDiagonalMatrix <- function(diagVector) {
 
 #' Write PMXtran object to NONMEM control stream file.
 #' 
-#' @param model PMX model
+#' @param pmxtran PMXtran object
 #' @param path path to desired control stream file
 #' @export
 modelToNONMEM <- function(pmxtran, path) {

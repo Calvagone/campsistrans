@@ -7,9 +7,9 @@
 modelToNONMEM(pmxtran, path)
 }
 \arguments{
-\item{path}{path to desired control stream file}
+\item{pmxtran}{PMXtran object}
 
-\item{model}{PMX model}
+\item{path}{path to desired control stream file}
 }
 \description{
 Write PMXtran object to NONMEM control stream file.
