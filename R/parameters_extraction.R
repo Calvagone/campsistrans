@@ -1,4 +1,10 @@
 
+
+isNamedNumeric <- function(x) {
+  assertthat::assert_that(is.numeric(x), msg="x is not numeric")
+  assertthat::assert_that(is.character(names(x)), msg="x is not named")
+}
+
 #' Create PMX mapping.
 #' 
 #' @param theta named integer vector for THETA mapping
@@ -8,24 +14,28 @@
 #' @export
 mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
   if (!is.null(theta)) {
-    assertthat::assert_that(is.numeric(theta), msg="theta is not numeric")
-    assertthat::assert_that(is.character(names(theta)), msg="theta is not named")
+    isNamedNumeric(theta)
+    theta <- purrr::map2(theta, names(theta), .f=function(index, name) {
+      new("theta", name=as.character(name), index=as.integer(index), value=as.numeric(NA), fix=NA)
+    })
   }
   if (!is.null(omega)) {
-    assertthat::assert_that(is.numeric(omega), msg="omega is not numeric")
-    assertthat::assert_that(is.character(names(omega)), msg="omega is not named")
+    isNamedNumeric(omega)
+    omega <- purrr::map2(omega, names(omega), .f=function(index, name) {
+      new("omega", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+    })
   }
   if (!is.null(sigma)) {
-    assertthat::assert_that(is.numeric(sigma), msg="sigma is not numeric")
-    assertthat::assert_that(is.character(names(sigma)), msg="sigma is not named")
+    isNamedNumeric(sigma)
+    sigma <- purrr::map2(sigma, names(sigma), .f=function(index, name) {
+      new("sigma", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+    })
   }
   retValue <- structure(list(
-    theta=theta,
-    omega=omega,
-    sigma=sigma
+    params=new("parameters", list=c(theta, omega, sigma))
   ), class="pmx_mapping")
 }
-  
+
 
 #' Define and annotate your parameters.
 #' 
@@ -35,7 +45,8 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
 #' @importFrom pmxmod getParameter getNONMEMName maxIndex
-params <- function(model, mapping, estimate) {
+#' @export
+extractParameters <- function(model, mapping, estimate) {
   
   assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
                           msg="model is not a Pharmpy model")
@@ -44,66 +55,30 @@ params <- function(model, mapping, estimate) {
                             msg="mapping is not a PMX mapping object")
   }
   
+  # Retrieve parameters from mapping
+  mappingList <- mapping$params
+  
   # Retrieve initial values from parset
   parset <- model$parameters
-  params <- initialValues(parset)
+  pharmpyList <- initialValues(parset)
   
-  # Build named vectors thetas, omegas and sigmas
-  if (!is.null(mapping)) {
-    thetas <- mapping$theta
-    omegas <- mapping$omega
-    sigmas <- mapping$sigma
-  }
-  if (!exists("thetas") || is.null(thetas)) {
-    thetas <- params %>% pmxmod::maxIndex(type="theta") %>% seq_len()
-    names(thetas) <- rep("", length(thetas))
-  }
-  if (!exists("omegas") || is.null(omegas)) {
-    omegas <- params %>% pmxmod::maxIndex(type="omega") %>% seq_len()
-    names(omegas) <- rep("", length(omegas))
-  }
-  if (!exists("sigmas") || is.null(sigmas)) {
-    sigmas <- params %>% pmxmod::maxIndex(type="sigma") %>% seq_len()
-    names(sigmas) <- rep("", length(sigmas))
-  }
-
-  # Adding name to initial params based on mapping
-  thetas <- purrr::map2(thetas, names(thetas), .f=function(index, name) {
-    name_ <- if(name=="") {as.character(NA)} else {name}
-    param <- params %>% pmxmod::getParameter(type="theta", index=as.integer(index))
-    if (length(param)==0) {
-      param <- new("theta", name=as.character(NA), index=as.integer(index), value=0, fix=NA)
-      warning(paste0("THETA ", index, " was not present in Pharmpy\n"))
+  # Collect names from mapping list (LOOP 1)
+  list <- purrr::map(pharmpyList@list, .f=function(parameter) {
+    namedParameter <- mappingList %>% pmxmod::hasParameter(parameter)
+    if (length(namedParameter) > 0) {
+      parameter@name <- namedParameter@name
     }
-    param@name <- name_
-    return(param)
+    return(parameter)
   })
-  omegas <- purrr::map2(omegas, names(omegas), .f=function(index, name) {
-    name_ <- if(name=="") {as.character(NA)} else {name}
-    param <- params %>% pmxmod::getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
-    if (length(param)==0) {
-      param <- new("omega", name=as.character(NA), index=as.integer(index), index2=as.integer(index), value=0, fix=NA)
-      warning(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
-    }
-    param@name <- name_
-    return(param)
-  })
-  sigmas <- purrr::map2(sigmas, names(sigmas), .f=function(index, name) {
-    name_ <- if(name=="") {as.character(NA)} else {name}
-    param <- params %>% pmxmod::getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
-    if (length(param)==0) {
-      param <- new("sigma", name=as.character(NA), index=as.integer(index), index2=as.integer(index), value=0, fix=NA)
-      warning(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
-    }
-    param@name <- name_
-    return(param)
-  })
-  
-  list <- c(thetas, omegas, sigmas)
-  attributes(list) <- NULL
-  
   params <- new("parameters", list=list)
-
+  
+  # Check no parameter is missing (LOOP 2)
+  purrr::map(mappingList@list, .f=function(parameter) {
+    returnedParameter <- params %>% pmxmod::hasParameter(parameter)
+    if (length(returnedParameter) == 0) {
+      params <<- params %>% pmxmod::addParameter(parameter)
+    }
+  })
   
   if (!estimate) {
     return(params)

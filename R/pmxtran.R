@@ -13,7 +13,7 @@ importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {
   
   retValue <- structure(list(
     model=model,
-    params=params(model, mapping=mapping, estimate=estimate)
+    params=extractParameters(model, mapping=mapping, estimate=estimate)
   ), class="pmx_tran")
   
   return(retValue)
