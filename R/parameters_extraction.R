@@ -99,7 +99,10 @@ params <- function(model, mapping, estimate) {
     return(param)
   })
   
-  params <- new("parameters", list=c(thetas, omegas, sigmas))
+  list <- c(thetas, omegas, sigmas)
+  attributes(list) <- NULL
+  
+  params <- new("parameters", list=list)
 
   
   if (!estimate) {
