@@ -116,7 +116,7 @@ params <- function(model, mapping, estimate) {
     stop("No NONMEM results are available through Pharmpy")
   }
   
-  estimatedParams <- params@list %>% purrr::map(.f=function(param) {
+  list <- params@list %>% purrr::map(.f=function(param) {
     name <- param %>% pmxmod::getNONMEMName()
     estimateIndex <- which(names(estimates)==name)
     if (length(estimateIndex) == 0) {
@@ -132,8 +132,9 @@ params <- function(model, mapping, estimate) {
     
     return(param)
   })
+  attributes(list) <- NULL
   
-  return(estimatedParams)
+  return(new("parameters", list=list))
 }
 
 #' Retrieve initial values from Pharmpy parameter set.
