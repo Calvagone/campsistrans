@@ -67,35 +67,35 @@ params <- function(model, mapping, estimate) {
     names(sigmas) <- rep("", length(sigmas))
   }
 
-  # Adding suffix to initial params based on mapping
-  thetas <- purrr::map2(thetas, names(thetas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
+  # Adding name to initial params based on mapping
+  thetas <- purrr::map2(thetas, names(thetas), .f=function(index, name) {
+    name_ <- if(name=="") {as.character(NA)} else {name}
     param <- params %>% pmxmod::getParameter(type="theta", index=as.integer(index))
     if (length(param)==0) {
-      param <- new("theta", name=as.character(NA), index=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
+      param <- new("theta", name=as.character(NA), index=as.integer(index), value=0, fix=NA)
       warning(paste0("THETA ", index, " was not present in Pharmpy\n"))
     }
-    param@suffix <- suffix_
+    param@name <- name_
     return(param)
   })
-  omegas <- purrr::map2(omegas, names(omegas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
+  omegas <- purrr::map2(omegas, names(omegas), .f=function(index, name) {
+    name_ <- if(name=="") {as.character(NA)} else {name}
     param <- params %>% pmxmod::getParameter(type="omega", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
-      param <- new("omega", name=as.character(NA), index=as.integer(index), index2=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
+      param <- new("omega", name=as.character(NA), index=as.integer(index), index2=as.integer(index), value=0, fix=NA)
       warning(paste0("OMEGA ", index, " was not present in Pharmpy\n"))
     }
-    param@suffix <- suffix_
+    param@name <- name_
     return(param)
   })
-  sigmas <- purrr::map2(sigmas, names(sigmas), .f=function(index, suffix) {
-    suffix_ <- if(suffix=="") {as.character(NA)} else {suffix}
+  sigmas <- purrr::map2(sigmas, names(sigmas), .f=function(index, name) {
+    name_ <- if(name=="") {as.character(NA)} else {name}
     param <- params %>% pmxmod::getParameter(type="sigma", index=as.integer(index), index2=as.integer(index))
     if (length(param)==0) {
-      param <- new("sigma", name=as.character(NA), index=as.integer(index), index2=as.integer(index), suffix=as.character(NA), fix=NA, value=0)
+      param <- new("sigma", name=as.character(NA), index=as.integer(index), index2=as.integer(index), value=0, fix=NA)
       warning(paste0("SIGMA ", index, " was not present in Pharmpy\n"))
     }
-    param@suffix <- suffix_
+    param@name <- name_
     return(param)
   })
   
@@ -147,21 +147,19 @@ initialValues <- function(parset) {
   params <- purrr::map2(parset$inits, names(parset$inits), .f=function(initial_value, nm_name) {
     fix <- as.logical(parset$fix[nm_name])
     index <- extractValueInParentheses(nm_name)
+    isTheta <- isNMThetaParameter(nm_name)
+    isOmega <- isNMOmegaParameter(nm_name)
+    isSigma <- isNMSigmaParameter(nm_name)
     
-    if (isNMThetaParameter(nm_name)) {
-      param <- new("theta", name=as.character(NA), index=as.integer(index), suffix=as.character(NA), fix=fix, value=initial_value)
+    if (isTheta) {
+      param <- new("theta", name=as.character(NA), index=as.integer(index), value=initial_value, fix=fix)
 
-    } else if (isNMOmegaParameter(nm_name)) {
+    } else if (isOmega || isSigma) {
       indexes <- strsplit(index, ",")
       index1 <- indexes[[1]][1]
       index2 <- indexes[[1]][2]
-      param <- new("omega", name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), suffix=as.character(NA), fix=fix, value=initial_value)
-      
-    } else if (isNMSigmaParameter(nm_name)) {
-      indexes <- strsplit(index, ",")
-      index1 <- indexes[[1]][1]
-      index2 <- indexes[[1]][2]
-      param <- new("sigma", name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), suffix=as.character(NA), fix=fix, value=initial_value)
+      className <- if(isOmega) {"omega"} else {"sigma"}
+      param <- new(className, name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), value=initial_value, fix=fix)
       
     } else {
       stop(paste0("Unknown parameter ", nm_name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
