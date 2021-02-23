@@ -10,7 +10,7 @@
 importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(x)
-  
+  mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   retValue <- structure(list(
     model=model,
     params=extractParameters(model, mapping=mapping, estimate=estimate)

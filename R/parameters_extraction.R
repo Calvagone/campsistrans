@@ -10,29 +10,37 @@ isNamedNumeric <- function(x) {
 #' @param theta named integer vector for THETA mapping
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
+#' @importFrom pmxmod addParameter 
 #' @return PMX mapping object
 #' @export
 mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
+  params <- new("parameters", list=list())
   if (!is.null(theta)) {
     isNamedNumeric(theta)
-    theta <- purrr::map2(theta, names(theta), .f=function(index, name) {
-      new("theta", name=as.character(name), index=as.integer(index), value=as.numeric(NA), fix=NA)
+    purrr::map2(theta, names(theta), .f=function(index, name) {
+      params <<- params %>% pmxmod::addParameter(
+        new("theta", name=as.character(name), index=as.integer(index), value=as.numeric(NA), fix=NA)
+        )
     })
   }
   if (!is.null(omega)) {
     isNamedNumeric(omega)
-    omega <- purrr::map2(omega, names(omega), .f=function(index, name) {
-      new("omega", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+    purrr::map2(omega, names(omega), .f=function(index, name) {
+      params <<- params %>% pmxmod::addParameter(
+        new("omega", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+        )
     })
   }
   if (!is.null(sigma)) {
     isNamedNumeric(sigma)
-    sigma <- purrr::map2(sigma, names(sigma), .f=function(index, name) {
-      new("sigma", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+    purrr::map2(sigma, names(sigma), .f=function(index, name) {
+      params <<- params %>% pmxmod::addParameter(
+        new("sigma", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
+        )
     })
   }
   retValue <- structure(list(
-    params=new("parameters", list=c(theta, omega, sigma))
+    params=params
   ), class="pmx_mapping")
 }
 
@@ -44,7 +52,7 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @return parameters definition table
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
-#' @importFrom pmxmod getParameter getNONMEMName maxIndex
+#' @importFrom pmxmod clean getNONMEMName hasParameter order
 #' @export
 extractParameters <- function(model, mapping, estimate) {
   
@@ -81,7 +89,7 @@ extractParameters <- function(model, mapping, estimate) {
   })
   
   if (!estimate) {
-    return(params)
+    return(params %>% pmxmod::clean() %>% pmxmod::order())
   }
   
   # Reading estimated values with pharmpy
@@ -107,9 +115,8 @@ extractParameters <- function(model, mapping, estimate) {
     
     return(param)
   })
-  attributes(list) <- NULL
   
-  return(new("parameters", list=list))
+  return(new("parameters", list=list) %>% pmxmod::clean() %>% pmxmod::order())
 }
 
 #' Retrieve initial values from Pharmpy parameter set.
