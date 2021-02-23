@@ -4,12 +4,14 @@
 \alias{updateETAinNONMEMRecord}
 \title{Update ETA's in NONMEM record.}
 \usage{
-updateETAinNONMEMRecord(pmxtran, record_type)
+updateETAinNONMEMRecord(ctl, recordType, params)
 }
 \arguments{
-\item{pmxtran}{PMXtran object}
+\item{ctl}{NONMEM control stream}
 
-\item{record_type}{record type, e.g. "PK"}
+\item{params}{parameters}
+
+\item{recortType}{record type to adapt}
 }
 \description{
 Update ETA's in NONMEM record.

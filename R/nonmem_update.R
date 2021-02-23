@@ -35,23 +35,24 @@ toNONMEMPop <- function(pmxtran) {
   pmxtran <- omegaSigmaToZero(pmxtran)
   
   # Update ETA's (as covariates)
-  pmxtran <- updateETAinNONMEMRecord(pmxtran, "PK")
-  pmxtran <- updateETAinNONMEMRecord(pmxtran, "ERROR")
+  pyModel <- pmxtran$model
+  ctl <- pyModel$control_stream
+  
+  updateETAinNONMEMRecord(ctl, "PK", pmxtran$params)
+  updateETAinNONMEMRecord(ctl, "ERROR", pmxtran$params)
   
   return(pmxtran)
 }
 
 #' Update ETA's in NONMEM record.
 #' 
-#' @param pmxtran PMXtran object
-#' @param record_type record type, e.g. "PK"
+#' @param ctl NONMEM control stream
+#' @param recortType record type to adapt
+#' @param params parameters
 #' @importFrom reticulate import iterate py_has_attr
 #' @export
-updateETAinNONMEMRecord <- function(pmxtran, record_type) {
-  pyModel <- pmxtran$model
-  ctl <- pyModel$control_stream
-  record <- ctl$get_records(record_type)[[1]]
-  
+updateETAinNONMEMRecord <- function(ctl, recordType, params) {
+  record <- ctl$get_records(recordType)[[1]]
   # Statements
   statements <- record$statements
   sympy <- reticulate::import("sympy")
@@ -71,7 +72,7 @@ updateETAinNONMEMRecord <- function(pmxtran, record_type) {
         type <- getNMParameterType(symbol_chr)
         
         if (!is.null(type) && type$type=="ETA") {
-          replacementSymbol <- sympy$symbols(nameParameter(type, pmxtran$params))
+          replacementSymbol <- sympy$symbols(nameParameter(type, params))
           statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
         }
       }
@@ -80,7 +81,6 @@ updateETAinNONMEMRecord <- function(pmxtran, record_type) {
   }
   
   record$statements <- replacementStatements
-  return(pmxtran)
 }
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.
@@ -94,7 +94,7 @@ omegaSigmaToZero <- function(pmxtran) {
   pharmpyList <- initialValues(parset)
   pharmpyList@list %>% purrr::map(.f=function(parameter) {
     name <- parameter %>% pmxmod::getNONMEMName()
-    if (length(parset$inits[[name]]) > 0) {
+    if (as.character(class(parameter)) != "theta" && length(parset$inits[[name]]) > 0) {
       parset$inits[[name]] <<- 0
       parset$fix[[name]] <<- TRUE
     }
