@@ -1,7 +1,7 @@
 
 
 isNamedNumeric <- function(x) {
-  assertthat::assert_that(is.numeric(x), msg="x is not numeric")
+  
   assertthat::assert_that(is.character(names(x)), msg="x is not named")
 }
 
@@ -10,30 +10,35 @@ isNamedNumeric <- function(x) {
 #' @param theta named integer vector for THETA mapping
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
-#' @importFrom pmxmod addParameter 
+#' @importFrom assertthat assert_that
+#' @importFrom pmxmod addParameter
+#' @importFrom purrr map2
 #' @return PMX mapping object
 #' @export
 mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
   params <- new("parameters", list=list())
   if (!is.null(theta)) {
-    isNamedNumeric(theta)
-    purrr::map2(theta, names(theta), .f=function(index, name) {
+    assertthat::assert_that(is.numeric(theta), msg="theta is not numeric")
+    names <- if (is.character(names(theta))) {names(theta)} else {rep(NA, length(theta))}
+    purrr::map2(theta, names, .f=function(index, name) {
       params <<- params %>% pmxmod::addParameter(
         new("theta", name=as.character(name), index=as.integer(index), value=as.numeric(NA), fix=NA)
         )
     })
   }
   if (!is.null(omega)) {
-    isNamedNumeric(omega)
-    purrr::map2(omega, names(omega), .f=function(index, name) {
+    assertthat::assert_that(is.numeric(omega), msg="omega is not numeric")
+    names <- if (is.character(names(omega))) {names(omega)} else {rep(NA, length(omega))}
+    purrr::map2(omega, names, .f=function(index, name) {
       params <<- params %>% pmxmod::addParameter(
         new("omega", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
         )
     })
   }
   if (!is.null(sigma)) {
-    isNamedNumeric(sigma)
-    purrr::map2(sigma, names(sigma), .f=function(index, name) {
+    assertthat::assert_that(is.numeric(sigma), msg="sigma is not numeric")
+    names <- if (is.character(names(sigma))) {names(sigma)} else {rep(NA, length(sigma))}
+    purrr::map2(sigma, names, .f=function(index, name) {
       params <<- params %>% pmxmod::addParameter(
         new("sigma", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
         )
