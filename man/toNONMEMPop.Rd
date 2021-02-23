@@ -2,21 +2,21 @@
 % Please edit documentation in R/nonmem_update.R
 \name{toNONMEMPop}
 \alias{toNONMEMPop}
-\title{Export PMX model to NONMEM control stream for population simulation (POP).
+\title{Export PMXtran object to NONMEM control stream for population simulation (POP).
 If NONMEM results are provided, they will replace the previous original values in the control stream.
 OMEGA and SIGMA initial values will then be fixed and set to 0.
 ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1)}
 \usage{
-toNONMEMPop(model)
+toNONMEMPop(pmxtran)
 }
 \arguments{
-\item{model}{PMX model}
+\item{pmxtran}{PMXtran object}
 }
 \value{
-the updated PMX model
+the updated PMXtran object
 }
 \description{
-Export PMX model to NONMEM control stream for population simulation (POP).
+Export PMXtran object to NONMEM control stream for population simulation (POP).
 If NONMEM results are provided, they will replace the previous original values in the control stream.
 OMEGA and SIGMA initial values will then be fixed and set to 0.
 ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1)

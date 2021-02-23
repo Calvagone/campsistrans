@@ -4,7 +4,7 @@
 \alias{omegaSigmaToZero}
 \title{Set OMEGA and SIGMA initial values to 0 and fix them.}
 \usage{
-omegaSigmaToZero(model)
+omegaSigmaToZero(pmxtran)
 }
 \arguments{
 \item{model}{PMX model}

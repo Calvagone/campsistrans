@@ -4,10 +4,10 @@
 \alias{updateETAinNONMEMRecord}
 \title{Update ETA's in NONMEM record.}
 \usage{
-updateETAinNONMEMRecord(ctl, record_type)
+updateETAinNONMEMRecord(pmxtran, record_type)
 }
 \arguments{
-\item{ctl}{Pharmpy control stream}
+\item{pmxtran}{PMXtran object}
 
 \item{record_type}{record type, e.g. "PK"}
 }

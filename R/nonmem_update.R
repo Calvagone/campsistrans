@@ -17,40 +17,39 @@ toNONMEMPred <- function(model) {
   return(model)
 }
 
-#' Export PMX model to NONMEM control stream for population simulation (POP).
+#' Export PMXtran object to NONMEM control stream for population simulation (POP).
 #' If NONMEM results are provided, they will replace the previous original values in the control stream.
 #' OMEGA and SIGMA initial values will then be fixed and set to 0.
 #' ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1)
 #' 
-#' @param model PMX model
-#' @return the updated PMX model
+#' @param pmxtran PMXtran object
+#' @return the updated PMXtran object
 #' @importFrom dplyr filter pull
 #' @export
-toNONMEMPop <- function(model) {
+toNONMEMPop <- function(pmxtran) {
   
   # First update all initial estimates of a model from its own results 
-  model$model$update_inits()
+  pmxtran$model$update_inits()
   
   # OMEGA and SIGMA initial values to 0
-  model <- omegaSigmaToZero(model)
+  pmxtran <- omegaSigmaToZero(pmxtran)
   
-  # Pharmy model
-  pyModel <- model$model
-  ctl <- pyModel$control_stream
+  # Update ETA's (as covariates)
+  pmxtran <- updateETAinNONMEMRecord(pmxtran, "PK")
+  pmxtran <- updateETAinNONMEMRecord(pmxtran, "ERROR")
   
-  updateETAinNONMEMRecord(ctl, "PK")
-  updateETAinNONMEMRecord(ctl, "ERROR")
-  
-  return(model)
+  return(pmxtran)
 }
 
 #' Update ETA's in NONMEM record.
 #' 
-#' @param ctl Pharmpy control stream
+#' @param pmxtran PMXtran object
 #' @param record_type record type, e.g. "PK"
 #' @importFrom reticulate import iterate py_has_attr
 #' @export
-updateETAinNONMEMRecord <- function(ctl, record_type) {
+updateETAinNONMEMRecord <- function(pmxtran, record_type) {
+  pyModel <- pmxtran$model
+  ctl <- pyModel$control_stream
   record <- ctl$get_records(record_type)[[1]]
   
   # Statements
@@ -72,7 +71,7 @@ updateETAinNONMEMRecord <- function(ctl, record_type) {
         type <- getNMParameterType(symbol_chr)
         
         if (!is.null(type) && type$type=="ETA") {
-          replacementSymbol <- sympy$symbols(nameParameter(type, model$params))
+          replacementSymbol <- sympy$symbols(nameParameter(type, pmxtran$params))
           statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
         }
       }
@@ -81,6 +80,7 @@ updateETAinNONMEMRecord <- function(ctl, record_type) {
   }
   
   record$statements <- replacementStatements
+  return(pmxtran)
 }
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.
@@ -89,20 +89,16 @@ updateETAinNONMEMRecord <- function(ctl, record_type) {
 #' @return the updated PMX model
 #' @importFrom dplyr filter pull
 #' @export
-omegaSigmaToZero <- function(model) {
-  parset <- model$model$parameters
-  
-  subTable <- model$params$table %>% dplyr::filter(type == "OMEGA" | type == "SIGMA") 
-  names <- subTable %>% dplyr::pull(nm_name)
-  
-  # Set OMEGA and SIGMA initial values to 0
-  # And fix these parameters
-  a_ply(names, .margins=1, .fun=function(name) {
+omegaSigmaToZero <- function(pmxtran) {
+  parset <- pmxtran$model$parameters
+  pharmpyList <- initialValues(parset)
+  pharmpyList@list %>% purrr::map(.f=function(parameter) {
+    name <- parameter %>% pmxmod::getNONMEMName()
     if (length(parset$inits[[name]]) > 0) {
-      parset$inits[[name]] <- 0
-      parset$fix[[name]] <- TRUE
+      parset$inits[[name]] <<- 0
+      parset$fix[[name]] <<- TRUE
     }
   })
   
-  return(model)
+  return(pmxtran)
 }
