@@ -38,8 +38,8 @@ toNONMEMPop <- function(pmxtran) {
   pyModel <- pmxtran$model
   ctl <- pyModel$control_stream
   
-  updateETAinNONMEMRecord(ctl, "PK", pmxtran$params)
-  updateETAinNONMEMRecord(ctl, "ERROR", pmxtran$params)
+  updateETAinNONMEMRecord(ctl, "PK", pmxtran)
+  updateETAinNONMEMRecord(ctl, "ERROR", pmxtran)
   
   return(pmxtran)
 }
@@ -48,10 +48,10 @@ toNONMEMPop <- function(pmxtran) {
 #' 
 #' @param ctl NONMEM control stream
 #' @param recortType record type to adapt
-#' @param params parameters
+#' @param pmxtran pmxtran
 #' @importFrom reticulate import iterate py_has_attr
 #' @export
-updateETAinNONMEMRecord <- function(ctl, recordType, params) {
+updateETAinNONMEMRecord <- function(ctl, recordType, pmxtran) {
   record <- ctl$get_records(recordType)[[1]]
   # Statements
   statements <- record$statements
@@ -72,7 +72,7 @@ updateETAinNONMEMRecord <- function(ctl, recordType, params) {
         type <- getNMParameterType(symbol_chr)
         
         if (!is.null(type) && type$type=="ETA") {
-          replacementSymbol <- sympy$symbols(nameParameter(type, params))
+          replacementSymbol <- sympy$symbols(nameParameter(type, pmxtran$params))
           statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
         }
       }
