@@ -8,6 +8,15 @@ isNMParameter <- function(str) {
   return(isNMThetaParameter(str) | isNMEtaParameter(str) | isNMErrorParameter(str))
 }
 
+#' Is NONMEM compartment variable (A Fortran array).
+#' 
+#' @param str string
+#' @return a logical value
+#' @export
+isNMCompartmentVariable <- function(str) {
+  return(isNMArrayParameter(str, "A"))
+}
+
 #' Is NONMEM THETA parameter method (THETA Fortran array).
 #' 
 #' @param str string
@@ -95,6 +104,10 @@ getNMParameterType <- function(str) {
     
   } else if (isNMErrorParameter(str)) {
     retValue$type <- "EPS"
+    retValue$index <- extractValueInParentheses(str)
+  
+  } else if (isNMCompartmentVariable(str)) {
+    retValue$type <- "A"
     retValue$index <- extractValueInParentheses(str)
   }
   

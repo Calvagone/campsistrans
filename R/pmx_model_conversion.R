@@ -24,6 +24,11 @@ toPmxModel <- function(pmxtran) {
       tmp_code <- statementToPmxModel(statement, pmxtran$params)
       code <- c(code, tmp_code)
       
+    } else if ("pharmpy.statements.ODESystem" %in% class(statement)) {
+      des <- pmxtran$model$control_stream$get_records("DES")[[1]]
+      tmp_code <- desToPmxModel(des)
+      code <- c(code, tmp_code)
+      
     } else {
       cat(paste("Unknown class", class(statement)))  
     }
@@ -55,8 +60,16 @@ statementToPmxModel <- function(statement, params) {
     expression <- replaceSymbolAuto(expression, freeSymbol, params)
   }
   
+  dadtPattern <- "^DADT\\(.*\\)$"
+  isODE <- grepl(pattern=dadtPattern, x=symbol_chr, ignore.case=TRUE)
+  
   if ("sympy.functions.elementary.piecewise.Piecewise" %in% class(expression)) {
     return(piecewiseToPmxModel(symbol, expression))
+  
+  } else if (isODE){
+    cmtNumber <- extractValueInParentheses(symbol_chr)
+    return(paste0("d/dt(", "A_", cmtNumber, ") = ", printSymPy(expression)))
+
   } else {
     return(paste0(symbol_chr, "=", printSymPy(expression)))
   }
@@ -81,6 +94,28 @@ piecewiseToPmxModel <- function(symbol, piecewise) {
   condition <- exprCondPair$args[[2]]
   
   return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
+}
+
+#' DES block (non processed) to PMX model.
+#' 
+#' @param statements SymPy statements (not processed)
+#' @return C code
+#' @export
+desToPmxModel <- function(desRecord) {
+  
+  if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(desRecord))) {
+    stop("Not a DES record")  
+  }
+  statements <- desRecord$statements
+  code <- NULL
+  
+  # Retrieve all equations
+  for (index in (seq_along(statements) - 1)) {
+    statement <- statements[[index]]
+    code <- c(code, statementToPmxModel(statement))
+  }
+  
+  return(code)
 }
 
 #' Pharmpy compartment system conversion to PMX model.

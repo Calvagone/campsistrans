@@ -1,10 +1,4 @@
 
-
-isNamedNumeric <- function(x) {
-  
-  assertthat::assert_that(is.character(names(x)), msg="x is not named")
-}
-
 #' Create PMX mapping.
 #' 
 #' @param theta named integer vector for THETA mapping
