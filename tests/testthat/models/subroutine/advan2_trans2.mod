@@ -8,9 +8,9 @@ $PK
  V = THETA(3) * EXP(ETA(3))
  S2 = V
 $ERROR 
- CONC = F
- OBS_CONC = CONC *(1+EPS(1))
- Y = OBS_CONC
+ CP = F
+ OBS_CP = CP *(1+EPS(1))
+ Y = OBS_CP
 $THETA 1     ; KA 
 $THETA 5     ; CL 
 $THETA 80    ; V

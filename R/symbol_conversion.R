@@ -3,11 +3,11 @@
 #' 
 #' @param expression SymPy expression
 #' @param symbol SymPy symbol to be replaced
-#' @param params parameters definition table
+#' @param parameters parameters
 #' @return the updated expression
 #' @importFrom reticulate import
 #' @export
-replaceSymbolAuto <- function(expression, symbol, params) {
+replaceSymbolAuto <- function(expression, symbol, parameters) {
   sympy <- reticulate::import("sympy")
   symbol_chr <- as.character(symbol)
   
@@ -16,7 +16,7 @@ replaceSymbolAuto <- function(expression, symbol, params) {
   if (is.null(type)) {
     # Do nothing
   } else {
-    replacementSymbol <- sympy$symbols(nameParameter(type, params))
+    replacementSymbol <- sympy$symbols(nameParameter(type, parameters))
     expression <- replaceSymbol(expression, symbol, replacementSymbol)
   }
   return(expression)
@@ -38,28 +38,28 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 #' Name the given parameter type according to the parameters table.
 #' 
 #' @param type parameter type
-#' @param params parameters
+#' @param parameters parameters
 #' @return a pretty parameter name
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr filter pull
 #' @importFrom pmxmod getName getParameter
 #' @export
-nameParameter <- function(type, params) {
+nameParameter <- function(type, parameters) {
   vec <- NULL
   paramType <- type$type
   index <- type$index
   
   if (type$type=="THETA") {
     pType <- "theta"
-    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index))
+    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index))
     
   } else if (type$type=="ETA") {
     pType <- "omega"
-    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
     
   } else if (type$type=="EPS") {
     pType <- "sigma"
-    param <- params %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
   
   } else if (type$type=="A") {
     return(paste0("A_", index))

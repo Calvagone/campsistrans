@@ -84,7 +84,7 @@ test_that("ADVAN3 TRANS4 with mapping", {
                      sigma=c("PROP"=1))
   pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping=mapping)
   pmxmod <- pmxtran %>% toPmxModel()
-  expect_equal(length(pmxmod@code), 12)
+  expect_equal(length(pmxmod@code), 14)
   expect_equal((pmxmod@parameters %>% getParameter("sigma", as.integer(1), as.integer(1)))@name, "PROP")
 })
 

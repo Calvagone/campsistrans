@@ -4,14 +4,14 @@
 \alias{replaceSymbolAuto}
 \title{Replace all occurrences of the given symbol according to the parameters definition table.}
 \usage{
-replaceSymbolAuto(expression, symbol, params)
+replaceSymbolAuto(expression, symbol, parameters)
 }
 \arguments{
 \item{expression}{SymPy expression}
 
 \item{symbol}{SymPy symbol to be replaced}
 
-\item{params}{parameters definition table}
+\item{parameters}{parameters}
 }
 \value{
 the updated expression

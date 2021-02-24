@@ -4,12 +4,12 @@
 \alias{statementToPmxModel}
 \title{SymPy statement conversion to PMX model.}
 \usage{
-statementToPmxModel(statement, params)
+statementToPmxModel(statement, parameters)
 }
 \arguments{
 \item{statement}{SymPy statement}
 
-\item{params}{parameters definition table}
+\item{parameters}{parameters}
 }
 \value{
 C code

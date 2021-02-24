@@ -8,32 +8,34 @@
 toPmxModel <- function(pmxtran) {
   assertthat::assert_that(inherits(pmxtran, "pmx_tran"),
                           msg="pmxtran is not a PMXtran object")
-  statements <- pmxtran$model$statements
-  code <- c()
+  statements <- reticulate::iterate(pmxtran$model$statements)
+  parameters <- pmxtran$params
+  code <- NULL
   
-  # Careful, index in python starts at 0
-  for (index in (seq_along(statements)-1)) {
-    statement <- statements[[index]]
-    
-    if ("pharmpy.statements.CompartmentalSystem" %in% class(statement)) {
-      tmp_code <- compartmentSystemToPmxModel(statement)
+  recordType <- "PK"
+  record <- pmxtran$model$control_stream$get_records(recordType)
+  code <- c(code, recordToPmxModel(record, recordType, parameters))
+  
+  recordType <- "PRED"
+  record <- pmxtran$model$control_stream$get_records(recordType)
+  code <- c(code, recordToPmxModel(record, recordType, parameters))
+  
+  recordType <- "DES"
+  record <- pmxtran$model$control_stream$get_records(recordType)
+  if (length(record)==0) {
+    system <- statements %>%
+      purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
+    if (length(system) > 0) {
+      tmp_code <- compartmentSystemToPmxModel(system[[1]])
       code <- c(code, tmp_code)
-      
-      
-    } else if ("pharmpy.statements.Assignment" %in% class(statement)){
-      tmp_code <- statementToPmxModel(statement, pmxtran$params)
-      code <- c(code, tmp_code)
-      
-    } else if ("pharmpy.statements.ODESystem" %in% class(statement)) {
-      des <- pmxtran$model$control_stream$get_records("DES")[[1]]
-      tmp_code <- desToPmxModel(des)
-      code <- c(code, tmp_code)
-      
-    } else {
-      cat(paste("Unknown class", class(statement)))  
     }
-    
+  } else {
+    code <- c(code, recordToPmxModel(record, recordType, parameters))
   }
+  
+  recordType <- "ERROR"
+  record <- pmxtran$model$control_stream$get_records(recordType)
+  code <- c(code, recordToPmxModel(record, recordType, parameters))
   
   retValue <- new("pmx_model", code=code, parameters=pmxtran$params)
   
@@ -43,11 +45,11 @@ toPmxModel <- function(pmxtran) {
 #' SymPy statement conversion to PMX model.
 #' 
 #' @param statement SymPy statement
-#' @param params parameters definition table
+#' @param parameters parameters
 #' @return C code
 #' @importFrom reticulate iterate
 #' @export
-statementToPmxModel <- function(statement, params) {
+statementToPmxModel <- function(statement, parameters) {
   
   symbol <- statement$symbol
   symbol_chr <- as.character(symbol)
@@ -57,7 +59,7 @@ statementToPmxModel <- function(statement, params) {
   
   for (symbolIndex in seq_along(free_symbols)) {
     freeSymbol <- free_symbols[[symbolIndex]]
-    expression <- replaceSymbolAuto(expression, freeSymbol, params)
+    expression <- replaceSymbolAuto(expression, freeSymbol, parameters)
   }
   
   dadtPattern <- "^DADT\\(.*\\)$"
@@ -68,7 +70,7 @@ statementToPmxModel <- function(statement, params) {
   
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
-    return(paste0("d/dt(", "A_", cmtNumber, ") = ", printSymPy(expression)))
+    return(paste0("d/dt(", "A_", cmtNumber, ")=", printSymPy(expression)))
 
   } else {
     return(paste0(symbol_chr, "=", printSymPy(expression)))
@@ -96,23 +98,30 @@ piecewiseToPmxModel <- function(symbol, piecewise) {
   return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
 }
 
-#' DES block (non processed) to PMX model.
+#' NONMEM record (pharmpy) to PMX model.
 #' 
-#' @param statements SymPy statements (not processed)
+#' @param records one or more NONMEM record
+#' @param recordType type of record
 #' @return C code
 #' @export
-desToPmxModel <- function(desRecord) {
-  
-  if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(desRecord))) {
-    stop("Not a DES record")  
+recordToPmxModel <- function(records, recordType, parameters) {
+  if (length(records)==0) {
+    return(NULL)
   }
-  statements <- desRecord$statements
-  code <- NULL
+
+  code <- paste0("[", recordType, "]")
   
-  # Retrieve all equations
-  for (index in (seq_along(statements) - 1)) {
-    statement <- statements[[index]]
-    code <- c(code, statementToPmxModel(statement))
+  for (record in records) {
+    if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
+      stop("Not a DES record")  
+    }
+    statements <- record$statements
+    
+    # Retrieve all equations
+    for (index in (seq_along(statements) - 1)) {
+      statement <- statements[[index]]
+      code <- c(code, statementToPmxModel(statement, parameters))
+    }
   }
   
   return(code)
@@ -129,7 +138,7 @@ compartmentSystemToPmxModel <- function(system) {
   odes <- explicitOdes[[1]]
   
   cptNames <- NULL
-  code <- c()
+  code <- "[DES]"
   
   # Useful link
   # https://github.com/sympy/sympy/blob/master/sympy/core/function.py
@@ -158,7 +167,7 @@ compartmentSystemToPmxModel <- function(system) {
       equation <- gsub(paste0(name, "\\(t\\)"), name, equation)
     }
     
-    code <- c(code, paste0("d/dt(", cptName, ") = ", equation))
+    code <- c(code, paste0("d/dt(", cptName, ")=", equation))
   }
   
   return(code)

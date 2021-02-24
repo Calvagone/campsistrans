@@ -4,12 +4,12 @@
 \alias{nameParameter}
 \title{Name the given parameter type according to the parameters table.}
 \usage{
-nameParameter(type, params)
+nameParameter(type, parameters)
 }
 \arguments{
 \item{type}{parameter type}
 
-\item{params}{parameters}
+\item{parameters}{parameters}
 }
 \value{
 a pretty parameter name
