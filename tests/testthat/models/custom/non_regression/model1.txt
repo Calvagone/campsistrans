@@ -49,6 +49,7 @@ S2=V2
 NFOOD=FOOD
 DONO1=0
 if (DONO == 1) DONO1=1
+
 [DES]
 CP=A_2/V2
 d/dt(A_1)=-A_1*KA
@@ -58,6 +59,7 @@ d/dt(A_4)=A_1*KA - A_4*KTR
 d/dt(A_5)=A_4*KTR - A_5*KTR
 d/dt(A_6)=A_5*KTR - A_6*KTR
 d/dt(A_7)=A_6*KTR - A_7*KTR
+
 [ERROR]
 CONC=A_2/S2
 IPRED=-9.2103403719761836
@@ -66,3 +68,4 @@ W=THETA_W*exp(ETA_4)
 Y=EPS_ADD*W + IPRED
 IRES=-DV + IPRED
 IWRES=IRES/W
+

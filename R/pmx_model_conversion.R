@@ -143,7 +143,8 @@ compartmentSystemToPmxModel <- function(system) {
   odes <- explicitOdes[[1]]
   
   cptNames <- NULL
-
+  code <- NULL
+  
   # Collect all compartment names first
   for (index in seq_along(odes)) {
     ode <- odes[[index]]
@@ -151,7 +152,6 @@ compartmentSystemToPmxModel <- function(system) {
   }
   
   # Retrieve all equations
-  code <- NULL
   for (index in seq_along(odes)) {
     ode <- odes[[index]]
     cptName <- retrieveCompartmentName(ode$lhs)
@@ -163,6 +163,10 @@ compartmentSystemToPmxModel <- function(system) {
     
     code <- c(code, paste0("d/dt(", cptName, ")=", equation))
   }
+  
+  # Add F equation
+  central <- system$find_central()
+  code <- c(code, paste0("F=", "A_", central$name, "/S", central$index))
   
   return(new("des_record", code=code))
 }

@@ -19,7 +19,7 @@ generateModel <- function(number, mapping) {
   pmxtran <- importNONMEM(modelPath(number), mapping)
   
   pmxmod <- toPmxModel(pmxtran)
-  toFile(pmxmod@code, nonRegressionFilePath(number)) # TO DISABLE
+  pmxmod@model %>% pmxmod::write(nonRegressionFilePath(number)) # TO DISABLE LATER ON
   return(pmxmod)
 }
 
@@ -32,5 +32,5 @@ test_that("Model 1", {
                      sigma=c("ADD"=1))
   
   pmxmod <- generateModel(number=number, mapping=mapping)
-  expect_equal(pmxmod@code, loadNonRegressionFile(nonRegressionFilePath(number)))
+  expect_equal(pmxmod@model, read.model(nonRegressionFilePath(number)))
 })
