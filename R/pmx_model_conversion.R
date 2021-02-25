@@ -10,15 +10,16 @@ toPmxModel <- function(pmxtran) {
                           msg="pmxtran is not a PMXtran object")
   statements <- reticulate::iterate(pmxtran$model$statements)
   parameters <- pmxtran$params
-  code <- NULL
+  
+  model <- new("code_records", list=list())
   
   recordType <- "PK"
   record <- pmxtran$model$control_stream$get_records(recordType)
-  code <- c(code, recordToPmxModel(record, recordType, parameters))
-  
+  model <- addRecordToPmxModel(model, record, recordType, parameters)
+
   recordType <- "PRED"
   record <- pmxtran$model$control_stream$get_records(recordType)
-  code <- c(code, recordToPmxModel(record, recordType, parameters))
+  model <- addRecordToPmxModel(model, record, recordType, parameters)
   
   recordType <- "DES"
   record <- pmxtran$model$control_stream$get_records(recordType)
@@ -26,20 +27,26 @@ toPmxModel <- function(pmxtran) {
     system <- statements %>%
       purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
     if (length(system) > 0) {
-      tmp_code <- compartmentSystemToPmxModel(system[[1]])
-      code <- c(code, tmp_code)
+      model@list <- c(model@list, compartmentSystemToPmxModel(system[[1]]))
     }
   } else {
-    code <- c(code, recordToPmxModel(record, recordType, parameters))
+    model <- addRecordToPmxModel(model, record, recordType, parameters)
   }
   
   recordType <- "ERROR"
   record <- pmxtran$model$control_stream$get_records(recordType)
-  code <- c(code, recordToPmxModel(record, recordType, parameters))
+  model <- addRecordToPmxModel(model, record, recordType, parameters)
   
-  retValue <- new("pmx_model", code=code, parameters=pmxtran$params)
+  retValue <- new("pmx_model", model=model, parameters=pmxtran$params)
   
   return(retValue)
+}
+
+addRecordToPmxModel <- function(model, record, recordType, parameters) {
+  if (length(record) > 0) {
+    model@list <- c(model@list, recordToPmxModel(record, recordType, parameters))
+  }
+  return(model)
 }
 
 #' SymPy statement conversion to PMX model.
@@ -102,14 +109,11 @@ piecewiseToPmxModel <- function(symbol, piecewise) {
 #' 
 #' @param records one or more NONMEM record
 #' @param recordType type of record
-#' @return C code
+#' @param parameters parameters
+#' @return a PMX record
 #' @export
 recordToPmxModel <- function(records, recordType, parameters) {
-  if (length(records)==0) {
-    return(NULL)
-  }
-
-  code <- paste0("[", recordType, "]")
+  code <- NULL
   
   for (record in records) {
     if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
@@ -124,13 +128,14 @@ recordToPmxModel <- function(records, recordType, parameters) {
     }
   }
   
-  return(code)
+  pmxRecord <- new(paste0(tolower(recordType), "_record"), code=code)
+  return(pmxRecord)
 }
 
 #' Pharmpy compartment system conversion to PMX model.
 #' 
 #' @param system Pharmpy compartment system
-#' @return C code
+#' @return DES record (PMX domain)
 #' @export
 compartmentSystemToPmxModel <- function(system) {
   
@@ -138,19 +143,7 @@ compartmentSystemToPmxModel <- function(system) {
   odes <- explicitOdes[[1]]
   
   cptNames <- NULL
-  code <- "[DES]"
-  
-  # Useful link
-  # https://github.com/sympy/sympy/blob/master/sympy/core/function.py
-  # lhs$free_symbols
-  # lhs$is_Derivative
-  # lhs$variables
-  # lhs['_wrt_variables']
-  # lhs$expr_free_symbols
-  # lhs$canonical_variables
-  # lhs$diff
-  # freeSymbols <- ode$free_symbols
-  
+
   # Collect all compartment names first
   for (index in seq_along(odes)) {
     ode <- odes[[index]]
@@ -158,6 +151,7 @@ compartmentSystemToPmxModel <- function(system) {
   }
   
   # Retrieve all equations
+  code <- NULL
   for (index in seq_along(odes)) {
     ode <- odes[[index]]
     cptName <- retrieveCompartmentName(ode$lhs)
@@ -170,5 +164,5 @@ compartmentSystemToPmxModel <- function(system) {
     code <- c(code, paste0("d/dt(", cptName, ")=", equation))
   }
   
-  return(code)
+  return(new("des_record", code=code))
 }

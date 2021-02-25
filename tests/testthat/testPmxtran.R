@@ -3,6 +3,7 @@ library(ggplot2)
 
 context("Test pmxtrans")
 testFolder <<- ""
+testFolder <<- "C:/prj/pmxtran/tests/testthat/"
 
 test_that("ADVAN3 TRANS4 - simulation", {
 

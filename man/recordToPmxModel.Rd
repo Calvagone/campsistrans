@@ -10,9 +10,11 @@ recordToPmxModel(records, recordType, parameters)
 \item{records}{one or more NONMEM record}
 
 \item{recordType}{type of record}
+
+\item{parameters}{parameters}
 }
 \value{
-C code
+a PMX record
 }
 \description{
 NONMEM record (pharmpy) to PMX model.

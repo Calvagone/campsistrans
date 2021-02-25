@@ -19,13 +19,13 @@ nonRegressionFilePath <- function(advan, trans) {
 }
 
 loadAdvanNonRegressionFile <- function(advan, trans) {
-  return(loadNonRegressionFile(nonRegressionFilePath(advan, trans)))
+  return(pmxmod::read.model(nonRegressionFilePath(advan, trans)))
 }
 
 generateModel <- function(advan, trans) {
   pmxtran <- importNONMEM(modelPath(advan, trans))
   pmxmod <- toPmxModel(pmxtran)
-  toFile(pmxmod@code, nonRegressionFilePath(advan, trans)) # TO DISABLE
+  pmxmod@model %>% pmxmod::write(nonRegressionFilePath(advan, trans)) # TO DISABLE LATER ON
   return(pmxmod)
 }
 
@@ -33,49 +33,49 @@ test_that("ADVAN1 TRANS1", {
   advan <- 1
   trans <- 1
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN1 TRANS2", {
   advan <- 1
   trans <- 2
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN2 TRANS1", {
   advan <- 2
   trans <- 1
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN2 TRANS2", {
   advan <- 2
   trans <- 2
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN3 TRANS1", {
   advan <- 3
   trans <- 1
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN3 TRANS3", {
   advan <- 3
   trans <- 3
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN3 TRANS4", {
   advan <- 3
   trans <- 4
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN3 TRANS4 with mapping", {
@@ -84,7 +84,6 @@ test_that("ADVAN3 TRANS4 with mapping", {
                      sigma=c("PROP"=1))
   pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping=mapping)
   pmxmod <- pmxtran %>% toPmxModel()
-  expect_equal(length(pmxmod@code), 14)
   expect_equal((pmxmod@parameters %>% getParameter("sigma", as.integer(1), as.integer(1)))@name, "PROP")
 })
 
@@ -93,7 +92,7 @@ test_that("ADVAN3 TRANS5", {
   advan <- 3
   trans <- 5
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN4 TRANS1", {
@@ -101,7 +100,7 @@ test_that("ADVAN4 TRANS1", {
   advan <- 4
   trans <- 1
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN4 TRANS3", {
@@ -109,7 +108,7 @@ test_that("ADVAN4 TRANS3", {
   advan <- 4
   trans <- 3
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN4 TRANS4", {
@@ -117,7 +116,7 @@ test_that("ADVAN4 TRANS4", {
   advan <- 4
   trans <- 4
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
 
 test_that("ADVAN4 TRANS5", {
@@ -125,5 +124,5 @@ test_that("ADVAN4 TRANS5", {
   advan <- 4
   trans <- 5
   pmxmod <- generateModel(advan, trans)
-  expect_equal(pmxmod@code, loadAdvanNonRegressionFile(advan, trans))
+  expect_equal(pmxmod@model, loadAdvanNonRegressionFile(advan, trans))
 })
