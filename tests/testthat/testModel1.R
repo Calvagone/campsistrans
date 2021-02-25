@@ -7,11 +7,11 @@ testFolder <<- ""
 source(paste0(testFolder, "testUtils.R"))
 
 modelPath <- function(number) {
-  return(paste0(testFolder, "models/custom/model", number, ".mod"))
+  return(paste0(testFolder, "custom_models/model", number, ".mod"))
 }
 
 nonRegressionFilePath <- function(number) {
-  return(paste0(testFolder, "models/custom/non_regression/model", number, ".txt"))
+  return(paste0(testFolder, "non_regression/custom/model", number, ".txt"))
 }
 
 generateModel <- function(number, mapping) {
@@ -32,5 +32,5 @@ test_that("Model 1", {
                      sigma=c("ADD"=1))
   
   pmxmod <- generateModel(number=number, mapping=mapping)
-  expect_equal(pmxmod@model, read.model(nonRegressionFilePath(number)))
+  expect_equal(pmxmod@model, pmxmod::read.model(nonRegressionFilePath(number)))
 })

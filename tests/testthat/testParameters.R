@@ -15,7 +15,7 @@ modelPath <- function(advan, trans) {
 
 test_that("Test method initialValues", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(modelPath(4,4))
+  model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- initialValues(parset)
   expect_equal(as.character(class(params)), "parameters")
@@ -24,7 +24,7 @@ test_that("Test method initialValues", {
 
 test_that("Test method filter and maxIndex", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(modelPath(4,4))
+  model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- initialValues(parset)
   omegas <- params %>% pmxmod::filter(type="omega")
@@ -36,7 +36,7 @@ test_that("Test method filter and maxIndex", {
 
 test_that("Test method getParameter", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(modelPath(1,2))
+  model <- pharmpy$Model(getNONMEMModelTemplate(1, 2))
   parset <- model$parameters
   params <- initialValues(parset)
   

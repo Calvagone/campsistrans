@@ -7,7 +7,7 @@ testFolder <<- ""
 test_that("ADVAN3 TRANS4 - simulation", {
 
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"))
+  pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4))
   
   # Convert to RxODE model
   rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
@@ -30,10 +30,10 @@ test_that("ADVAN3 TRANS4 - simulation", {
     ylab("Concentration") 
 })
 
-test_that("ADVAN4 TRANS4 - simulation (F not correct)", {
+test_that("ADVAN4 TRANS4 - simulation", {
   
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan4_trans4.mod"))
+  pmxtran <- importNONMEM(getNONMEMModelTemplate(4, 4))
   
   # Convert to RxODE model
   rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
@@ -63,7 +63,7 @@ test_that("Custom test with RxODE", {
                      sigma=c("PROP"=1))
   
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(paste0(testFolder, "models/subroutine/advan3_trans4.mod"), mapping)
+  pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping)
   
   # Convert to RxODE model
   rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
