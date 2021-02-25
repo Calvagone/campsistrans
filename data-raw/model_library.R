@@ -9,3 +9,4 @@ for (model in all_models) {
   model_library[model] <- str
 }
 usethis::use_data(model_library, overwrite=TRUE)
+

@@ -9,9 +9,9 @@ updateETAinNONMEMRecord(ctl, recordType, pmxtran)
 \arguments{
 \item{ctl}{NONMEM control stream}
 
-\item{pmxtran}{pmxtran}
+\item{recordType}{record type to adapt}
 
-\item{recortType}{record type to adapt}
+\item{pmxtran}{pmxtran}
 }
 \description{
 Update ETA's in NONMEM record.

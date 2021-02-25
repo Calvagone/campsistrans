@@ -47,7 +47,7 @@ toNONMEMPop <- function(pmxtran) {
 #' Update ETA's in NONMEM record.
 #' 
 #' @param ctl NONMEM control stream
-#' @param recortType record type to adapt
+#' @param recordType record type to adapt
 #' @param pmxtran pmxtran
 #' @importFrom reticulate import iterate py_has_attr
 #' @export
@@ -85,7 +85,7 @@ updateETAinNONMEMRecord <- function(ctl, recordType, pmxtran) {
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.
 #' 
-#' @param model PMX model
+#' @param pmxtran PMXtran object
 #' @return the updated PMX model
 #' @importFrom dplyr filter pull
 #' @export

@@ -7,7 +7,7 @@
 omegaSigmaToZero(pmxtran)
 }
 \arguments{
-\item{model}{PMX model}
+\item{pmxtran}{PMXtran object}
 }
 \value{
 the updated PMX model
