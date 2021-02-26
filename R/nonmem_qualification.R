@@ -1,45 +1,32 @@
 
-#' Export PMX model to NONMEM control stream for typical profile simulation (PRED).
+#' Export PMXtran object to NONMEM control stream for qualification.
 #' If NONMEM results are provided, they will replace the previous original values in the control stream.
 #' OMEGA and SIGMA initial values will then be fixed and set to 0.
-#' 
-#' @param model PMX model
-#' @return the updated PMX model
-#' @export
-toNONMEMPred <- function(model) {
-  
-  # First update all initial estimates of a model from its own results 
-  model$model$update_inits()
-  
-  # OMEGA and SIGMA initial values to 0
-  model <- omegaSigmaToZero(model)
-  
-  return(model)
-}
-
-#' Export PMXtran object to NONMEM control stream for population simulation (POP).
-#' If NONMEM results are provided, they will replace the previous original values in the control stream.
-#' OMEGA and SIGMA initial values will then be fixed and set to 0.
-#' ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1)
+#' ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1) if required.
 #' 
 #' @param pmxtran PMXtran object
+#' @param etasAsCovariates ETA's as covariates, logical value
 #' @return the updated PMXtran object
 #' @importFrom dplyr filter pull
 #' @export
-toNONMEMPop <- function(pmxtran) {
+qualify <- function(pmxtran, etasAsCovariates=TRUE) {
   
-  # First update all initial estimates of a model from its own results 
-  pmxtran$model$update_inits()
+  # First update all initial estimates of a model from its own results
+  if (pmxtran$estimate) {
+    pmxtran$model$update_inits()
+  }
   
   # OMEGA and SIGMA initial values to 0
   pmxtran <- omegaSigmaToZero(pmxtran)
   
-  # Update ETA's (as covariates)
-  pyModel <- pmxtran$model
-  ctl <- pyModel$control_stream
-  
-  updateETAinNONMEMRecord(ctl, "PK", pmxtran)
-  updateETAinNONMEMRecord(ctl, "ERROR", pmxtran)
+  if (etasAsCovariates) {
+    # Update ETA's (as covariates)
+    pyModel <- pmxtran$model
+    ctl <- pyModel$control_stream
+    
+    updateETAinNONMEMRecord(ctl, "PK", pmxtran)
+    updateETAinNONMEMRecord(ctl, "ERROR", pmxtran)
+  }
   
   return(pmxtran)
 }
@@ -50,7 +37,6 @@ toNONMEMPop <- function(pmxtran) {
 #' @param recordType record type to adapt
 #' @param pmxtran pmxtran
 #' @importFrom reticulate import iterate py_has_attr
-#' @export
 updateETAinNONMEMRecord <- function(ctl, recordType, pmxtran) {
   record <- ctl$get_records(recordType)[[1]]
   # Statements
@@ -88,7 +74,6 @@ updateETAinNONMEMRecord <- function(ctl, recordType, pmxtran) {
 #' @param pmxtran PMXtran object
 #' @return the updated PMX model
 #' @importFrom dplyr filter pull
-#' @export
 omegaSigmaToZero <- function(pmxtran) {
   parset <- pmxtran$model$parameters
   pharmpyList <- initialValues(parset)

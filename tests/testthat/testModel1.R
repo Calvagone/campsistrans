@@ -4,7 +4,6 @@ library(ggplot2)
 context("Tests on custom model 1")
 
 testFolder <<- ""
-source(paste0(testFolder, "testUtils.R"))
 
 modelPath <- function(number) {
   return(paste0(testFolder, "custom_models/model", number, ".mod"))

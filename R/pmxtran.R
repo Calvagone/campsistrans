@@ -13,22 +13,19 @@ importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   retValue <- structure(list(
     model=model,
-    params=extractParameters(model, mapping=mapping, estimate=estimate)
-  ), class="pmx_tran")
+    params=extractParameters(model, mapping=mapping, estimate=estimate),
+    estimate=estimate
+  ), class="pmxtran")
   
   return(retValue)
 }
 
 #' Write PMXtran object to NONMEM control stream file.
 #' 
-#' @param pmxtran PMXtran object
-#' @param path path to desired control stream file
+#' @param x PMXtran object
+#' @param file path to exported NONMEM control stream
+#' @param ... ignored
 #' @export
-modelToNONMEM <- function(pmxtran, path) {
-  assertthat::assert_that(inherits(pmxtran, "pmx_tran"),
-                          msg="not a pmxtran object")
-  if (file.exists(path)) {
-    file.remove(path)
-  }
-  pmxtran$model$write(path)
+write.pmxtran <- function(x, file, ...) {
+  x$model$write(file, force=TRUE)
 }

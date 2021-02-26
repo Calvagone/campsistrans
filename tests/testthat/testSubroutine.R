@@ -4,7 +4,6 @@ library(ggplot2)
 context("Non-regression test on subroutine conversion")
 
 testFolder <<- ""
-source(paste0(testFolder, "testUtils.R"))
 
 advanFilename <- function(advan, trans, ext="txt") {
   return(paste0("advan", advan, "_trans", trans, ".", ext))

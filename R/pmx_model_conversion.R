@@ -6,7 +6,7 @@
 #' @importFrom assertthat assert_that
 #' @export
 toPmxModel <- function(pmxtran) {
-  assertthat::assert_that(inherits(pmxtran, "pmx_tran"),
+  assertthat::assert_that(inherits(pmxtran, "pmxtran"),
                           msg="pmxtran is not a PMXtran object")
   statements <- reticulate::iterate(pmxtran$model$statements)
   parameters <- pmxtran$params

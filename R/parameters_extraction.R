@@ -40,7 +40,7 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
   }
   retValue <- structure(list(
     params=params
-  ), class="pmx_mapping")
+  ), class="pmxmapping")
 }
 
 
@@ -58,7 +58,7 @@ extractParameters <- function(model, mapping, estimate) {
   assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
                           msg="model is not a Pharmpy model")
   if (!is.null(mapping)) {
-    assertthat::assert_that(inherits(mapping, "pmx_mapping"),
+    assertthat::assert_that(inherits(mapping, "pmxmapping"),
                             msg="mapping is not a PMX mapping object")
   }
   
