@@ -14,6 +14,10 @@ getNONMEMModelTemplate <- function(advan, trans) {
   file.create(csvFile)
   modelContent <- pmxtran::model_library[[paste0("advan", advan, "_trans", trans)]]
   modelContent <- gsub("\r\n", "\n", modelContent)
+  
+  # Add 2 lines programmatically
+  modelContent <- paste0(modelContent, "$SIMULATION (1234) ONLYSIM NSUB=1\n")
+  modelContent <- paste0(modelContent, "$TABLE ID TIME EVID MDV DV AMT CMT CP FILE=nonmem_qual.tab ONEHEADER NOAPPEND NOPRINT\n")
 
   # Write model
   fileConn <- file(file)
@@ -21,7 +25,7 @@ getNONMEMModelTemplate <- function(advan, trans) {
   close(fileConn)
   
   # Add real CSV data to make pharmpy happy
-  csvContent <- "#ID,TIME,MDV,DV,AMT,RATE,CMT\n1,0,1,.,1000,0,1"
+  csvContent <- "ID,TIME,MDV,DV,AMT,RATE,CMT\n1,0,1,.,1000,0,1"
   fileConn <- file(csvFile)
   writeLines(text=csvContent, fileConn)
   close(fileConn)

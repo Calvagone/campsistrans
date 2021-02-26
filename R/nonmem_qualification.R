@@ -8,6 +8,7 @@
 #' @param etasAsCovariates ETA's as covariates, logical value
 #' @return the updated PMXtran object
 #' @importFrom dplyr filter pull
+#' @importFrom pmxmod getName getParameter maxIndex
 #' @export
 qualify <- function(pmxtran, etasAsCovariates=TRUE) {
   
@@ -16,6 +17,39 @@ qualify <- function(pmxtran, etasAsCovariates=TRUE) {
     pmxtran$model$update_inits()
   }
   
+  # Get INPUT record
+  input <- pmxtran$model$control_stream$get_records("INPUT")
+  if (length(input) == 0) {
+    stop("No INPUT record in control stream")
+  }
+  input <- input[[1]]
+  input$append_option("ID", value=NULL)
+  input$append_option("TIME", value=NULL)
+  input$append_option("EVID", value=NULL)
+  input$append_option("MDV", value=NULL)
+  input$append_option("DV", value=NULL)
+  input$append_option("AMT", value=NULL)
+  #input$append_option("RATE", value=NULL) # NOT WORKING IN PHARMPY...
+  input$append_option("CMT", value=NULL)
+  
+  # Add ETA's as covariates in the input record
+  if (etasAsCovariates) {
+    parameters <- pmxtran$params
+    maxIndex <- parameters %>% pmxmod::maxIndex(type="omega")
+    for (i in seq_len(maxIndex)) {
+      param <- parameters %>% pmxmod::getParameter(type="omega", index=i, index2=i)
+      if (length(param) == 0) {
+        stop(paste0("Missing param ", i, "in ", "OMEGA parameters"))
+      } else {
+        #input[['_create_option']](param %>% pmxmod::getName(), value=NULL)
+        #input$append_option(gsub("_", "", param %>% pmxmod::getName()), value=NULL)
+        # NOT WORKING IN PHARMPY...
+        # Error in py_call_impl(callable, dots$args, dots$keywords) : 
+        #  TypeError: object of type 'int' has no len() 
+      }
+    } 
+  }
+
   # OMEGA and SIGMA initial values to 0
   pmxtran <- omegaSigmaToZero(pmxtran)
   
