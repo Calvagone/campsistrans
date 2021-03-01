@@ -27,5 +27,12 @@ importNONMEM <- function(x, mapping=NULL, estimate=FALSE) {
 #' @param ... ignored
 #' @export
 write.pmxtran <- function(x, file, ...) {
-  x$model$write(file, force=TRUE)
+  # USE source.write to avoid call to update_source
+  #x$model$source$write(file, force=TRUE)
+  
+  ctl <- as.character(x$model)
+  fileConn <- file(file)
+  writeLines(text=ctl, fileConn)
+  close(fileConn)
+  
 }
