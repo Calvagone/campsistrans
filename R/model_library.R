@@ -17,7 +17,7 @@ getNONMEMModelTemplate <- function(advan, trans) {
   
   # Add 2 lines programmatically
   modelContent <- paste0(modelContent, "$SIMULATION (1234) ONLYSIM NSUB=1\n")
-  modelContent <- paste0(modelContent, "$TABLE ID TIME EVID MDV DV AMT CMT CP FILE=nonmem_qual.tab ONEHEADER NOAPPEND NOPRINT\n")
+  modelContent <- paste0(modelContent, "$TABLE ID TIME EVID MDV DV AMT CMT CP FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n")
 
   # Write model
   fileConn <- file(file)
