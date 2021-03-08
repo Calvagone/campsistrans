@@ -34,17 +34,17 @@ test_that("Test method filter and maxIndex", {
   expect_equal(maxIndex, 5)
 })
 
-test_that("Test method getParameter", {
+test_that("Test method getByIndex", {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(getNONMEMModelTemplate(1, 2))
   parset <- model$parameters
   params <- initialValues(parset)
   
-  theta <- params %>% getParameter(type="theta", index=as.integer(2))
+  theta <- params %>% getByIndex(Theta(index=2))
   expect_equal(length(theta), 1)
   expect_equal(theta %>% getNONMEMName(), "THETA(2)")
   
-  omega <- params %>% getParameter(type="theta", index=as.integer(2), index2=as.integer(2))
+  omega <- params %>% getByIndex(Omega(index=2, index2=2))
   expect_equal(length(omega), 1)
 })
 

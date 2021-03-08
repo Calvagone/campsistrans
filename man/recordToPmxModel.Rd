@@ -4,12 +4,12 @@
 \alias{recordToPmxModel}
 \title{NONMEM record (pharmpy) to PMX model.}
 \usage{
-recordToPmxModel(records, recordType, parameters)
+recordToPmxModel(records, emptyRecord, parameters)
 }
 \arguments{
 \item{records}{one or more NONMEM record}
 
-\item{recordType}{type of record}
+\item{emptyRecord}{empty code record, already instantiated with the right type}
 
 \item{parameters}{parameters}
 }

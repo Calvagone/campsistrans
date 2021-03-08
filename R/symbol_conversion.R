@@ -42,7 +42,7 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 #' @return a pretty parameter name
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr filter pull
-#' @importFrom pmxmod getName getParameter
+#' @importFrom pmxmod getNameInModel getByIndex Theta Omega Sigma
 #' @export
 nameParameter <- function(type, parameters) {
   vec <- NULL
@@ -51,15 +51,15 @@ nameParameter <- function(type, parameters) {
   
   if (type$type=="THETA") {
     pType <- "theta"
-    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index))
+    param <- parameters %>% pmxmod::getByIndex(Theta(index=index))
     
   } else if (type$type=="ETA") {
     pType <- "omega"
-    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- parameters %>% pmxmod::getByIndex(Omega(index=index, index2=index))
     
   } else if (type$type=="EPS") {
     pType <- "sigma"
-    param <- parameters %>% pmxmod::getParameter(type=pType, index=as.integer(index), index2=as.integer(index))
+    param <- parameters %>% pmxmod::getByIndex(Sigma(index=index, index2=index))
   
   } else if (type$type=="A") {
     return(paste0("A_", index))
@@ -72,7 +72,7 @@ nameParameter <- function(type, parameters) {
     stop(paste0("No parameter found for type ", pType, " and index ", index))
   }
   
-  return(param %>% pmxmod::getName())
+  return(param %>% pmxmod::getNameInModel())
 }
 
 #' Retrieve compartment name based on left hand side expression.

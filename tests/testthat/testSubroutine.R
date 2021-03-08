@@ -79,7 +79,7 @@ test_that("ADVAN3 TRANS4 with mapping", {
                      sigma=c("PROP"=1))
   pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping=mapping)
   pmxmod <- pmxtran %>% toPmxModel()
-  expect_equal((pmxmod@parameters %>% getParameter("sigma", as.integer(1), as.integer(1)))@name, "PROP")
+  expect_equal((pmxmod@parameters %>% getByIndex(Sigma(index=1, index2=1)))@name, "PROP")
 })
 
 

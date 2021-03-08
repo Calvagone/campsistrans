@@ -4,6 +4,7 @@
 #' @param pmxtran PMXtran model
 #' @return PMX model
 #' @importFrom assertthat assert_that
+#' @importFrom pmxmod getName CodeRecords DesRecord ErrorRecord PkRecord PredRecord
 #' @export
 toPmxModel <- function(pmxtran) {
   assertthat::assert_that(inherits(pmxtran, "pmxtran"),
@@ -11,18 +12,18 @@ toPmxModel <- function(pmxtran) {
   statements <- reticulate::iterate(pmxtran$model$statements)
   parameters <- pmxtran$params
   
-  model <- new("code_records", list=list())
+  model <- CodeRecords()
   
-  recordType <- "PK"
-  record <- pmxtran$model$control_stream$get_records(recordType)
-  model <- addRecordToPmxModel(model, record, recordType, parameters)
+  emptyRecord <- PkRecord()
+  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
 
-  recordType <- "PRED"
-  record <- pmxtran$model$control_stream$get_records(recordType)
-  model <- addRecordToPmxModel(model, record, recordType, parameters)
+  emptyRecord <- PredRecord()
+  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
   
-  recordType <- "DES"
-  record <- pmxtran$model$control_stream$get_records(recordType)
+  emptyRecord <- DesRecord()
+  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   if (length(record)==0) {
     system <- statements %>%
       purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
@@ -30,21 +31,21 @@ toPmxModel <- function(pmxtran) {
       model@list <- c(model@list, compartmentSystemToPmxModel(system[[1]]))
     }
   } else {
-    model <- addRecordToPmxModel(model, record, recordType, parameters)
+    model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
   }
   
-  recordType <- "ERROR"
-  record <- pmxtran$model$control_stream$get_records(recordType)
-  model <- addRecordToPmxModel(model, record, recordType, parameters)
+  emptyRecord <- ErrorRecord()
+  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
   
   retValue <- new("pmx_model", model=model, parameters=pmxtran$params)
   
   return(retValue)
 }
 
-addRecordToPmxModel <- function(model, record, recordType, parameters) {
+addRecordToPmxModel <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
-    model@list <- c(model@list, recordToPmxModel(record, recordType, parameters))
+    model@list <- c(model@list, recordToPmxModel(record, emptyRecord, parameters))
   }
   return(model)
 }
@@ -108,11 +109,11 @@ piecewiseToPmxModel <- function(symbol, piecewise) {
 #' NONMEM record (pharmpy) to PMX model.
 #' 
 #' @param records one or more NONMEM record
-#' @param recordType type of record
+#' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
 #' @return a PMX record
 #' @export
-recordToPmxModel <- function(records, recordType, parameters) {
+recordToPmxModel <- function(records, emptyRecord, parameters) {
   code <- NULL
   
   for (record in records) {
@@ -128,13 +129,16 @@ recordToPmxModel <- function(records, recordType, parameters) {
     }
   }
   
-  pmxRecord <- new(paste0(tolower(recordType), "_record"), code=code)
-  return(pmxRecord)
+  # Filling the empty record
+  record <- emptyRecord
+  record@code <- code
+  return(record)
 }
 
 #' Pharmpy compartment system conversion to PMX model.
 #' 
 #' @param system Pharmpy compartment system
+#' @importFrom pmxmod DesRecord
 #' @return DES record (PMX domain)
 #' @export
 compartmentSystemToPmxModel <- function(system) {
@@ -168,5 +172,5 @@ compartmentSystemToPmxModel <- function(system) {
   central <- system$find_central()
   code <- c(code, paste0("F=", "A_", central$name, "/S", central$index))
   
-  return(new("des_record", code=code))
+  return(DesRecord(code=code))
 }

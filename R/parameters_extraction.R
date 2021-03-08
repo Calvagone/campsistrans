@@ -5,37 +5,31 @@
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
 #' @importFrom assertthat assert_that
-#' @importFrom pmxmod addParameter
+#' @importFrom pmxmod add Parameters Theta Omega Sigma
 #' @importFrom purrr map2
 #' @return PMX mapping object
 #' @export
 mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
-  params <- new("parameters", list=list())
+  params <- Parameters()
   if (!is.null(theta)) {
     assertthat::assert_that(is.numeric(theta), msg="theta is not numeric")
     names <- if (is.character(names(theta))) {names(theta)} else {rep(NA, length(theta))}
     purrr::map2(theta, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::addParameter(
-        new("theta", name=as.character(name), index=as.integer(index), value=as.numeric(NA), fix=NA)
-        )
+      params <<- params %>% pmxmod::add(Theta(name=as.character(name), index=index))
     })
   }
   if (!is.null(omega)) {
     assertthat::assert_that(is.numeric(omega), msg="omega is not numeric")
     names <- if (is.character(names(omega))) {names(omega)} else {rep(NA, length(omega))}
     purrr::map2(omega, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::addParameter(
-        new("omega", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
-        )
+      params <<- params %>% pmxmod::add(Omega(name=as.character(name), index=index, index2=index))
     })
   }
   if (!is.null(sigma)) {
     assertthat::assert_that(is.numeric(sigma), msg="sigma is not numeric")
     names <- if (is.character(names(sigma))) {names(sigma)} else {rep(NA, length(sigma))}
     purrr::map2(sigma, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::addParameter(
-        new("sigma", name=as.character(name), index=as.integer(index), index2=as.integer(index), value=as.numeric(NA), fix=NA)
-        )
+      params <<- params %>% pmxmod::add(Sigma(name=as.character(name), index=index, index2=index))
     })
   }
   retValue <- structure(list(
@@ -51,7 +45,7 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @return parameters definition table
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
-#' @importFrom pmxmod clean getNONMEMName hasParameter order
+#' @importFrom pmxmod add clean getByIndex getNONMEMName Parameters sort
 #' @export
 extractParameters <- function(model, mapping, estimate) {
   
@@ -71,24 +65,25 @@ extractParameters <- function(model, mapping, estimate) {
   
   # Collect names from mapping list (LOOP 1)
   list <- purrr::map(pharmpyList@list, .f=function(parameter) {
-    namedParameter <- mappingList %>% pmxmod::hasParameter(parameter)
+    namedParameter <- mappingList %>% pmxmod::getByIndex(parameter)
     if (length(namedParameter) > 0) {
       parameter@name <- namedParameter@name
     }
     return(parameter)
   })
-  params <- new("parameters", list=list)
+  params <- Parameters()
+  params@list <- list
   
   # Check no parameter is missing (LOOP 2)
   purrr::map(mappingList@list, .f=function(parameter) {
-    returnedParameter <- params %>% pmxmod::hasParameter(parameter)
+    returnedParameter <- params %>% pmxmod::getByIndex(parameter)
     if (length(returnedParameter) == 0) {
-      params <<- params %>% pmxmod::addParameter(parameter)
+      params <<- params %>% pmxmod::add(parameter)
     }
   })
   
   if (!estimate) {
-    return(params %>% pmxmod::clean() %>% pmxmod::order())
+    return(params %>% pmxmod::clean() %>% pmxmod::sort())
   }
   
   # Reading estimated values with pharmpy
@@ -115,7 +110,9 @@ extractParameters <- function(model, mapping, estimate) {
     return(param)
   })
   
-  return(new("parameters", list=list) %>% pmxmod::clean() %>% pmxmod::order())
+  parameters <- Parameters()
+  parameters@list <- list
+  return(parameters %>% pmxmod::clean() %>% pmxmod::sort())
 }
 
 #' Retrieve initial values from Pharmpy parameter set.
@@ -124,6 +121,7 @@ extractParameters <- function(model, mapping, estimate) {
 #' @return S4 parameters object
 #' @importFrom purrr map2
 #' @importFrom assertthat assert_that
+#' @importFrom pmxmod Theta Omega Sigma
 #' @export
 initialValues <- function(parset) {
   assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),
@@ -137,15 +135,18 @@ initialValues <- function(parset) {
     isSigma <- isNMSigmaParameter(nm_name)
     
     if (isTheta) {
-      param <- new("theta", name=as.character(NA), index=as.integer(index), value=initial_value, fix=fix)
+      param <- Theta(index=index, value=initial_value, fix=fix)
 
     } else if (isOmega || isSigma) {
       indexes <- strsplit(index, ",")
       index1 <- indexes[[1]][1]
       index2 <- indexes[[1]][2]
       className <- if(isOmega) {"omega"} else {"sigma"}
-      param <- new(className, name=as.character(NA), index=as.integer(index1), index2=as.integer(index2), value=initial_value, fix=fix)
-      
+      if (isOmega) {
+        param <- Omega(index=index1, index2=index2, value=initial_value, fix=fix)
+      } else {
+        param <- Sigma(index=index1, index2=index2, value=initial_value, fix=fix)
+      }
     } else {
       stop(paste0("Unknown parameter ", nm_name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
     }
