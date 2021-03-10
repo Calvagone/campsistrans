@@ -22,12 +22,12 @@ test_that("Test method initialValues", {
   expect_equal(length(params@list), 11)
 })
 
-test_that("Test method filter and maxIndex", {
+test_that("Test method select and maxIndex", {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- initialValues(parset)
-  omegas <- params %>% pmxmod::filter(type="omega")
+  omegas <- params %>% select("omega")
   expect_equal(length(omegas@list), 5)
   
   maxIndex <- params %>% maxIndex(type="omega")
