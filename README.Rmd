@@ -1,0 +1,73 @@
+---
+pagetitle: "pmxtran"
+date: ""
+author: ""
+output: github_document
+---
+
+# pmxtran
+A library dedicate to drug model conversion in pharmacometrics.
+
+## Requirements
+
+* Python framework and Pharmpy package must be installed beforehand
+* R packages pmxmod must also be installed
+
+## Installation
+Install the current development version:
+  
+```{r, eval=FALSE}
+remotes::install_github("Calvagone/pmxtran@dev")
+```
+
+## Some examples
+
+### Import NONMEM control stream
+
+First import the `pmxmod` and `pmxtran` package:
+
+```{r, message=FALSE}
+library(pmxmod)
+library(pmxtran)
+```
+
+Let's have a quick look at the NONMEM control stream we're going to import:
+
+```{r comment=''}
+cat(readLines("data-raw/advan4_trans4"), sep = "\n")
+```
+
+Let's name our model parameters first by defining a mapping object.
+
+```{r}
+mapping <- mapping(
+    theta = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
+    omega = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
+    sigma = c("PROP"=1))
+```
+
+Let's then import this model using `pmxtran`.
+By default, the initial values are used as reference values in the model.
+
+```{r}
+pmxtran <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
+```
+
+Convert this object to a PMX model:
+
+```{r}
+model <- pmxtran %>% toPmxModel()
+show(model)
+```
+
+Simulate it using `pmxsim`:
+
+```{r}
+library(pmxsim)
+dataset <- Dataset(10)
+dataset <- dataset %>% add(Bolus(time=0, amount=1000))
+dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+
+results <- simulate(model, dataset, dest="RxODE", seed=1)
+spaguettiPlot(results, "CP")
+```

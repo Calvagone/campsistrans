@@ -1,6 +1,8 @@
 
 all_models <- list.files(path="data-raw")
 
+all_models <- all_models[!(all_models %in% c("dataset.csv", "model_library.R"))]
+
 model_library <- list()
 
 for (model in all_models) {
