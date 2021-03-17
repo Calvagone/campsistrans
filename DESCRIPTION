@@ -1,5 +1,15 @@
 Package: pmxtran
 Type: Package
+Collate:
+    'data.R'
+    'model_library.R'
+    'load.R'
+    'print.R'
+    'nonmem_domain.R'
+    'symbol_conversion.R'
+    'pmx_model_conversion.R'
+    'parameters_extraction.R'
+    'pmxtran.R'
 Title: Pmxtran library
 Version: 0.1
 Authors@R: c(

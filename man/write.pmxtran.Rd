@@ -4,7 +4,7 @@
 \alias{write.pmxtran}
 \title{Write PMXtran object to NONMEM control stream file.}
 \usage{
-\method{write}{pmxtran}(x, file, ...)
+write.pmxtran(x, file, ...)
 }
 \arguments{
 \item{x}{PMXtran object}
