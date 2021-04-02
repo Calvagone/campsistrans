@@ -65,9 +65,9 @@ Let’s name our model parameters first by defining a mapping object.
 
 ``` r
 mapping <- mapping(
-    theta = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
-    omega = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
-    sigma = c("PROP"=1))
+    theta = c(KA=1, CL=2, V2=3, V3=4, Q=5),
+    omega = c(KA=1, CL=2, V2=3, V3=4, Q=5),
+    sigma = c(PROP=1))
 ```
 
 Let’s then import this model using `pmxtran`. By default, the initial
@@ -80,7 +80,7 @@ pmxtran <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
 Convert this object to a PMX model:
 
 ``` r
-model <- pmxtran %>% toPmxModel()
+model <- pmxtran %>% export(dest="pmxmod")
 show(model)
 ```
 
@@ -93,38 +93,45 @@ show(model)
     ## V3=THETA_V3*exp(ETA_V3)
     ## Q=THETA_Q*exp(ETA_Q)
     ## S2=V2
-    ## [1] ""
+    ## 
     ## [DES]
     ## d/dt(A_DEPOT)=-KA*A_DEPOT
     ## d/dt(A_CENTRAL)=KA*A_DEPOT + Q*A_PERIPHERAL/V3 + (-CL/V2 - Q/V2)*A_CENTRAL
     ## d/dt(A_PERIPHERAL)=-Q*A_PERIPHERAL/V3 + Q*A_CENTRAL/V2
     ## d/dt(A_OUTPUT)=CL*A_CENTRAL/V2
     ## F=A_CENTRAL/S2
-    ## [1] ""
+    ## 
     ## [ERROR]
     ## CP=F
     ## OBS_CP=CP*(EPS_PROP + 1)
     ## Y=OBS_CP
-    ## [1] ""
+    ## 
     ## 
     ## Slot "parameters":
-    ## [1] "THETA's:"
+    ## THETA's:
     ##   name index value   fix
     ## 1   KA     1     1 FALSE
     ## 2   CL     2     5 FALSE
     ## 3   V2     3    80 FALSE
     ## 4   V3     4    20 FALSE
     ## 5    Q     5     4 FALSE
-    ## [1] "OMEGA's:"
+    ## OMEGA's:
     ##   name index index2 value   fix type
     ## 1   KA     1      1 0.025 FALSE  var
     ## 2   CL     2      2 0.025 FALSE  var
     ## 3   V2     3      3 0.025 FALSE  var
     ## 4   V3     4      4 0.025 FALSE  var
     ## 5    Q     5      5 0.025 FALSE  var
-    ## [1] "SIGMA's:"
+    ## SIGMA's:
     ##   name index index2 value   fix type
     ## 1 PROP     1      1 0.025 FALSE  var
+    ## 
+    ## Slot "compartments":
+    ## A_DEPOT (CMT=1)
+    ## A_CENTRAL (CMT=2)
+    ## A_PERIPHERAL (CMT=3)
+    ## A_OUTPUT (CMT=4)
+    ## No compartment characteristic
 
 Simulate it using `pmxsim`:
 
@@ -149,11 +156,6 @@ dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 results <- simulate(model, dataset, dest="RxODE", seed=1)
-```
-
-    ## qs v0.23.5.
-
-``` r
 spaguettiPlot(results, "CP")
 ```
 

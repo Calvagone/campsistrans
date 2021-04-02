@@ -41,9 +41,9 @@ Let's name our model parameters first by defining a mapping object.
 
 ```{r}
 mapping <- mapping(
-    theta = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
-    omega = c("KA"=1, "CL"=2, "V2"=3, "V3"=4, "Q"=5),
-    sigma = c("PROP"=1))
+    theta = c(KA=1, CL=2, V2=3, V3=4, Q=5),
+    omega = c(KA=1, CL=2, V2=3, V3=4, Q=5),
+    sigma = c(PROP=1))
 ```
 
 Let's then import this model using `pmxtran`.
@@ -56,7 +56,7 @@ pmxtran <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
 Convert this object to a PMX model:
 
 ```{r}
-model <- pmxtran %>% toPmxModel()
+model <- pmxtran %>% export(dest="pmxmod")
 show(model)
 ```
 
