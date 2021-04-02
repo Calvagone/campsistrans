@@ -13,11 +13,11 @@ modelPath <- function(advan, trans) {
   return(paste0(testFolder, "models/subroutine/", advanFilename(advan, trans, ext="mod")))
 }
 
-test_that("Test method initialValues", {
+test_that("Test method retrieveInitialValues", {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
-  params <- initialValues(parset)
+  params <- retrieveInitialValues(parset)
   expect_equal(as.character(class(params)), "parameters")
   expect_equal(length(params@list), 11)
 })
@@ -26,7 +26,7 @@ test_that("Test method select and maxIndex", {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
-  params <- initialValues(parset)
+  params <- retrieveInitialValues(parset)
   omegas <- params %>% select("omega")
   expect_equal(length(omegas@list), 5)
   
@@ -38,7 +38,7 @@ test_that("Test method getByIndex", {
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(getNONMEMModelTemplate(1, 2))
   parset <- model$parameters
-  params <- initialValues(parset)
+  params <- retrieveInitialValues(parset)
   
   theta <- params %>% getByIndex(Theta(index=2))
   expect_equal(length(theta), 1)

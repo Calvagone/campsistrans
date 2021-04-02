@@ -47,7 +47,7 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @importFrom purrr map map2
 #' @importFrom pmxmod add clean getByIndex getNONMEMName Parameters sort
 #' @export
-extractParameters <- function(model, mapping, estimate) {
+convertParameters <- function(model, mapping, estimate) {
   
   assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
                           msg="model is not a Pharmpy model")
@@ -61,7 +61,7 @@ extractParameters <- function(model, mapping, estimate) {
   
   # Retrieve initial values from parset
   parset <- model$parameters
-  pharmpyList <- initialValues(parset)
+  pharmpyList <- retrieveInitialValues(parset)
   
   # Collect names from mapping list (LOOP 1)
   list <- purrr::map(pharmpyList@list, .f=function(parameter) {
@@ -123,7 +123,7 @@ extractParameters <- function(model, mapping, estimate) {
 #' @importFrom assertthat assert_that
 #' @importFrom pmxmod Theta Omega Sigma
 #' @export
-initialValues <- function(parset) {
+retrieveInitialValues <- function(parset) {
   assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),
                           msg="parset is not a parameter set")
   

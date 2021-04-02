@@ -44,7 +44,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
   pmxtran <- new(
     "pmxtran",
     model = list(model),
-    params = extractParameters(model, mapping=mapping, estimate=estimate),
+    params = convertParameters(model, mapping=mapping, estimate=estimate),
     estimate = estimate,
     varcov = varcov
   )

@@ -7,10 +7,11 @@ Collate:
     'print.R'
     'nonmem_table_parser.R'
     'nonmem_domain.R'
-    'symbol_conversion.R'
     'pmxtran.R'
+    'symbol_conversion.R'
     'model_conversion.R'
     'parameters_conversion.R'
+    'varcov_conversion.R'
 Title: Pmxtran library
 Version: 0.1
 Authors@R: c(

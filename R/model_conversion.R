@@ -15,11 +15,11 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   
   emptyRecord <- PkRecord()
   record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
-  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
+  model <- addconvertRecord(model, record, emptyRecord, parameters)
   
   emptyRecord <- PredRecord()
   record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
-  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
+  model <- addconvertRecord(model, record, emptyRecord, parameters)
   
   emptyRecord <- DesRecord()
   record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
@@ -27,15 +27,15 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
     system <- statements %>%
       purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
     if (length(system) > 0) {
-      model@list <- c(model@list, compartmentSystemToPmxModel(system[[1]]))
+      model@list <- c(model@list, convertCompartmentSystem(system[[1]]))
     }
   } else {
-    model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
+    model <- addconvertRecord(model, record, emptyRecord, parameters)
   }
   
   emptyRecord <- ErrorRecord()
   record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
-  model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
+  model <- addconvertRecord(model, record, emptyRecord, parameters)
   
   retValue <- new("pmx_model", model=model, parameters=object@params)
   
@@ -50,9 +50,9 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
 #' @return updated PMX model
-addRecordToPmxModel <- function(model, record, emptyRecord, parameters) {
+addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
-    model@list <- c(model@list, recordToPmxModel(record, emptyRecord, parameters))
+    model@list <- c(model@list, convertRecord(record, emptyRecord, parameters))
   }
   return(model)
 }
@@ -64,7 +64,7 @@ addRecordToPmxModel <- function(model, record, emptyRecord, parameters) {
 #' @return C code
 #' @importFrom reticulate iterate
 #' @export
-statementToPmxModel <- function(statement, parameters) {
+convertStatement <- function(statement, parameters) {
   
   symbol <- statement$symbol
   symbol_chr <- as.character(symbol)
@@ -81,7 +81,7 @@ statementToPmxModel <- function(statement, parameters) {
   isODE <- grepl(pattern=dadtPattern, x=symbol_chr, ignore.case=TRUE)
   
   if ("sympy.functions.elementary.piecewise.Piecewise" %in% class(expression)) {
-    return(piecewiseToPmxModel(symbol, expression))
+    return(convertPiecewise(symbol, expression))
   
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
@@ -98,7 +98,7 @@ statementToPmxModel <- function(statement, parameters) {
 #' @param piecewise SymPy piecewise
 #' @return C code
 #' @export
-piecewiseToPmxModel <- function(symbol, piecewise) {
+convertPiecewise <- function(symbol, piecewise) {
   symbol_chr <- as.character(symbol)
   
   exprCondPair <- piecewise$args[[1]]
@@ -120,7 +120,7 @@ piecewiseToPmxModel <- function(symbol, piecewise) {
 #' @param parameters parameters
 #' @return a PMX record
 #' @export
-recordToPmxModel <- function(records, emptyRecord, parameters) {
+convertRecord <- function(records, emptyRecord, parameters) {
   code <- NULL
   
   for (record in records) {
@@ -132,7 +132,7 @@ recordToPmxModel <- function(records, emptyRecord, parameters) {
     # Retrieve all equations
     for (index in (seq_along(statements) - 1)) {
       statement <- statements[[index]]
-      code <- c(code, statementToPmxModel(statement, parameters))
+      code <- c(code, convertStatement(statement, parameters))
     }
   }
   
@@ -148,7 +148,7 @@ recordToPmxModel <- function(records, emptyRecord, parameters) {
 #' @importFrom pmxmod DesRecord
 #' @return DES record (PMX domain)
 #' @export
-compartmentSystemToPmxModel <- function(system) {
+convertCompartmentSystem <- function(system) {
   
   explicitOdes <- system$to_explicit_odes()
   odes <- explicitOdes[[1]]
