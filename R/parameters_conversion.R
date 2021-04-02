@@ -121,37 +121,48 @@ convertParameters <- function(model, mapping, estimate) {
 #' @return S4 parameters object
 #' @importFrom purrr map2
 #' @importFrom assertthat assert_that
-#' @importFrom pmxmod Theta Omega Sigma
 #' @export
 retrieveInitialValues <- function(parset) {
   assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),
                           msg="parset is not a parameter set")
   
-  params <- purrr::map2(parset$inits, names(parset$inits), .f=function(initial_value, nm_name) {
-    fix <- as.logical(parset$fix[nm_name])
-    index <- extractValueInParentheses(nm_name)
-    isTheta <- isNMThetaParameter(nm_name)
-    isOmega <- isNMOmegaParameter(nm_name)
-    isSigma <- isNMSigmaParameter(nm_name)
-    
-    if (isTheta) {
-      param <- Theta(index=index, value=initial_value, fix=fix)
-
-    } else if (isOmega || isSigma) {
-      indexes <- strsplit(index, ",")
-      index1 <- indexes[[1]][1]
-      index2 <- indexes[[1]][2]
-      className <- if(isOmega) {"omega"} else {"sigma"}
-      if (isOmega) {
-        param <- Omega(index=index1, index2=index2, value=initial_value, fix=fix)
-      } else {
-        param <- Sigma(index=index1, index2=index2, value=initial_value, fix=fix)
-      }
-    } else {
-      stop(paste0("Unknown parameter ", nm_name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
-    }
-    return(param)
+  parameters <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
+    fix <- as.logical(parset$fix[name])
+    return(convertNONMEMParameter(name=name, value=initialValue, fix=fix))
   })
   
-  return(new("parameters", list=params))
+  return(new("parameters", list=parameters))
+}
+
+#' Convert NONMEM parameter (string form) to pmxmod parameter.
+#' 
+#' @param name NONMEM parameter name, character value
+#' @param value parameter value
+#' @param fix is fixed or not, logical value
+#' @return S4 parameters object
+#' @importFrom pmxmod Theta Omega Sigma
+#' @export
+convertNONMEMParameter <- function(name, value, fix) {
+  index <- extractValueInParentheses(name)
+  isTheta <- isNMThetaParameter(name)
+  isOmega <- isNMOmegaParameter(name)
+  isSigma <- isNMSigmaParameter(name)
+  
+  if (isTheta) {
+    param <- pmxmod::Theta(index=index, value=value, fix=fix)
+    
+  } else if (isOmega || isSigma) {
+    indexes <- strsplit(index, ",")
+    index1 <- indexes[[1]][1]
+    index2 <- indexes[[1]][2]
+    className <- if(isOmega) {"omega"} else {"sigma"}
+    if (isOmega) {
+      param <- pmxmod::Omega(index=index1, index2=index2, value=value, fix=fix)
+    } else {
+      param <- pmxmod::Sigma(index=index1, index2=index2, value=value, fix=fix)
+    }
+  } else {
+    stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
+  }
+  return(param)
 }
