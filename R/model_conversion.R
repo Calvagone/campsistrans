@@ -37,7 +37,10 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  retValue <- new("pmx_model", model=model, parameters=object@params)
+  # Instantiate pmxmod object
+  parameters <- object@params
+  parameters@varcov <- object@varcov %>% convertVarcov()
+  retValue <- new("pmx_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the PMX model
   return(retValue %>% pmxmod::updateCompartments())

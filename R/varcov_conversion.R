@@ -6,6 +6,11 @@
 #' @importFrom pmxmod getNONMEMName
 #' @return an updated variance-covariance matrix
 convertVarcov <- function(varcov, parameters) {
+  # Empty variance-covariance matrix
+  if (length(varcov) == 0) {
+    return(varcov)
+  }
+  
   # Replace THETA1 by THETA(1), etc
   oldNames <- colnames(varcov)
   standardNMNames <- gsub(pattern="THETA(\\d+)", replacement="THETA(\\1)", x=oldNames)

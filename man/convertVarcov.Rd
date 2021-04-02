@@ -12,7 +12,7 @@ convertVarcov(varcov, parameters)
 \item{parameters}{pmxmod parameters}
 }
 \value{
-a updated variance-covariance matrix
+an updated variance-covariance matrix
 }
 \description{
 Convert raw variance-covariance matrix for pmxmod.

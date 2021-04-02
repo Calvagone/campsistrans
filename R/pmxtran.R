@@ -39,12 +39,17 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
     }
     varcov <- read.varcov(file=covFile)
   } else {
-    varcov <- matrix(numeric(0))
+    varcov <- matrix(numeric(0), nrow=0, ncol=0)
   }
+  
+  # Convert parameters from NONMEM to pmxmod
+  parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
+  
+  # Create pmxtran object
   pmxtran <- new(
     "pmxtran",
     model = list(model),
-    params = convertParameters(model, mapping=mapping, estimate=estimate),
+    params = parameters,
     estimate = estimate,
     varcov = varcov
   )
