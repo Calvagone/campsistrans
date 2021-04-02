@@ -37,7 +37,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
     if (!file.exists(covFile)) {
       stop(paste0("File ", covFile, " could not be found"))
     }
-    varcov <- read.varcov(file=covFile)
+    varcov <- read.nonmemcov(file=covFile)
   } else {
     varcov <- matrix(numeric(0), nrow=0, ncol=0)
   }

@@ -53,7 +53,12 @@ convertVarcov <- function(varcov, parameters) {
   
   # Update list 
   varcovParams <- colnames(varcov) %>% purrr::map(.f=function(.x) {
-    return(convertNONMEMParameter(name=.x, value=0, fix=FALSE))
+    varcovParam <- convertNONMEMParameter(name=.x, value=0, fix=FALSE)
+    parameter <- parameters %>% getByIndex(varcovParam)
+    if (length(parameter)==0) {
+      stop("This should never happen because already checked above.")
+    }
+    return(parameter)
   })
   
   # Rename varcov matrix correctly according to names in model

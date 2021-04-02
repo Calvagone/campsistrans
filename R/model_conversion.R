@@ -39,7 +39,7 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   
   # Instantiate pmxmod object
   parameters <- object@params
-  parameters@varcov <- object@varcov %>% convertVarcov()
+  parameters@varcov <- object@varcov %>% convertVarcov(parameters)
   retValue <- new("pmx_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the PMX model

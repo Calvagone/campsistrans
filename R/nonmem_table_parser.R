@@ -69,7 +69,7 @@ read.nonmemtable <- function(content, varcov=FALSE) {
 #' @return the raw variance covariance matrix, matrix
 #' @importFrom assertthat assert_that
 #' @export
-read.varcov <- function(file) {
+read.nonmemcov <- function(file) {
   varcov <- read.nonmem(file=file, varcov=TRUE)
   assertthat::assert_that(length(varcov)==1, msg=paste0("There must be exactly 1 table in file ", file))
   
