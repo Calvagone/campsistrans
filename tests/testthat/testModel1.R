@@ -1,5 +1,5 @@
 library(testthat)
-library(ggplot2)
+library(pmxmod)
 
 context("Tests on custom model 1")
 
@@ -17,8 +17,8 @@ generateModel <- function(number, mapping) {
   # Import your NONMEM model using pharmpy
   pmxtran <- importNONMEM(modelPath(number), mapping)
   
-  pmxmod <- toPmxModel(pmxtran)
-  pmxmod@model %>% pmxmod::write(nonRegressionFilePath(number)) # TO DISABLE LATER ON
+  pmxmod <- pmxtran %>% export(dest="pmxmod")
+  #pmxmod@model %>% pmxmod::write(nonRegressionFilePath(number)) # TO DISABLE LATER ON
   return(pmxmod)
 }
 

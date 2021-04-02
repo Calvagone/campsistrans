@@ -1,29 +1,28 @@
 
-#' PMXtran model conversion to PMX model.
-#' 
-#' @param pmxtran PMXtran model
-#' @return PMX model
-#' @importFrom assertthat assert_that
-#' @importFrom pmxmod getName CodeRecords DesRecord ErrorRecord PkRecord PredRecord
-#' @export
-toPmxModel <- function(pmxtran) {
-  assertthat::assert_that(inherits(pmxtran, "pmxtran"),
-                          msg="pmxtran is not a PMXtran object")
-  statements <- reticulate::iterate(pmxtran$model$statements)
-  parameters <- pmxtran$params
+#_______________________________________________________________________________
+#----                               export                                  ----
+#_______________________________________________________________________________
+
+setMethod("export", signature = c("pmxtran", "character"), definition = function(object, dest, ...) {
+  if (dest != "pmxmod") {
+    stop("dest can only be 'pmxmod'")
+  }
+  pharmpyModel <- object@model[[1]]
+  statements <- reticulate::iterate(pharmpyModel$statements)
+  parameters <- object@params
   
   model <- CodeRecords()
   
   emptyRecord <- PkRecord()
-  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
-
+  
   emptyRecord <- PredRecord()
-  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
   
   emptyRecord <- DesRecord()
-  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   if (length(record)==0) {
     system <- statements %>%
       purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
@@ -35,14 +34,22 @@ toPmxModel <- function(pmxtran) {
   }
   
   emptyRecord <- ErrorRecord()
-  record <- pmxtran$model$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
   model <- addRecordToPmxModel(model, record, emptyRecord, parameters)
   
-  retValue <- new("pmx_model", model=model, parameters=pmxtran$params)
+  retValue <- new("pmx_model", model=model, parameters=object@params)
   
-  return(retValue)
-}
+  # Update compartments list before returning the PMX model
+  return(retValue %>% pmxmod::updateCompartments())
+})
 
+#' Add record to the specified PMX model.
+#' 
+#' @param model specified PMX model
+#' @param record record to add
+#' @param emptyRecord empty code record, already instantiated with the right type
+#' @param parameters parameters
+#' @return updated PMX model
 addRecordToPmxModel <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
     model@list <- c(model@list, recordToPmxModel(record, emptyRecord, parameters))

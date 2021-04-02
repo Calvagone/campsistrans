@@ -1,4 +1,5 @@
 library(testthat)
+library(pmxmod)
 library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
@@ -19,8 +20,8 @@ loadAdvanNonRegressionFile <- function(advan, trans) {
 
 generateModel <- function(advan, trans) {
   pmxtran <- importNONMEM(getNONMEMModelTemplate(advan, trans))
-  pmxmod <- toPmxModel(pmxtran)
-  pmxmod %>% pmxmod::write(file=nonRegressionFolderPath(advan, trans), zip=FALSE) # TO DISABLE LATER ON
+  pmxmod <- pmxtran %>% export(dest="pmxmod")
+  #pmxmod %>% pmxmod::write(file=nonRegressionFolderPath(advan, trans), zip=FALSE) # TO DISABLE LATER ON
   return(pmxmod)
 }
 
@@ -78,7 +79,7 @@ test_that("ADVAN3 TRANS4 with mapping", {
                      omega=c("CL"=1, "V1"=2, "V2"=3, "Q"=4),
                      sigma=c("PROP"=1))
   pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping=mapping)
-  pmxmod <- pmxtran %>% toPmxModel()
+  pmxmod <- pmxtran %>% export(dest="pmxmod")
   expect_equal((pmxmod@parameters %>% getByIndex(Sigma(index=1, index2=1)))@name, "PROP")
 })
 

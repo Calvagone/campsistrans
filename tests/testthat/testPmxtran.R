@@ -1,4 +1,5 @@
 library(testthat)
+library(pmxmod)
 library(ggplot2)
 
 context("Test pmxtrans")
@@ -10,7 +11,7 @@ test_that("ADVAN3 TRANS4 - simulation", {
   pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
+  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
 
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -36,7 +37,7 @@ test_that("ADVAN4 TRANS4 - simulation", {
   pmxtran <- importNONMEM(getNONMEMModelTemplate(4, 4))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
+  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
   
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -66,7 +67,7 @@ test_that("Custom test with RxODE", {
   pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping)
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% toPmxModel() %>% pmxmod::export(dest="RxODE")
+  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
   
   mod <- RxODE::RxODE("
     CL=THETA_CL*exp(ETA_CL)

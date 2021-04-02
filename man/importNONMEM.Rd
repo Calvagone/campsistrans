@@ -4,14 +4,16 @@
 \alias{importNONMEM}
 \title{Import NONMEM control stream and results using Pharmpy.}
 \usage{
-importNONMEM(x, mapping = NULL, estimate = FALSE)
+importNONMEM(file, mapping = NULL, estimate = FALSE, uncertainty = FALSE)
 }
 \arguments{
-\item{x}{path to NONMEM control stream}
+\item{file}{path to NONMEM control stream, character value}
 
 \item{mapping}{a possible PMX mapping object}
 
-\item{estimate}{if TRUE, estimated values are imported, if FALSE, initial values are used}
+\item{estimate}{use estimated parameter values or initial ones, logical value, default is FALSE}
+
+\item{uncertainty}{import the variance-covariance matrix (.cov file), logical value, default is FALSE}
 }
 \value{
 a PMXtran object

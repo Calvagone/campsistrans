@@ -5,11 +5,12 @@ Collate:
     'model_library.R'
     'load.R'
     'print.R'
+    'nonmem_results_parser.R'
     'nonmem_domain.R'
     'symbol_conversion.R'
+    'pmxtran.R'
     'pmx_model_conversion.R'
     'parameters_extraction.R'
-    'pmxtran.R'
 Title: Pmxtran library
 Version: 0.1
 Authors@R: c(
