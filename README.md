@@ -116,15 +116,16 @@ show(model)
     ## 4   V3     4    20 FALSE
     ## 5    Q     5     4 FALSE
     ## OMEGA's:
-    ##   name index index2 value   fix type
-    ## 1   KA     1      1 0.025 FALSE  var
-    ## 2   CL     2      2 0.025 FALSE  var
-    ## 3   V2     3      3 0.025 FALSE  var
-    ## 4   V3     4      4 0.025 FALSE  var
-    ## 5    Q     5      5 0.025 FALSE  var
+    ##   name index index2 value   fix type same
+    ## 1   KA     1      1 0.025 FALSE  var   NA
+    ## 2   CL     2      2 0.025 FALSE  var   NA
+    ## 3   V2     3      3 0.025 FALSE  var   NA
+    ## 4   V3     4      4 0.025 FALSE  var   NA
+    ## 5    Q     5      5 0.025 FALSE  var   NA
     ## SIGMA's:
     ##   name index index2 value   fix type
     ## 1 PROP     1      1 0.025 FALSE  var
+    ## No variance-covariance matrix
     ## 
     ## Slot "compartments":
     ## A_DEPOT (CMT=1)

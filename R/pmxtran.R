@@ -63,7 +63,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
 setMethod("write", signature=c("pmxtran", "character"), definition=function(object, file, ...) {
   # USE source.write to avoid call to update_source
   #x$model$source$write(file, force=TRUE)
-  ctl <- as.character(object$model[[1]])
+  ctl <- as.character(object@model[[1]])
   fileConn <- file(file)
   writeLines(text=ctl, fileConn)
   close(fileConn)
