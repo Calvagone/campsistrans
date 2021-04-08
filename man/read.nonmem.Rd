@@ -9,7 +9,7 @@ read.nonmem(file, varcov = FALSE)
 \arguments{
 \item{file}{the file to be read}
 
-\item{varvov}{must be set to TRUE for .cov files, default is FALSE. It simply indicates
+\item{varcov}{must be set to TRUE for .cov files, default is FALSE. It simply indicates
 the first column is not numeric.}
 }
 \value{

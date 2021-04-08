@@ -42,8 +42,9 @@ convertVarcov <- function(varcov, parameters) {
       }
     } else {
       # Parameter is well described in model
-      # Let's just see it is fixed. If it is, it can be removed
-      if (parameter@fix) {
+      # 1) The parameter may be fixed, if yes, it needs to be removed
+      # 2) The parameter may be an OMEGA 'SAME', then it also needs to be removed
+      if (parameter@fix || (is(parameter, "omega") && isTRUE(parameter@same))) {
         index <- which(colnames(varcov) == nmName)
         varcov <- varcov[-index, ]
         varcov <- varcov[, -index]

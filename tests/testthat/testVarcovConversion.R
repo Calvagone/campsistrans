@@ -16,7 +16,7 @@ test_that("Import NONMEM model with cov file and export it to pmxmod", {
   
   # Save pmxmod model for non-regression
   file <- paste0(testFolder, "non_regression/", "parameter_uncertainty/", "example1/")
-  # model %>% write(file) # DISABLED THIS LATER ON
+  #model %>% write(file) # DISABLED THIS LATER ON
   
   # Read non-regression model
   model2 <- read.pmxmod(file)

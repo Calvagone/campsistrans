@@ -2,7 +2,7 @@
 #' Read all sorts of NONMEM tables (extensions ext, tab, cov, etc, ...).
 #'
 #' @param file the file to be read
-#' @param varvov must be set to TRUE for .cov files, default is FALSE. It simply indicates
+#' @param varcov must be set to TRUE for .cov files, default is FALSE. It simply indicates
 #' the first column is not numeric.
 #' @return a list of data frame (one dataframe per table)
 #' @export
@@ -29,7 +29,7 @@ read.nonmem <- function(file, varcov=FALSE) {
 #' Read a NONMEM table.
 #'
 #' @param content table content
-#' @param varvov must be set to TRUE for .cov files, default is FALSE. It simply indicates
+#' @param varcov must be set to TRUE for .cov files, default is FALSE. It simply indicates
 #' the first column is not numeric.
 #' @return a dataframe
 #' @importFrom purrr map_df

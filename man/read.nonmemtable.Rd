@@ -9,7 +9,7 @@ read.nonmemtable(content, varcov = FALSE)
 \arguments{
 \item{content}{table content}
 
-\item{varvov}{must be set to TRUE for .cov files, default is FALSE. It simply indicates
+\item{varcov}{must be set to TRUE for .cov files, default is FALSE. It simply indicates
 the first column is not numeric.}
 }
 \value{
