@@ -10,7 +10,7 @@ convertCompartmentSystem(system)
 \item{system}{Pharmpy compartment system}
 }
 \value{
-DES record (PMX domain)
+ODE record (PMX domain)
 }
 \description{
 Pharmpy compartment system conversion to PMX model.

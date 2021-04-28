@@ -7,22 +7,23 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   if (dest != "pmxmod") {
     stop("dest can only be 'pmxmod'")
   }
+  
   pharmpyModel <- object@model[[1]]
   statements <- reticulate::iterate(pharmpyModel$statements)
   parameters <- object@params
   
   model <- CodeRecords()
   
-  emptyRecord <- PkRecord()
-  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  emptyRecord <- MainRecord()
+  record <- pharmpyModel$control_stream$get_records("PK")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  emptyRecord <- PredRecord()
-  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  emptyRecord <- MainRecord()
+  record <- pharmpyModel$control_stream$get_records("PRED")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  emptyRecord <- DesRecord()
-  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  emptyRecord <- OdeRecord()
+  record <- pharmpyModel$control_stream$get_records("DES")
   if (length(record)==0) {
     system <- statements %>%
       purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
@@ -34,7 +35,7 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   }
   
   emptyRecord <- ErrorRecord()
-  record <- pharmpyModel$control_stream$get_records(emptyRecord %>% pmxmod::getName())
+  record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
   # Instantiate pmxmod object
@@ -47,7 +48,8 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   retValue <- new("pmx_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the PMX model
-  return(retValue %>% pmxmod::updateCompartments())
+  retValue <- retValue %>% pmxmod::updateCompartments()
+  return(retValue)
 })
 
 #' Add record to the specified PMX model.
@@ -152,8 +154,8 @@ convertRecord <- function(records, emptyRecord, parameters) {
 #' Pharmpy compartment system conversion to PMX model.
 #' 
 #' @param system Pharmpy compartment system
-#' @importFrom pmxmod DesRecord
-#' @return DES record (PMX domain)
+#' @importFrom pmxmod OdeRecord
+#' @return ODE record (PMX domain)
 #' @export
 convertCompartmentSystem <- function(system) {
   
@@ -186,5 +188,5 @@ convertCompartmentSystem <- function(system) {
   central <- system$find_central()
   code <- c(code, paste0("F=", "A_", central$name, "/S", central$index))
   
-  return(DesRecord(code=code))
+  return(OdeRecord(code=code))
 }
