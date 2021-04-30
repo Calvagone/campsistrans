@@ -30,7 +30,7 @@ test_that("Test method select and maxIndex", {
   omegas <- params %>% select("omega")
   expect_equal(length(omegas@list), 5)
   
-  maxIndex <- params %>% maxIndex(type="omega")
+  maxIndex <- omegas %>% maxIndex()
   expect_equal(maxIndex, 5)
 })
 
