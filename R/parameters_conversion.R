@@ -37,6 +37,22 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
   ), class="pmxmapping")
 }
 
+#' Process parameters before return.
+#' 
+#' @param parameters parameters
+#' @return updated parameters
+processParameters <- function(parameters) {
+  # Clean parameters
+  parameters <- parameters %>% pmxmod::clean()
+  
+  # Sort parameters
+  parameters <- parameters %>% pmxmod::sort()
+  
+  # Fix OMEGA's
+  parameters <- parameters %>% pmxmod::fixOmega()
+  
+  return(parameters)
+}
 
 #' Define and annotate your parameters.
 #' 
@@ -71,19 +87,21 @@ convertParameters <- function(model, mapping, estimate) {
     }
     return(parameter)
   })
-  params <- Parameters()
-  params@list <- list
+  
+  # Skip parameters validation here
+  parameters <- Parameters()
+  parameters@list <- list
   
   # Check no parameter is missing (LOOP 2)
   purrr::map(mappingList@list, .f=function(parameter) {
-    returnedParameter <- params %>% pmxmod::getByIndex(parameter)
+    returnedParameter <- parameters %>% pmxmod::getByIndex(parameter)
     if (length(returnedParameter) == 0) {
-      params <<- params %>% pmxmod::add(parameter)
+      parameters <<- parameters %>% pmxmod::add(parameter)
     }
   })
   
   if (!estimate) {
-    return(params %>% pmxmod::clean() %>% pmxmod::sort())
+    return(processParameters(parameters))
   }
   
   # Reading estimated values with pharmpy
@@ -93,7 +111,7 @@ convertParameters <- function(model, mapping, estimate) {
     stop("No NONMEM results are available through Pharmpy")
   }
   
-  list <- params@list %>% purrr::map(.f=function(param) {
+  list <- parameters@list %>% purrr::map(.f=function(param) {
     name <- param %>% pmxmod::getNONMEMName()
     estimateIndex <- which(names(estimates)==name)
     if (length(estimateIndex) == 0) {
@@ -110,9 +128,11 @@ convertParameters <- function(model, mapping, estimate) {
     return(param)
   })
   
+  # Skip parameters validation here
   parameters <- Parameters()
   parameters@list <- list
-  return(parameters %>% pmxmod::clean() %>% pmxmod::sort())
+  
+  return(processParameters(parameters))
 }
 
 #' Retrieve initial values from Pharmpy parameter set.
@@ -126,12 +146,16 @@ retrieveInitialValues <- function(parset) {
   assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),
                           msg="parset is not a parameter set")
   
-  parameters <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
+  paramsList <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
     fix <- as.logical(parset$fix[name])
     return(convertNONMEMParameter(name=name, value=initialValue, fix=fix))
   })
   
-  return(new("parameters", list=parameters))
+  # Skip parameters validation because SAME omegas are not returned!
+  parameters <- Parameters()
+  parameters@list <- paramsList
+
+  return(parameters)
 }
 
 #' Convert NONMEM parameter (string form) to pmxmod parameter.
