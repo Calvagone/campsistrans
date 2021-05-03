@@ -143,7 +143,7 @@ convertParameters <- function(model, mapping, estimate) {
 #' @importFrom assertthat assert_that
 #' @export
 retrieveInitialValues <- function(parset) {
-  assertthat::assert_that(inherits(parset, "pharmpy.parameter.ParameterSet"),
+  assertthat::assert_that(inherits(parset, "pharmpy.parameter.Parameters"),
                           msg="parset is not a parameter set")
   
   paramsList <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
