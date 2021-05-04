@@ -38,12 +38,7 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  # Instantiate pmxmod object
-  parameters <- object@params
-  
   # Variance-covariance conversion (NONMEM -> pmxmod)
-  # Make sure fixOmega method is called
-  parameters <- parameters %>% pmxmod::fixOmega()
   parameters@varcov <- object@varcov %>% convertVarcov(parameters)
   retValue <- new("pmx_model", model=model, parameters=parameters)
   

@@ -13,7 +13,7 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
 Title: Pmxtran library
-Version: 0.1
+Version: 0.2
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
