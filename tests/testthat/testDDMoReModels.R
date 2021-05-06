@@ -4,7 +4,7 @@ library(pmxmod)
 context("Test NONMEM import on a few DDMoRE models")
 
 testFolder <- ""
-overwriteNonRegressionFiles <- TRUE
+overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(filename) {
   return(paste0(testFolder, "ddmore_models/", filename))
