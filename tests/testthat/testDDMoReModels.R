@@ -1,10 +1,10 @@
 library(testthat)
 library(pmxmod)
 
-context("Tests on custom model 1")
+context("Test NONMEM import on a few DDMoRE models")
 
 testFolder <- ""
-overwriteNonRegressionFiles <- FALSE
+overwriteNonRegressionFiles <- TRUE
 
 modelPath <- function(filename) {
   return(paste0(testFolder, "ddmore_models/", filename))
@@ -42,6 +42,16 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
   
   filename="Executable_ParacetamolInNewborns.mod"
   folder <- "paracetamol"
+  model <- generateModel(filename=filename, folder=folder)
+  expect_equal(model, read.pmxmod(nonRegressionFolderPath(folder)))
+})
+
+test_that("Midazolam PK (in newborns) can be imported well", {
+  # DDMODEL00000250
+  # Midazolam PK in obese adults and adolescents
+  
+  filename="Executable_Midazolam_PK.mod"
+  folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
   expect_equal(model, read.pmxmod(nonRegressionFolderPath(folder)))
 })
