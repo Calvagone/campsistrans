@@ -13,7 +13,7 @@ A library dedicate to drug model conversion in pharmacometrics.
 Install the current development version:
 
 ``` r
-remotes::install_github("Calvagone/pmxtran@dev")
+devtools::install_github("Calvagone/pmxtran", ref="main", auth_token="AUTH_TOKEN", dependencies="pmxmod", force=TRUE)
 ```
 
 ## Some examples
@@ -84,9 +84,7 @@ model <- pmxtran %>% export(dest="pmxmod")
 show(model)
 ```
 
-    ## An object of class "pmx_model"
-    ## Slot "model":
-    ## [PK]
+    ## [MAIN]
     ## KA=THETA_KA*exp(ETA_KA)
     ## CL=THETA_CL*exp(ETA_CL)
     ## V2=THETA_V2*exp(ETA_V2)
@@ -94,7 +92,7 @@ show(model)
     ## Q=THETA_Q*exp(ETA_Q)
     ## S2=V2
     ## 
-    ## [DES]
+    ## [ODE]
     ## d/dt(A_DEPOT)=-KA*A_DEPOT
     ## d/dt(A_CENTRAL)=KA*A_DEPOT + Q*A_PERIPHERAL/V3 + (-CL/V2 - Q/V2)*A_CENTRAL
     ## d/dt(A_PERIPHERAL)=-Q*A_PERIPHERAL/V3 + Q*A_CENTRAL/V2
@@ -107,7 +105,6 @@ show(model)
     ## Y=OBS_CP
     ## 
     ## 
-    ## Slot "parameters":
     ## THETA's:
     ##   name index value   fix
     ## 1   KA     1     1 FALSE
@@ -127,12 +124,11 @@ show(model)
     ## 1 PROP     1      1 0.025 FALSE  var
     ## No variance-covariance matrix
     ## 
-    ## Slot "compartments":
+    ## Compartments:
     ## A_DEPOT (CMT=1)
     ## A_CENTRAL (CMT=2)
     ## A_PERIPHERAL (CMT=3)
     ## A_OUTPUT (CMT=4)
-    ## No compartment characteristic
 
 Simulate it using `pmxsim`:
 
@@ -157,7 +153,7 @@ dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 results <- simulate(model, dataset, dest="RxODE", seed=1)
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
