@@ -17,7 +17,7 @@ A library dedicate to drug model conversion in pharmacometrics.
 Install the current development version:
   
 ```{r, eval=FALSE}
-remotes::install_github("Calvagone/pmxtran@dev")
+devtools::install_github("Calvagone/pmxtran", ref="main", auth_token="AUTH_TOKEN", dependencies="pmxmod", force=TRUE)
 ```
 
 ## Some examples
@@ -69,5 +69,5 @@ dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 results <- simulate(model, dataset, dest="RxODE", seed=1)
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
