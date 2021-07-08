@@ -12,7 +12,7 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
 Title: CAMPSIS transformation package (NONMEM import)
-Version: 0.3
+Version: 0.4
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
