@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Test NONMEM import on a few DDMoRE models")
 

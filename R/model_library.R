@@ -12,7 +12,7 @@ getNONMEMModelTemplate <- function(advan, trans) {
   file <- tempfile(pattern = "template", tmpdir=dir, fileext=".mod")
   csvFile <- file.path(dir, "dataset.csv")
   file.create(csvFile)
-  modelContent <- pmxtran::model_library[[paste0("advan", advan, "_trans", trans)]]
+  modelContent <- campsistrans::model_library[[paste0("advan", advan, "_trans", trans)]]
   modelContent <- gsub("\r\n", "\n", modelContent)
   
   # Add 2 lines programmatically

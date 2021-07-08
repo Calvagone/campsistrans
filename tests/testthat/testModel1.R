@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Tests on custom model 1")
 
@@ -31,5 +31,5 @@ test_that("Model 1", {
                      sigma=c("ADD"=1))
   
   pmxmod <- generateModel(number=number, mapping=mapping)
-  expect_equal(pmxmod, pmxmod::read.pmxmod(nonRegressionFolderPath(number)))
+  expect_equal(pmxmod, campsismod::read.pmxmod(nonRegressionFolderPath(number)))
 })

@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 library(ggplot2)
 
 context("Test pmxtrans")

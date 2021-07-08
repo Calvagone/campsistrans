@@ -43,7 +43,7 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   retValue <- new("pmx_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the PMX model
-  retValue <- retValue %>% pmxmod::updateCompartments()
+  retValue <- retValue %>% campsismod::updateCompartments()
   return(retValue)
 })
 
@@ -149,7 +149,7 @@ convertRecord <- function(records, emptyRecord, parameters) {
 #' Pharmpy compartment system conversion to PMX model.
 #' 
 #' @param system Pharmpy compartment system
-#' @importFrom pmxmod OdeRecord
+#' @importFrom campsismod OdeRecord
 #' @return ODE record (PMX domain)
 #' @export
 convertCompartmentSystem <- function(system) {
