@@ -13,18 +13,17 @@ A library dedicate to drug model conversion in pharmacometrics.
 Install the current development version:
 
 ``` r
-devtools::install_github("Calvagone/pmxtran", ref="main", auth_token="AUTH_TOKEN", dependencies="pmxmod", force=TRUE)
+devtools::install_github("Calvagone/campsistrans", ref="main", auth_token="AUTH_TOKEN", force=TRUE)
 ```
 
 ## Some examples
 
 ### Import NONMEM control stream
 
-First import the `pmxmod` and `pmxtran` package:
+First import the `campsistrans` package:
 
 ``` r
-library(pmxmod)
-library(pmxtran)
+library(campsistrans)
 ```
 
 Let’s have a quick look at the NONMEM control stream we’re going to
@@ -130,20 +129,20 @@ show(model)
     ## A_PERIPHERAL (CMT=3)
     ## A_OUTPUT (CMT=4)
 
-Simulate it using `pmxsim`:
+Simulate it using CAMPSIS:
 
 ``` r
-library(pmxsim)
+library(campsis)
 ```
 
     ## 
-    ## Attaching package: 'pmxsim'
+    ## Attachement du package : 'campsis'
 
-    ## The following object is masked from 'package:stats':
+    ## L'objet suivant est masqué depuis 'package:stats':
     ## 
     ##     simulate
 
-    ## The following object is masked from 'package:base':
+    ## L'objet suivant est masqué depuis 'package:base':
     ## 
     ##     sample
 
