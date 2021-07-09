@@ -1,9 +1,8 @@
-Package: pmxtran
+Package: campsistrans
 Type: Package
 Collate:
     'data.R'
     'model_library.R'
-    'load.R'
     'print.R'
     'nonmem_table_parser.R'
     'nonmem_domain.R'
@@ -12,14 +11,14 @@ Collate:
     'model_conversion.R'
     'parameters_conversion.R'
     'varcov_conversion.R'
-Title: Pmxtran package
-Version: 0.3
+Title: CAMPSIS transformation package (NONMEM import)
+Version: 0.4
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
 Description: TODO.
-Depends: R (>= 4.0.0)
-Imports: assertthat, dplyr, plyr, pmxmod, purrr, reticulate, tibble, tidyr
+Depends: R (>= 4.0.0), campsismod
+Imports: assertthat, dplyr, plyr, purrr, reticulate, tibble, tidyr
 Remotes: 
 License: file LICENSE
 Encoding: UTF-8
@@ -28,5 +27,5 @@ LazyData: true
 Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, ggplot2
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
-URL: https://github.com/Calvagone/pmxtran
-BugReports: https://github.com/Calvagone/pmxtran/issues
+URL: https://github.com/Calvagone/campsistrans
+BugReports: https://github.com/Calvagone/campsistrans/issues

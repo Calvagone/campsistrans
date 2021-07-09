@@ -5,7 +5,7 @@
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
 #' @importFrom assertthat assert_that
-#' @importFrom pmxmod add Parameters Theta Omega Sigma
+#' @importFrom campsismod add Parameters Theta Omega Sigma
 #' @importFrom purrr map2
 #' @return PMX mapping object
 #' @export
@@ -15,21 +15,21 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
     assertthat::assert_that(is.numeric(theta), msg="theta is not numeric")
     names <- if (is.character(names(theta))) {names(theta)} else {rep(NA, length(theta))}
     purrr::map2(theta, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::add(Theta(name=as.character(name), index=index))
+      params <<- params %>% campsismod::add(Theta(name=as.character(name), index=index))
     })
   }
   if (!is.null(omega)) {
     assertthat::assert_that(is.numeric(omega), msg="omega is not numeric")
     names <- if (is.character(names(omega))) {names(omega)} else {rep(NA, length(omega))}
     purrr::map2(omega, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::add(Omega(name=as.character(name), index=index, index2=index))
+      params <<- params %>% campsismod::add(Omega(name=as.character(name), index=index, index2=index))
     })
   }
   if (!is.null(sigma)) {
     assertthat::assert_that(is.numeric(sigma), msg="sigma is not numeric")
     names <- if (is.character(names(sigma))) {names(sigma)} else {rep(NA, length(sigma))}
     purrr::map2(sigma, names, .f=function(index, name) {
-      params <<- params %>% pmxmod::add(Sigma(name=as.character(name), index=index, index2=index))
+      params <<- params %>% campsismod::add(Sigma(name=as.character(name), index=index, index2=index))
     })
   }
   retValue <- structure(list(
@@ -43,13 +43,13 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
 #' @return updated parameters
 processParameters <- function(parameters) {
   # Clean parameters
-  parameters <- parameters %>% pmxmod::clean()
+  parameters <- parameters %>% campsismod::clean()
   
   # Sort parameters
-  parameters <- parameters %>% pmxmod::sort()
+  parameters <- parameters %>% campsismod::sort()
   
   # Fix OMEGA's
-  parameters <- parameters %>% pmxmod::fixOmega()
+  parameters <- parameters %>% campsismod::fixOmega()
   
   return(parameters)
 }
@@ -61,7 +61,7 @@ processParameters <- function(parameters) {
 #' @return parameters definition table
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
-#' @importFrom pmxmod add clean getByIndex getNONMEMName Parameters sort
+#' @importFrom campsismod add clean getByIndex getNONMEMName Parameters sort
 #' @export
 convertParameters <- function(model, mapping, estimate) {
   
@@ -81,7 +81,7 @@ convertParameters <- function(model, mapping, estimate) {
   
   # Collect names from mapping list (LOOP 1)
   list <- purrr::map(pharmpyList@list, .f=function(parameter) {
-    namedParameter <- mappingList %>% pmxmod::getByIndex(parameter)
+    namedParameter <- mappingList %>% campsismod::getByIndex(parameter)
     if (length(namedParameter) > 0) {
       parameter@name <- namedParameter@name
     }
@@ -94,9 +94,9 @@ convertParameters <- function(model, mapping, estimate) {
   
   # Check no parameter is missing (LOOP 2)
   purrr::map(mappingList@list, .f=function(parameter) {
-    returnedParameter <- parameters %>% pmxmod::getByIndex(parameter)
+    returnedParameter <- parameters %>% campsismod::getByIndex(parameter)
     if (length(returnedParameter) == 0) {
-      parameters <<- parameters %>% pmxmod::add(parameter)
+      parameters <<- parameters %>% campsismod::add(parameter)
     }
   })
   
@@ -112,7 +112,7 @@ convertParameters <- function(model, mapping, estimate) {
   }
   
   list <- parameters@list %>% purrr::map(.f=function(param) {
-    name <- param %>% pmxmod::getNONMEMName()
+    name <- param %>% campsismod::getNONMEMName()
     estimateIndex <- which(names(estimates)==name)
     if (length(estimateIndex) == 0) {
       if (!is.na(param@fix) && !param@fix) {
@@ -158,13 +158,13 @@ retrieveInitialValues <- function(parset) {
   return(parameters)
 }
 
-#' Convert NONMEM parameter (string form) to pmxmod parameter.
+#' Convert NONMEM parameter (string form) to campsismod parameter.
 #' 
 #' @param name NONMEM parameter name, character value
 #' @param value parameter value
 #' @param fix is fixed or not, logical value
 #' @return S4 parameters object
-#' @importFrom pmxmod Theta Omega Sigma
+#' @importFrom campsismod Theta Omega Sigma
 #' @export
 convertNONMEMParameter <- function(name, value, fix) {
   index <- extractValueInParentheses(name)
@@ -173,7 +173,7 @@ convertNONMEMParameter <- function(name, value, fix) {
   isSigma <- isNMSigmaParameter(name)
   
   if (isTheta) {
-    param <- pmxmod::Theta(index=index, value=value, fix=fix)
+    param <- campsismod::Theta(index=index, value=value, fix=fix)
     
   } else if (isOmega || isSigma) {
     indexes <- strsplit(index, ",")
@@ -181,9 +181,9 @@ convertNONMEMParameter <- function(name, value, fix) {
     index2 <- indexes[[1]][2]
     className <- if(isOmega) {"omega"} else {"sigma"}
     if (isOmega) {
-      param <- pmxmod::Omega(index=index1, index2=index2, value=value, fix=fix)
+      param <- campsismod::Omega(index=index1, index2=index2, value=value, fix=fix)
     } else {
-      param <- pmxmod::Sigma(index=index1, index2=index2, value=value, fix=fix)
+      param <- campsismod::Sigma(index=index1, index2=index2, value=value, fix=fix)
     }
   } else {
     stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))

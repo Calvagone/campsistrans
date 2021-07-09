@@ -1,8 +1,8 @@
 
-# setwd("C:/prj/pmxtran/")
+# setwd("C:/prj/campsistrans/")
 # roxygen2::roxygenise()
-# setwd("C:/prj/pmxtran/tests/")
-# testFolder <<- "C:/prj/pmxtran/tests/testthat/"
+# setwd("C:/prj/campsistrans/tests/")
+# testFolder <<- "C:/prj/campsistrans/tests/testthat/"
 
 
 # # Uninstall pharmpy (needed to install a newer version)

@@ -2,18 +2,18 @@
 % Please edit documentation in R/varcov_conversion.R
 \name{convertVarcov}
 \alias{convertVarcov}
-\title{Convert raw variance-covariance matrix for pmxmod.}
+\title{Convert raw variance-covariance matrix for campsis model.}
 \usage{
 convertVarcov(varcov, parameters)
 }
 \arguments{
 \item{varcov}{raw variance-covariance matrix}
 
-\item{parameters}{pmxmod parameters}
+\item{parameters}{CAMPSIS model parameters}
 }
 \value{
 an updated variance-covariance matrix
 }
 \description{
-Convert raw variance-covariance matrix for pmxmod.
+Convert raw variance-covariance matrix for campsis model.
 }

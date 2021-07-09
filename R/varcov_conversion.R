@@ -1,9 +1,9 @@
 #' 
-#' Convert raw variance-covariance matrix for pmxmod.
+#' Convert raw variance-covariance matrix for campsis model.
 #' 
 #' @param varcov raw variance-covariance matrix
-#' @param parameters pmxmod parameters
-#' @importFrom pmxmod getNONMEMName
+#' @param parameters CAMPSIS model parameters
+#' @importFrom campsismod getNONMEMName
 #' @return an updated variance-covariance matrix
 convertVarcov <- function(varcov, parameters) {
   # Empty variance-covariance matrix
@@ -18,7 +18,7 @@ convertVarcov <- function(varcov, parameters) {
   colnames(varcov) <- standardNMNames
   
   # Retrieve NONMEM names from parameters
-  nmNames <- parameters@list %>% purrr::map_chr(.f=~.x %>% pmxmod::getNONMEMName())
+  nmNames <- parameters@list %>% purrr::map_chr(.f=~.x %>% campsismod::getNONMEMName())
   
   # Retrieve varcov parameters
   varcovParams <- colnames(varcov) %>% purrr::map(.f=function(.x) {
@@ -27,10 +27,10 @@ convertVarcov <- function(varcov, parameters) {
   
   # Remove unnecessary rows and columns
   for (varcovParam in varcovParams) {
-    nmName <- varcovParam %>% pmxmod::getNONMEMName()
+    nmName <- varcovParam %>% campsismod::getNONMEMName()
     parameter <- parameters %>% getByIndex(varcovParam)
     if (length(parameter)==0) {
-      if (!is(varcovParam, "theta") && !varcovParam %>% pmxmod::isDiag()) {
+      if (!is(varcovParam, "theta") && !varcovParam %>% campsismod::isDiag()) {
         # All off-diagonal OMEGA's are exported by NONMEM into the cov file
         # Even if they are NOT described in the control stream...
         # This means we can remove it from the matrix

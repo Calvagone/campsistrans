@@ -2,7 +2,7 @@
 % Please edit documentation in R/parameters_conversion.R
 \name{convertNONMEMParameter}
 \alias{convertNONMEMParameter}
-\title{Convert NONMEM parameter (string form) to pmxmod parameter.}
+\title{Convert NONMEM parameter (string form) to campsismod parameter.}
 \usage{
 convertNONMEMParameter(name, value, fix)
 }
@@ -17,5 +17,5 @@ convertNONMEMParameter(name, value, fix)
 S4 parameters object
 }
 \description{
-Convert NONMEM parameter (string form) to pmxmod parameter.
+Convert NONMEM parameter (string form) to campsismod parameter.
 }

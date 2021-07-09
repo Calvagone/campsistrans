@@ -1,7 +1,5 @@
-library(plyr)
 library(dplyr)
-library(pmxmod)
-library(pmxsim)
+library(campsis)
 
 model <- getNONMEMModelTemplate(3,4)
 model <- model %>% add(CompartmentInfusionDuration(1, rhs="5"))
