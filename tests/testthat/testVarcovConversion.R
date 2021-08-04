@@ -11,15 +11,15 @@ test_that("Import NONMEM model with cov file and export it to CAMPSIS", {
   file <- paste0(testFolder, "parameter_uncertainty/", "example1/", "advan3_trans4.ctl")
   
   # Import with estimates and full uncertainty
-  pmxtran <- importNONMEM(file, mapping=mapping, estimate=TRUE, uncertainty=TRUE)
-  model <- pmxtran %>% export(dest="pmxmod")
+  object <- importNONMEM(file, mapping=mapping, estimate=TRUE, uncertainty=TRUE)
+  model <- object %>% export(dest="campsis")
   
   # Save CAMPSIS model for non-regression
   file <- paste0(testFolder, "non_regression/", "parameter_uncertainty/", "example1/")
   #model %>% write(file) # DISABLED THIS LATER ON
   
   # Read non-regression model
-  model2 <- read.pmxmod(file)
+  model2 <- read.campsis(file)
   
   expect_equal(model, model2)
 })

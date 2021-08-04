@@ -45,17 +45,17 @@ mapping <- mapping(
     sigma = c(PROP=1))
 ```
 
-Let's then import this model using `pmxtran`.
+Let's then import this model using `campsistrans`.
 By default, the initial values are used as reference values in the model.
 
 ```{r}
-pmxtran <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
+object <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
 ```
 
-Convert this object to a PMX model:
+Convert this object to a CAMPSIS model:
 
 ```{r}
-model <- pmxtran %>% export(dest="pmxmod")
+model <- object %>% export(dest="campsis")
 show(model)
 ```
 

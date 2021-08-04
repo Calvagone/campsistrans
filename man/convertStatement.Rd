@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_conversion.R
 \name{convertStatement}
 \alias{convertStatement}
-\title{SymPy statement conversion to PMX model.}
+\title{SymPy statement conversion to CAMPSIS model.}
 \usage{
 convertStatement(statement, parameters)
 }
@@ -15,5 +15,5 @@ convertStatement(statement, parameters)
 C code
 }
 \description{
-SymPy statement conversion to PMX model.
+SymPy statement conversion to CAMPSIS model.
 }

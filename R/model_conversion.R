@@ -4,8 +4,9 @@
 #_______________________________________________________________________________
 
 setMethod("export", signature = c("pmxtran", "character"), definition = function(object, dest, ...) {
-  if (dest != "pmxmod") {
-    stop("dest can only be 'pmxmod'")
+  # pmxmod is accepted
+  if (!(dest %in% c("campsis", "pmxmod"))) {
+    stop("dest must be 'campsis'")
   }
   
   pharmpyModel <- object@model[[1]]
@@ -38,22 +39,22 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  # Variance-covariance conversion (NONMEM -> pmxmod)
+  # Variance-covariance conversion (NONMEM -> CAMPSIS)
   parameters@varcov <- object@varcov %>% convertVarcov(parameters)
-  retValue <- new("pmx_model", model=model, parameters=parameters)
+  retValue <- new("campsis_model", model=model, parameters=parameters)
   
-  # Update compartments list before returning the PMX model
+  # Update compartments list before returning the CAMPSIS model
   retValue <- retValue %>% campsismod::updateCompartments()
   return(retValue)
 })
 
-#' Add record to the specified PMX model.
+#' Add record to the specified CAMPSIS model.
 #' 
-#' @param model specified PMX model
+#' @param model specified CAMPSIS model
 #' @param record record to add
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
-#' @return updated PMX model
+#' @return updated CAMPSIS model
 addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
     model@list <- c(model@list, convertRecord(record, emptyRecord, parameters))
@@ -61,7 +62,7 @@ addconvertRecord <- function(model, record, emptyRecord, parameters) {
   return(model)
 }
 
-#' SymPy statement conversion to PMX model.
+#' SymPy statement conversion to CAMPSIS model.
 #' 
 #' @param statement SymPy statement
 #' @param parameters parameters
@@ -96,7 +97,7 @@ convertStatement <- function(statement, parameters) {
   }
 }
 
-#' SymPy piecewise conversion to PMX model.
+#' SymPy piecewise conversion to CAMPSIS model.
 #' 
 #' @param symbol SymPy statement symbol
 #' @param piecewise SymPy piecewise
@@ -117,12 +118,12 @@ convertPiecewise <- function(symbol, piecewise) {
   return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
 }
 
-#' NONMEM record (pharmpy) to PMX model.
+#' NONMEM record (pharmpy) to CAMPSIS model.
 #' 
 #' @param records one or more NONMEM record
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
-#' @return a PMX record
+#' @return a CAMPSIS record
 #' @export
 convertRecord <- function(records, emptyRecord, parameters) {
   code <- NULL
@@ -150,7 +151,7 @@ convertRecord <- function(records, emptyRecord, parameters) {
 #' 
 #' @param system Pharmpy compartment system
 #' @importFrom campsismod OdeRecord
-#' @return ODE record (PMX domain)
+#' @return ODE record (CAMPSIS domain)
 #' @export
 convertCompartmentSystem <- function(system) {
   

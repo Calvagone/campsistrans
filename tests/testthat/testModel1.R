@@ -15,11 +15,11 @@ nonRegressionFolderPath <- function(number) {
 
 generateModel <- function(number, mapping) {
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(modelPath(number), mapping)
+  object <- importNONMEM(modelPath(number), mapping)
   
-  pmxmod <- pmxtran %>% export(dest="pmxmod")
-  #pmxmod %>% write(nonRegressionFolderPath(number)) # TO DISABLE LATER ON
-  return(pmxmod)
+  model <- object %>% export(dest="campsis")
+  #model %>% write(nonRegressionFolderPath(number)) # TO DISABLE LATER ON
+  return(model)
 }
 
 test_that("Model 1", {
@@ -30,6 +30,6 @@ test_that("Model 1", {
                      omega=1:24,
                      sigma=c("ADD"=1))
   
-  pmxmod <- generateModel(number=number, mapping=mapping)
-  expect_equal(pmxmod, campsismod::read.pmxmod(nonRegressionFolderPath(number)))
+  model <- generateModel(number=number, mapping=mapping)
+  expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(number)))
 })
