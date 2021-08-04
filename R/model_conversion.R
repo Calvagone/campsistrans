@@ -3,7 +3,7 @@
 #----                               export                                  ----
 #_______________________________________________________________________________
 
-setMethod("export", signature = c("pmxtran", "character"), definition = function(object, dest, ...) {
+setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
   # pmxmod is accepted
   if (!(dest %in% c("campsis", "pmxmod"))) {
     stop("dest must be 'campsis'")
