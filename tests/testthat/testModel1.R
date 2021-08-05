@@ -4,6 +4,7 @@ library(campsismod)
 context("Tests on custom model 1")
 
 testFolder <<- ""
+overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(number) {
   return(paste0(testFolder, "custom_models/model", number, ".mod"))
@@ -18,7 +19,9 @@ generateModel <- function(number, mapping) {
   object <- importNONMEM(modelPath(number), mapping)
   
   model <- object %>% export(dest="campsis")
-  #model %>% write(nonRegressionFolderPath(number)) # TO DISABLE LATER ON
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionFolderPath(number)) # TO DISABLE LATER ON
+  }
   return(model)
 }
 

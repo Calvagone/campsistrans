@@ -43,6 +43,9 @@ X=1.0000000000000001e-5
 if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
 d/dt(A_2)=A_1*KA - A_2*K
 
+[F]
+A_2=F1
+
 [ERROR]
 AA1=A_1
 AA2=A_2

@@ -3,6 +3,9 @@
 #----                               export                                  ----
 #_______________________________________________________________________________
 
+#' @importFrom reticulate iterate
+#' @importFrom campsismod autoDetectNONMEM updateCompartments
+#' 
 setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
   # pmxmod is accepted
   if (!(dest %in% c("campsis", "pmxmod"))) {
@@ -45,6 +48,10 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   
   # Update compartments list before returning the CAMPSIS model
   retValue <- retValue %>% campsismod::updateCompartments()
+  
+  # Auto-detect compartment properties from NONMEM special variables
+  retValue <- retValue %>% campsismod::autoDetectNONMEM()
+  
   return(retValue)
 })
 
