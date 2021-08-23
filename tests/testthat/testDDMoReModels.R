@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test NONMEM import on a few DDMoRE models")
 
-testFolder <- ""
+testFolder <<- ""
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(filename) {
@@ -32,13 +32,24 @@ test_that("Rifampin PK can be imported well", {
   filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
   folder <- "rifampin"
   mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
+  
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-  expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
+  nonreg_model <- read.campsis(nonRegressionFolderPath(folder))
   
   # NOTE THAT ODE:
   # if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
   # IS NOT IMPORTED CORRECTLY...
   # As a consequence, NONMEM auto-detection is incorrect: [F] A_2=F1 (only 1 compartment is detected)
+  
+  # Furthemore this ODE, is read as a unknown statement by campsismod (as variable is incorrect)
+  # For this test, we delete this 'ODE' on both sides
+  ode <- model@model %>% getByName("ODE")
+  nonreg_ode <- nonreg_model@model %>% getByName("ODE")
+  
+  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "T >= TDOS")
+  nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
+  
+  expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
 })
 
 test_that("Paracetamol PK (in newborns) can be imported well", {

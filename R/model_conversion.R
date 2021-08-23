@@ -64,7 +64,7 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
 #' @return updated CAMPSIS model
 addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
-    model@list <- c(model@list, convertRecord(record, emptyRecord, parameters))
+    model <- model %>% add(convertRecord(record, emptyRecord, parameters))
   }
   return(model)
 }
@@ -97,10 +97,10 @@ convertStatement <- function(statement, parameters) {
   
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
-    return(paste0("d/dt(", "A_", cmtNumber, ")=", printSymPy(expression)))
+    return(Ode(paste0("A_", cmtNumber), printSymPy(expression)))
 
   } else {
-    return(paste0(symbol_chr, "=", printSymPy(expression)))
+    return(Equation(symbol_chr, printSymPy(expression)))
   }
 }
 
@@ -122,7 +122,7 @@ convertPiecewise <- function(symbol, piecewise) {
   expression <- exprCondPair$args[[1]]
   condition <- exprCondPair$args[[2]]
   
-  return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
+  return(IfStatement(printSymPy(condition), Equation(symbol_chr, printSymPy(expression))))
 }
 
 #' NONMEM record (pharmpy) to CAMPSIS model.
@@ -133,7 +133,7 @@ convertPiecewise <- function(symbol, piecewise) {
 #' @return a CAMPSIS record
 #' @export
 convertRecord <- function(records, emptyRecord, parameters) {
-  code <- NULL
+  retValue <- emptyRecord
   
   for (record in records) {
     if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
@@ -144,14 +144,10 @@ convertRecord <- function(records, emptyRecord, parameters) {
     # Retrieve all equations
     for (index in (seq_along(statements) - 1)) {
       statement <- statements[[index]]
-      code <- c(code, convertStatement(statement, parameters))
+      retValue <- retValue %>% add(convertStatement(statement, parameters))
     }
   }
-  
-  # Filling the empty record
-  record <- emptyRecord
-  record@code <- code
-  return(record)
+  return(retValue)
 }
 
 #' Pharmpy compartment system conversion to PMX model.
@@ -166,7 +162,7 @@ convertCompartmentSystem <- function(system) {
   odes <- explicitOdes[[1]]
   
   cptNames <- NULL
-  code <- NULL
+  odeRecord <- OdeRecord()
   
   # Collect all compartment names first
   for (index in seq_along(odes)) {
@@ -184,12 +180,11 @@ convertCompartmentSystem <- function(system) {
       equation <- gsub(paste0(name, "\\(t\\)"), name, equation)
     }
     
-    code <- c(code, paste0("d/dt(", cptName, ")=", equation))
+    odeRecord <- odeRecord %>% add(Ode(cptName, equation))
   }
   
   # Add F equation
   central <- system$find_central()
-  code <- c(code, paste0("F=", "A_", central$name, "/S", central$index))
-  
-  return(OdeRecord(code=code))
+  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", central$index)))
+  return(odeRecord)
 }
