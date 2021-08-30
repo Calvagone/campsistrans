@@ -34,7 +34,7 @@ test_that("Rifampin PK can be imported well", {
   mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
   
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-  nonreg_model <- read.campsis(nonRegressionFolderPath(folder))
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
   
   # NOTE THAT ODE:
   # if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
