@@ -139,10 +139,11 @@ convertRecord <- function(records, emptyRecord, parameters) {
     if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
       stop("Not a DES record")  
     }
-    statements <- record$statements
+    # Retrieve statements list in R
+    statements <- record$statements["_statements"]
     
     # Retrieve all equations
-    for (index in (seq_along(statements) - 1)) {
+    for (index in (seq_along(statements))) {
       statement <- statements[[index]]
       retValue <- retValue %>% add(convertStatement(statement, parameters))
     }
