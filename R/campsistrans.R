@@ -1,10 +1,10 @@
 
 #_______________________________________________________________________________
-#----                           pmxtran class                               ----
+#----                           campsistrans class                          ----
 #_______________________________________________________________________________
 
 setClass(
-  "pmxtran",
+  "campsistrans",
   representation(
     model = "list", # Workaround to store Pharmpy model
     params = "parameters",
@@ -23,7 +23,7 @@ setClass(
 #' @param mapping a possible PMX mapping object
 #' @param estimate use estimated parameter values or initial ones, logical value, default is FALSE
 #' @param uncertainty import the variance-covariance matrix (.cov file), logical value, default is FALSE
-#' @return a PMXtran object
+#' @return a campsistrans object
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) {
@@ -45,22 +45,22 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
   # Convert parameters from NONMEM to pmxmod
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
   
-  # Create pmxtran object
-  pmxtran <- new(
-    "pmxtran",
+  # Create campsistrans object
+  retValue <- new(
+    "campsistrans",
     model = list(model),
     params = parameters,
     estimate = estimate,
     varcov = varcov
   )
-  return(pmxtran)
+  return(retValue)
 }
 
 #_______________________________________________________________________________
 #----                                 write                                 ----
 #_______________________________________________________________________________
 
-setMethod("write", signature=c("pmxtran", "character"), definition=function(object, file, ...) {
+setMethod("write", signature=c("campsistrans", "character"), definition=function(object, file, ...) {
   # USE source.write to avoid call to update_source
   #x$model$source$write(file, force=TRUE)
   ctl <- as.character(object@model[[1]])

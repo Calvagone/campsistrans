@@ -2,16 +2,16 @@ library(testthat)
 library(campsismod)
 library(ggplot2)
 
-context("Test pmxtrans")
+context("Test campsistrans")
 testFolder <<- ""
 
 test_that("ADVAN3 TRANS4 - simulation", {
 
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4))
+  object <- importNONMEM(getNONMEMModelTemplate(3, 4))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
+  rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
 
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -34,10 +34,10 @@ test_that("ADVAN3 TRANS4 - simulation", {
 test_that("ADVAN4 TRANS4 - simulation", {
   
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(getNONMEMModelTemplate(4, 4))
+  object <- importNONMEM(getNONMEMModelTemplate(4, 4))
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
+  rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
   
   # Loading model in RxODE
   mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
@@ -64,10 +64,10 @@ test_that("Custom test with RxODE", {
                      sigma=c("PROP"=1))
   
   # Import your NONMEM model using pharmpy
-  pmxtran <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping)
+  object <- importNONMEM(getNONMEMModelTemplate(3, 4), mapping)
   
   # Convert to RxODE model
-  rxodeMod <- pmxtran %>% export(dest="pmxmod") %>% export(dest="RxODE")
+  rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
   
   mod <- RxODE::RxODE("
     CL=THETA_CL*exp(ETA_CL)

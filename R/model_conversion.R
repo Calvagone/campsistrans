@@ -3,9 +3,13 @@
 #----                               export                                  ----
 #_______________________________________________________________________________
 
-setMethod("export", signature = c("pmxtran", "character"), definition = function(object, dest, ...) {
-  if (dest != "pmxmod") {
-    stop("dest can only be 'pmxmod'")
+#' @importFrom reticulate iterate
+#' @importFrom campsismod autoDetectNONMEM updateCompartments
+#' 
+setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
+  # pmxmod is accepted
+  if (!(dest %in% c("campsis", "pmxmod"))) {
+    stop("dest must be 'campsis'")
   }
   
   pharmpyModel <- object@model[[1]]
@@ -38,30 +42,34 @@ setMethod("export", signature = c("pmxtran", "character"), definition = function
   record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  # Variance-covariance conversion (NONMEM -> pmxmod)
+  # Variance-covariance conversion (NONMEM -> CAMPSIS)
   parameters@varcov <- object@varcov %>% convertVarcov(parameters)
-  retValue <- new("pmx_model", model=model, parameters=parameters)
+  retValue <- new("campsis_model", model=model, parameters=parameters)
   
-  # Update compartments list before returning the PMX model
+  # Update compartments list before returning the CAMPSIS model
   retValue <- retValue %>% campsismod::updateCompartments()
+  
+  # Auto-detect compartment properties from NONMEM special variables
+  retValue <- retValue %>% campsismod::autoDetectNONMEM()
+  
   return(retValue)
 })
 
-#' Add record to the specified PMX model.
+#' Add record to the specified CAMPSIS model.
 #' 
-#' @param model specified PMX model
+#' @param model specified CAMPSIS model
 #' @param record record to add
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
-#' @return updated PMX model
+#' @return updated CAMPSIS model
 addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
-    model@list <- c(model@list, convertRecord(record, emptyRecord, parameters))
+    model <- model %>% add(convertRecord(record, emptyRecord, parameters))
   }
   return(model)
 }
 
-#' SymPy statement conversion to PMX model.
+#' SymPy statement conversion to CAMPSIS model.
 #' 
 #' @param statement SymPy statement
 #' @param parameters parameters
@@ -89,14 +97,14 @@ convertStatement <- function(statement, parameters) {
   
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
-    return(paste0("d/dt(", "A_", cmtNumber, ")=", printSymPy(expression)))
+    return(Ode(paste0("A_", cmtNumber), printSymPy(expression)))
 
   } else {
-    return(paste0(symbol_chr, "=", printSymPy(expression)))
+    return(Equation(symbol_chr, printSymPy(expression)))
   }
 }
 
-#' SymPy piecewise conversion to PMX model.
+#' SymPy piecewise conversion to CAMPSIS model.
 #' 
 #' @param symbol SymPy statement symbol
 #' @param piecewise SymPy piecewise
@@ -114,43 +122,40 @@ convertPiecewise <- function(symbol, piecewise) {
   expression <- exprCondPair$args[[1]]
   condition <- exprCondPair$args[[2]]
   
-  return(paste0("if (", printSymPy(condition), ") ", symbol_chr, "=", printSymPy(expression)))
+  return(IfStatement(printSymPy(condition), Equation(symbol_chr, printSymPy(expression))))
 }
 
-#' NONMEM record (pharmpy) to PMX model.
+#' NONMEM record (pharmpy) to CAMPSIS model.
 #' 
 #' @param records one or more NONMEM record
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
-#' @return a PMX record
+#' @return a CAMPSIS record
 #' @export
 convertRecord <- function(records, emptyRecord, parameters) {
-  code <- NULL
+  retValue <- emptyRecord
   
   for (record in records) {
     if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
       stop("Not a DES record")  
     }
-    statements <- record$statements
+    # Retrieve statements list in R
+    statements <- record$statements["_statements"]
     
     # Retrieve all equations
-    for (index in (seq_along(statements) - 1)) {
+    for (index in (seq_along(statements))) {
       statement <- statements[[index]]
-      code <- c(code, convertStatement(statement, parameters))
+      retValue <- retValue %>% add(convertStatement(statement, parameters))
     }
   }
-  
-  # Filling the empty record
-  record <- emptyRecord
-  record@code <- code
-  return(record)
+  return(retValue)
 }
 
 #' Pharmpy compartment system conversion to PMX model.
 #' 
 #' @param system Pharmpy compartment system
 #' @importFrom campsismod OdeRecord
-#' @return ODE record (PMX domain)
+#' @return ODE record (CAMPSIS domain)
 #' @export
 convertCompartmentSystem <- function(system) {
   
@@ -158,7 +163,7 @@ convertCompartmentSystem <- function(system) {
   odes <- explicitOdes[[1]]
   
   cptNames <- NULL
-  code <- NULL
+  odeRecord <- OdeRecord()
   
   # Collect all compartment names first
   for (index in seq_along(odes)) {
@@ -176,12 +181,11 @@ convertCompartmentSystem <- function(system) {
       equation <- gsub(paste0(name, "\\(t\\)"), name, equation)
     }
     
-    code <- c(code, paste0("d/dt(", cptName, ")=", equation))
+    odeRecord <- odeRecord %>% add(Ode(cptName, equation))
   }
   
   # Add F equation
   central <- system$find_central()
-  code <- c(code, paste0("F=", "A_", central$name, "/S", central$index))
-  
-  return(OdeRecord(code=code))
+  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", central$index)))
+  return(odeRecord)
 }

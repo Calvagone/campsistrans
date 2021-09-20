@@ -32,6 +32,9 @@ d/dt(A_6)=A_5*KTR - A_6*KTR
 d/dt(A_7)=A_6*KTR - A_7*KTR
 d/dt(A_8)=A_7*KTR - A_8*KTR
 
+[F]
+A_1=F1
+
 [ERROR]
 IPRED=F
 Y=F*(EPS_1 + 1)

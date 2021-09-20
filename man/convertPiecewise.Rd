@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_conversion.R
 \name{convertPiecewise}
 \alias{convertPiecewise}
-\title{SymPy piecewise conversion to PMX model.}
+\title{SymPy piecewise conversion to CAMPSIS model.}
 \usage{
 convertPiecewise(symbol, piecewise)
 }
@@ -15,5 +15,5 @@ convertPiecewise(symbol, piecewise)
 C code
 }
 \description{
-SymPy piecewise conversion to PMX model.
+SymPy piecewise conversion to CAMPSIS model.
 }

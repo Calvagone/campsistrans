@@ -16,6 +16,6 @@ test_that("nlmixr conversion", {
   
   # nlmixr equations (basic test)
   statements <- nlmixrmodel$statements
-  expect_equal(length(statements), 11)
+  expect_equal(length(statements["_statements"]), 11)
 })
 

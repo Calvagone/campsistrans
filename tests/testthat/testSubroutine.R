@@ -15,12 +15,12 @@ nonRegressionFolderPath <- function(advan, trans) {
 }
 
 loadAdvanNonRegressionFile <- function(advan, trans) {
-  return(read.pmxmod(nonRegressionFolderPath(advan, trans)))
+  return(read.campsis(nonRegressionFolderPath(advan, trans)))
 }
 
 generateModel <- function(advan, trans, mapping=NULL) {
-  pmxtran <- importNONMEM(getNONMEMModelTemplate(advan, trans), mapping=mapping)
-  model <- pmxtran %>% export(dest="pmxmod")
+  object <- importNONMEM(getNONMEMModelTemplate(advan, trans), mapping=mapping)
+  model <- object %>% export(dest="campsis")
   #model %>% write(file=nonRegressionFolderPath(advan, trans)) # TO DISABLE LATER ON
   return(model)
 }

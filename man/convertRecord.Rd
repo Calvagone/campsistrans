@@ -2,7 +2,7 @@
 % Please edit documentation in R/model_conversion.R
 \name{convertRecord}
 \alias{convertRecord}
-\title{NONMEM record (pharmpy) to PMX model.}
+\title{NONMEM record (pharmpy) to CAMPSIS model.}
 \usage{
 convertRecord(records, emptyRecord, parameters)
 }
@@ -14,8 +14,8 @@ convertRecord(records, emptyRecord, parameters)
 \item{parameters}{parameters}
 }
 \value{
-a PMX record
+a CAMPSIS record
 }
 \description{
-NONMEM record (pharmpy) to PMX model.
+NONMEM record (pharmpy) to CAMPSIS model.
 }

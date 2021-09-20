@@ -2,12 +2,12 @@
 % Please edit documentation in R/model_conversion.R
 \name{addconvertRecord}
 \alias{addconvertRecord}
-\title{Add record to the specified PMX model.}
+\title{Add record to the specified CAMPSIS model.}
 \usage{
 addconvertRecord(model, record, emptyRecord, parameters)
 }
 \arguments{
-\item{model}{specified PMX model}
+\item{model}{specified CAMPSIS model}
 
 \item{record}{record to add}
 
@@ -16,8 +16,8 @@ addconvertRecord(model, record, emptyRecord, parameters)
 \item{parameters}{parameters}
 }
 \value{
-updated PMX model
+updated CAMPSIS model
 }
 \description{
-Add record to the specified PMX model.
+Add record to the specified CAMPSIS model.
 }
