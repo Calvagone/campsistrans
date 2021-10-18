@@ -1,0 +1,29 @@
+$PROBLEM 3-compartment model
+$INPUT
+$DATA dataset.csv IGNORE=I
+$SUBROUTINE ADVAN11 TRANS4
+$PK
+ CL = THETA(1) * EXP(ETA(1))
+ V1 = THETA(2) * EXP(ETA(2))
+ V2 = THETA(3) * EXP(ETA(3))
+ V3 = THETA(4) * EXP(ETA(4))
+ Q2 = THETA(5) * EXP(ETA(5))
+ Q3 = THETA(6) * EXP(ETA(6))
+ S1 = V1
+$ERROR 
+ CP = F
+ OBS_CP = CP * (1+EPS(1))
+ Y = OBS_CP
+$THETA 5     ; CL 
+$THETA 80    ; V1 
+$THETA 225   ; V2
+$THETA 1225  ; V3 
+$THETA 5     ; Q2
+$THETA 1.5   ; Q3
+$OMEGA 0.025 ; CL
+$OMEGA 0.025 ; V1
+$OMEGA 0.025 ; V2
+$OMEGA 0.025 ; V3
+$OMEGA 0.025 ; Q2
+$OMEGA 0.025 ; Q2
+$SIGMA 0.025 ; PROP
