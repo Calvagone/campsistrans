@@ -21,7 +21,7 @@ loadAdvanNonRegressionFile <- function(advan, trans) {
 generateModel <- function(advan, trans, mapping=NULL) {
   object <- importNONMEM(getNONMEMModelTemplate(advan, trans), mapping=mapping)
   model <- object %>% export(dest="campsis")
-  #model %>% write(file=nonRegressionFolderPath(advan, trans)) # TO DISABLE LATER ON
+  # model %>% write(file=nonRegressionFolderPath(advan, trans)) # TO DISABLE LATER ON
   return(model)
 }
 
@@ -117,6 +117,22 @@ test_that("ADVAN4 TRANS5", {
   advan <- 4
   trans <- 5
   mapping <- mapping(theta=c(AOB=1, ALPHA=2, BETA=3, KA=4), omega=c(AOB=1, ALPHA=2, BETA=3, KA=4), sigma=c(PROP=1))
+  model <- generateModel(advan, trans, mapping)
+  expect_equal(model, loadAdvanNonRegressionFile(advan, trans))
+})
+
+test_that("ADVAN11 TRANS4", {
+  advan <- 11
+  trans <- 4
+  mapping <- mapping(theta=c(CL=1, V1=2, V2=3, V3=4, Q2=5, Q3=6), omega=c(CL=1, V1=2, V2=3, V3=4, Q2=5, Q3=6), sigma=c(PROP=1))
+  model <- generateModel(advan, trans, mapping)
+  expect_equal(model, loadAdvanNonRegressionFile(advan, trans))
+})
+
+test_that("ADVAN12 TRANS4", {
+  advan <- 12
+  trans <- 4
+  mapping <- mapping(theta=c(KA=1, CL=2, V1=3, V2=4, V3=5, Q2=6, Q3=7), omega=c(KA=1, CL=2, V1=3, V2=4, V3=5, Q2=6, Q3=7), sigma=c(PROP=1))
   model <- generateModel(advan, trans, mapping)
   expect_equal(model, loadAdvanNonRegressionFile(advan, trans))
 })

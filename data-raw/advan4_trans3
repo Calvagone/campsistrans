@@ -17,7 +17,7 @@ $THETA 1     ; KA
 $THETA 5     ; CL 
 $THETA 80    ; V
 $THETA 4     ; Q
-$THETA 100   ; VSS
+$THETA 300   ; VSS
 $OMEGA 0.025 ; KA
 $OMEGA 0.025 ; CL
 $OMEGA 0.025 ; V

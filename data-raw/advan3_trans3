@@ -15,7 +15,7 @@ $ERROR
 $THETA 5     ; CL 
 $THETA 80    ; V 
 $THETA 4     ; Q 
-$THETA 100   ; VSS
+$THETA 300   ; VSS
 $OMEGA 0.025 ; CL
 $OMEGA 0.025 ; V
 $OMEGA 0.025 ; Q
