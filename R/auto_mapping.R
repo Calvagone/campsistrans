@@ -64,11 +64,34 @@ autoRenameParameters <- function(model, mapping) {
   return(model) 
 }
 
+#' Contains parameter.
+#' 
+#' @param x any model statement
+#' @param parameter parameter to search for a name in model
+#' @return a logical value
+#' @importFrom campsismod getNameInModel replaceAll VariablePattern
+#' 
+containsParameter <- function(x, parameter) {
+  parameterName <- parameter %>% campsismod::getNameInModel()
+  pattern <- campsismod::VariablePattern(parameterName)
+  if (is(x, "equation")) {
+    rhs <- x@rhs
+  } else if (is(x, "if_statement")) {
+    rhs <- x@equation@rhs
+  } else {
+    return(FALSE)
+  }
+  rhs_ <- rhs %>% campsismod::replaceAll(pattern=pattern, replacement="")
+  hasParam <- rhs %>% nchar() != rhs_ %>% nchar()
+  return(hasParam)
+}
+
 #' Seach candidate name.
 #' 
 #' @param model CAMPSIS model
 #' @param parameter parameter to search for a name in model
 #' @return a candidate name or NA if nothing was found
+#' @importFrom purrr detect
 #' 
 searchCandidateName <- function(model, parameter) {
   if (is(parameter, "sigma")) {
@@ -78,7 +101,6 @@ searchCandidateName <- function(model, parameter) {
       return("RSV")
     }
   }
-  parameterName <- parameter %>% getNameInModel()
   
   # Retrieve statements from MAIN and ERROR
   list <- list()
@@ -90,21 +112,18 @@ searchCandidateName <- function(model, parameter) {
   if (!is.null(error)) {
     list <- c(list, error@statements@list)
   }
-  pattern <- VariablePattern(parameterName)
   
   # Detect first match
-  equation <- list %>% purrr::detect(.f=function(x) {
-    if (is(x, "equation")) {
-      rhs <- x@rhs %>% replaceAll(pattern=pattern, replacement="")
-      hasParam <- rhs %>% nchar() != x@rhs %>% nchar()
-      return(hasParam)
-    } else {
-      return(FALSE)
-    }
-  })
-  if (is.null(equation)) {
+  statement <- list %>% purrr::detect(.f=~containsParameter(.x, parameter))
+  if (is.null(statement)) {
     return(NA)
   } else {
-    return(equation@lhs)
+    if (is(statement, "equation")) {
+      return(statement@lhs)
+    } else if (is(statement, "if_statement")) {
+      return(statement@equation@lhs)
+    } else {
+      stop("Should be either an equation or IF-statement")
+    }
   }
 }
