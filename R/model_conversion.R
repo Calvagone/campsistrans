@@ -52,6 +52,9 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   # Auto-detect compartment properties from NONMEM special variables
   retValue <- retValue %>% campsismod::autoDetectNONMEM()
   
+  # Move initial conditions
+  retValue <- retValue %>% moveInitialConditions()
+  
   return(retValue)
 })
 
@@ -188,4 +191,22 @@ convertCompartmentSystem <- function(system) {
   centralIndex <- which(system$names==central$name)
   odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", centralIndex)))
   return(odeRecord)
+}
+
+#' Move initial conditions from MAIN to INIT section.
+#' 
+#' @param model CAMPSIS model
+#' @importFrom campsismod Equation InitialCondition
+#' @return updated CAMPSIS model
+moveInitialConditions <- function(model) {
+  for (compartment in model@compartments@list) {
+    index <- compartment@index
+    initialValueNM <- Equation(paste0("A_0(", index, ")"))
+    equation <- model %>% find(initialValueNM)
+    if (!is.null(equation)) {
+      model <- model %>% add(InitialCondition(compartment=index, rhs=equation@rhs))
+      model <- model %>% delete(equation)
+    }
+  }
+  return(model)
 }

@@ -14,10 +14,13 @@ nonRegressionFolderPath <- function(folder) {
   return(paste0(testFolder, "non_regression/ddmore/", folder, "/"))
 }
 
-generateModel <- function(filename, folder, mapping=NULL) {
+generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL) {
   object <- importNONMEM(modelPath(filename), mapping=mapping, estimate=FALSE)
   
   model <- object %>% export(dest="campsis")
+  if (!is.null(modelfun)) {
+    model <- modelfun(model)
+  }
   
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(folder))
@@ -73,5 +76,29 @@ test_that("Midazolam PK (in newborns) can be imported well", {
   filename="Executable_Midazolam_PK.mod"
   folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
+  expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
+})
+
+test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
+  # DDMODEL00000077
+  # Krzyzanski_2010_Filgastrim_PKPD
+  
+  filename="Executable_simulated_GCSF_dataset_modified.ctl"
+  folder <- "filgrastim"
+  
+  mapping <- mapping(theta=c(FF=1, KA1=2, FR=3, D2=4, KEL=5, VD=6, KD=7, KINT=8, KSI=9, KOFF=10, KMT=11, KBB1=12, KTT=13, NB0=14, SC1=15, SM1=16, SM2=17, SM3=18),
+                     omega=c(NB0=1, KEL=2, VD=3, KA1=4, KSI=5, SC1=6, SM1=7, SM2=8))
+  
+  modelfun <- function(model) {
+    model <- model %>%
+      delete(IfStatement("CMT == 2", Equation("IPRED")))%>%
+      delete(IfStatement("CMT == 2", Equation("IRES"))) %>%
+      delete(IfStatement("CMT == 2", Equation("Y"))) %>%
+      delete(IfStatement("CMT == 4", Equation("IPRED"))) %>%
+      delete(IfStatement("CMT == 4", Equation("IRES"))) %>%
+      delete(IfStatement("CMT == 4", Equation("Y")))
+    return(model)
+  }
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
   expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
 })
