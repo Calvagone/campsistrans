@@ -158,9 +158,8 @@ convertRecord <- function(records, emptyRecord, parameters) {
 #' @return ODE record (CAMPSIS domain)
 #' @export
 convertCompartmentSystem <- function(system) {
-  
-  explicitOdes <- system$to_explicit_odes()
-  odes <- explicitOdes[[1]]
+  explicitSystem <- system$to_explicit_system()
+  odes <- explicitSystem$odes
   
   cptNames <- NULL
   odeRecord <- OdeRecord()
@@ -185,7 +184,8 @@ convertCompartmentSystem <- function(system) {
   }
   
   # Add F equation
-  central <- system$find_central()
-  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", central$index)))
+  central <- system$central_compartment
+  centralIndex <- which(system$names==central$name)
+  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", centralIndex)))
   return(odeRecord)
 }

@@ -58,6 +58,10 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
   
   filename="Executable_ParacetamolInNewborns.mod"
   folder <- "paracetamol"
+
+  # Note: when updating Pharmpy from 0.30.1 to 0.43.0
+  # I had to rename (CENTRAL,DEFDOSE) into (COMP1)
+  # Otherwise, there was a bug in Pharmpy (file advan.py, line 201, lhs_sum = dadt_dose.expression)
   model <- generateModel(filename=filename, folder=folder)
   expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
 })
