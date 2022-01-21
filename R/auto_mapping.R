@@ -71,6 +71,13 @@ autoRenameParameters <- function(model, mapping) {
 #' @return a candidate name or NA if nothing was found
 #' 
 searchCandidateName <- function(model, parameter) {
+  if (is(parameter, "sigma")) {
+    if (parameter@value == 1) {
+      return("RSV_FIX")
+    } else {
+      return("RSV")
+    }
+  }
   parameterName <- parameter %>% getNameInModel()
   
   # Retrieve statements from MAIN and ERROR

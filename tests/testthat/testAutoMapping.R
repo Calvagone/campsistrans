@@ -31,3 +31,16 @@ test_that("ADVAN1 TRANS1 (auto-mapping)", {
   model <- generateModel(advan, trans, mapping)
   expect_equal(model, loadAdvanNonRegressionFile(advan, trans))
 })
+
+test_that("ADVAN4 TRANS3 (auto-mapping)", {
+  advan <- 4
+  trans <- 3
+  mapping <- mapping(auto=TRUE)
+  model <- generateModel(advan, trans, mapping)
+  
+  expected_model <- loadAdvanNonRegressionFile(advan, trans)
+  expected_model@parameters@list[[11]]@name <- "RSV"
+  expected_model <- expected_model %>% replaceAll("EPS_PROP", "EPS_RSV")
+  
+  expect_equal(model, expected_model)
+})
