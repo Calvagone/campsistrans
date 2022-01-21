@@ -55,6 +55,9 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   # Move initial conditions
   retValue <- retValue %>% moveInitialConditions()
   
+  # Auto-rename parameters
+  retValue <- retValue %>% autoRenameParameters(mapping=object@mapping)
+  
   return(retValue)
 })
 

@@ -4,7 +4,7 @@
 \alias{mapping}
 \title{Create PMX mapping.}
 \usage{
-mapping(theta = NULL, omega = NULL, sigma = NULL)
+mapping(theta = NULL, omega = NULL, sigma = NULL, auto = FALSE)
 }
 \arguments{
 \item{theta}{named integer vector for THETA mapping}
@@ -12,6 +12,9 @@ mapping(theta = NULL, omega = NULL, sigma = NULL)
 \item{omega}{named integer vector for THETA mapping}
 
 \item{sigma}{named integer vector for OMEGA mapping}
+
+\item{auto}{derive parameter names based on NONMEM equations. Default value
+is FALSE for backward compatibility.}
 }
 \value{
 PMX mapping object

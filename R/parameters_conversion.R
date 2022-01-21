@@ -37,17 +37,21 @@ addMapping <- function(x, parameters, type) {
 #' @param theta named integer vector for THETA mapping
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
+#' @param auto derive parameter names based on NONMEM equations. Default value
+#' is FALSE for backward compatibility.
 #' @importFrom assertthat assert_that
 #' @importFrom campsismod Parameters
 #' @return PMX mapping object
 #' @export
-mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
+mapping <- function(theta=NULL, omega=NULL, sigma=NULL, auto=FALSE) {
   parameters <- Parameters()
   parameters <- addMapping(theta, parameters=parameters, type="theta")
   parameters <- addMapping(omega, parameters=parameters, type="omega")
   parameters <- addMapping(sigma, parameters=parameters, type="sigma")
+  
   retValue <- structure(list(
-    params=parameters
+    params=parameters,
+    auto=auto
   ), class="pmxmapping")
 }
 

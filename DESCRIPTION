@@ -11,6 +11,7 @@ Collate:
     'model_conversion.R'
     'parameters_conversion.R'
     'varcov_conversion.R'
+    'auto_mapping.R'
 Title: CAMPSIS Transformation Package (NONMEM Import)
 Version: 0.6.0
 Authors@R: c(

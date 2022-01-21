@@ -9,7 +9,8 @@ setClass(
     model = "list", # Workaround to store Pharmpy model
     params = "parameters",
     estimate = "logical",
-    varcov = "matrix"
+    varcov = "matrix",
+    mapping = "ANY"
   )
 )
 
@@ -51,7 +52,8 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
     model = list(model),
     params = parameters,
     estimate = estimate,
-    varcov = varcov
+    varcov = varcov,
+    mapping=mapping
   )
   return(retValue)
 }
