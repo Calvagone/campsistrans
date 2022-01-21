@@ -39,6 +39,9 @@ autoRenameParameters <- function(model, mapping) {
     return(tibble::tibble(NAME=nameInModel, TYPE=class(x) %>% as.character(), CANDIDATE_NAME=name_))
   })
   
+  # Get rid of TV if there is
+  mappingTable <- mappingTable %>% mutate(CANDIDATE_NAME=gsub("^TV", "", CANDIDATE_NAME, ignore.case=TRUE))
+  
   # Add indexes if candidate names are identical for the same parameter type
   # Especially useful for IOV
   mappingTable <- mappingTable %>% dplyr::group_split(TYPE, CANDIDATE_NAME) %>% purrr::map_df(.f=function(x) {
