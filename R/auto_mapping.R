@@ -19,6 +19,9 @@ needsAutoRenaming <- function(parameter) {
 #' @param model CAMPSIS model
 #' @param mapping mapping object
 #' @return CAMPSIS model with updated parameters
+#' @importFrom dplyr group_split mutate
+#' @importFrom purrr map_df
+#' @importFrom tibble tibble
 #' 
 autoRenameParameters <- function(model, mapping) {
   # Don't run function if auto-mapping is disabled
@@ -34,6 +37,15 @@ autoRenameParameters <- function(model, mapping) {
     nameInModel <- x %>% getNameInModel()
     name_ <- searchCandidateName(model, x)
     return(tibble::tibble(NAME=nameInModel, TYPE=class(x) %>% as.character(), CANDIDATE_NAME=name_))
+  })
+  
+  # Add indexes if candidate names are identical for the same parameter type
+  # Especially useful for IOV
+  mappingTable <- mappingTable %>% dplyr::group_split(TYPE, CANDIDATE_NAME) %>% purrr::map_df(.f=function(x) {
+    if (nrow(x) > 1) {
+      x <- x %>% dplyr::mutate(CANDIDATE_NAME=paste0(CANDIDATE_NAME, "_", seq_len(nrow(x))))
+    }
+    return(x)
   })
   
   # Rename parameters and replace in model
