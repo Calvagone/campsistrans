@@ -10,7 +10,8 @@ setClass(
     params = "parameters",
     estimate = "logical",
     varcov = "matrix",
-    mapping = "ANY"
+    mapping = "ANY",
+    dirname = "character"
   )
 )
 
@@ -31,9 +32,10 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
   pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model(file)
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
+  dirname <- dirname(file)
+  
   if (uncertainty) {
     fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(file))
-    dirname <- dirname(file)
     covFile <- paste0(dirname, "/", fileNoExt, ".cov")
     if (!file.exists(covFile)) {
       stop(paste0("File ", covFile, " could not be found"))
@@ -53,7 +55,8 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
     params = parameters,
     estimate = estimate,
     varcov = varcov,
-    mapping=mapping
+    mapping = mapping,
+    dirname = dirname
   )
   return(retValue)
 }

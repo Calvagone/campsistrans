@@ -17,7 +17,7 @@ importDataset <- function(campsistrans, covariates=NULL) {
     stop("No DATA section in control stream")
   }
   data <- data[[1]]
-  dataset <- read.csv(file=data$filename)
+  dataset <- read.csv(file=paste0(campsistrans@dirname, "/", data$filename))
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
   
@@ -78,7 +78,7 @@ importDataset <- function(campsistrans, covariates=NULL) {
 #' @param model CAMPSIS model
 #' @param id mapping ID name
 #' @return updated data frame
-#' @importFrom dplyr filter filter_at group_by_at pull rename_at select_at ungroup
+#' @importFrom dplyr filter filter_at group_by_at left_join pull rename_at select_at ungroup
 #' @importFrom purrr map_chr
 #' @export
 importETAs <- function(x, file, model, id="ID") {
@@ -107,10 +107,10 @@ importETAs <- function(x, file, model, id="ID") {
   
   # Left join
   uniqueIDs <- unique(tab %>% dplyr::pull(mappingIDName))
-  dataset <- dataset %>% dplyr::filter_at(.vars=mappingIDName, .vars_predicate=~.x %in% uniqueIDs) %>%
-    left_join(tab, by=mappingIDName)
+  x_ <- x %>% dplyr::filter_at(.vars=mappingIDName, .vars_predicate=~.x %in% uniqueIDs) %>%
+    dplyr::left_join(tab, by=mappingIDName)
   
-  return(dataset)
+  return(x_)
 }
 
 #' Add simulation ID column.
