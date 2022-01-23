@@ -78,7 +78,7 @@ importDataset <- function(campsistrans, covariates=NULL) {
 #' @param model CAMPSIS model
 #' @param id mapping ID name
 #' @return updated data frame
-#' @importFrom dplyr filter filter_at group_by_at left_join pull rename_at select_at ungroup
+#' @importFrom dplyr filter filter_at group_by_at left_join pull rename_at row_number select_at ungroup
 #' @importFrom purrr map_chr
 #' @export
 importETAs <- function(x, file, model, id="ID") {
@@ -89,7 +89,7 @@ importETAs <- function(x, file, model, id="ID") {
   # Import estimated subjects
   tab <- read.nonmem(file=file)[[1]] %>%
     dplyr::group_by_at(mappingIDName) %>%
-    dplyr::filter(row_number()==1) %>%
+    dplyr::filter(dplyr::row_number()==1) %>%
     dplyr::ungroup()
   
   # Standardise ETA names

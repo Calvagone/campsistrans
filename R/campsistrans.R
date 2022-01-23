@@ -30,7 +30,8 @@ setClass(
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(file)
+  #model <- pharmpy$Model(file)
+  model <- pharmpy$Model$create_model(file)
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   dirname <- dirname(file)
   
@@ -66,10 +67,9 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
 #_______________________________________________________________________________
 
 setMethod("write", signature=c("campsistrans", "character"), definition=function(object, file, ...) {
-  # USE source.write to avoid call to update_source
-  #x$model$source$write(file, force=TRUE)
-  ctl <- as.character(object@model[[1]])
-  fileConn <- file(file)
-  writeLines(text=ctl, fileConn)
-  close(fileConn)
+  # pharmpy <- reticulate::import("pharmpy")
+  # pharmpy$
+  pharmpyModel <- object@model[[1]]
+  # pharmpyModel <- campsistrans@model[[1]]
+  pharmpyModel$write(path=file, force=TRUE)
 })
