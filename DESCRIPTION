@@ -6,6 +6,7 @@ Collate:
     'print.R'
     'nonmem_table_parser.R'
     'nonmem_dataset_parser.R'
+    'nonmem_qualification_prep.R'
     'nonmem_domain.R'
     'campsistrans.R'
     'symbol_conversion.R'
