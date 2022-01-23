@@ -41,8 +41,6 @@ standardiseDataset <- function(dataset) {
 #' @param compartments compartment indexes to output, numeric vector
 #' @param outputFolder output folder to export the qualification control stream and CSV dataset
 #' @return the updated campsistrans object
-#' @importFrom dplyr filter pull
-#' @importFrom campsismod getNameInModel getByIndex maxIndex Omega write
 #' @importFrom tibble add_column as_tibble
 #' @export
 prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputFolder) {

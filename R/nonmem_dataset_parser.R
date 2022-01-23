@@ -48,7 +48,7 @@ importDataset <- function(campsistrans, covariates=NULL) {
   # DROP column indexes
   optionsToDrop <- options %>% purrr::keep(~(!is.null(.x$value) && .x$value == "DROP"))
   for (optionToDrop in optionsToDrop) {
-    dataset_ <- dataset_ %>% dplyr::select(-dplyr::all_of(optionToDrop))
+    dataset_ <- dataset_ %>% dplyr::select(-dplyr::all_of(optionToDrop$key))
   }
   
   # Rename necessary columns

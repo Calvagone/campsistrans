@@ -40,8 +40,6 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 #' @param type parameter type
 #' @param parameters parameters
 #' @return a pretty parameter name
-#' @importFrom assertthat assert_that
-#' @importFrom dplyr filter pull
 #' @importFrom campsismod getNameInModel getByIndex Theta Omega Sigma
 #' @export
 nameParameter <- function(type, parameters) {
