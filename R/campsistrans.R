@@ -7,11 +7,10 @@ setClass(
   "campsistrans",
   representation(
     model = "list", # Workaround to store Pharmpy model
-    params = "parameters",
     estimate = "logical",
-    varcov = "matrix",
     mapping = "ANY",
-    dirname = "character"
+    dirname = "character",
+    campsis = "campsis_model"
   )
 )
 
@@ -30,7 +29,6 @@ setClass(
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) {
   pharmpy <- reticulate::import("pharmpy")
-  #model <- pharmpy$Model(file)
   model <- pharmpy$Model$create_model(file)
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   dirname <- dirname(file)
@@ -49,27 +47,40 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) 
   # Convert parameters from NONMEM to pmxmod
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
   
+  # Export CAMPSIS model
+  campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
+  
   # Create campsistrans object
   retValue <- new(
     "campsistrans",
     model = list(model),
-    params = parameters,
     estimate = estimate,
-    varcov = varcov,
     mapping = mapping,
-    dirname = dirname
+    dirname = dirname,
+    campsis = campsis
   )
   return(retValue)
 }
+
+#_______________________________________________________________________________
+#----                                 export                                ----
+#_______________________________________________________________________________
+
+
+setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
+  # pmxmod is accepted
+  if (!(dest %in% c("campsis", "pmxmod"))) {
+    stop("dest must be 'campsis'")
+  }
+  return(object@campsis)
+})
 
 #_______________________________________________________________________________
 #----                                 write                                 ----
 #_______________________________________________________________________________
 
 setMethod("write", signature=c("campsistrans", "character"), definition=function(object, file, ...) {
-  # pharmpy <- reticulate::import("pharmpy")
-  # pharmpy$
-  pharmpyModel <- object@model[[1]]
-  # pharmpyModel <- campsistrans@model[[1]]
-  pharmpyModel$write(path=file, force=TRUE)
+  pharmpy <- reticulate::import("pharmpy")
+  model <- object@model[[1]]
+  pharmpy$modeling$write_model(model=model, path=file, force=TRUE)
 })

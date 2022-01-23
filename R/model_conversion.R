@@ -3,19 +3,19 @@
 #----                               export                                  ----
 #_______________________________________________________________________________
 
+#' Export CAMPSIS model.
+#' 
+#' @param pharmpyModel Pharmpy model
+#' @param parameters parameters (before auto mapping)
+#' @param varcov varcov imported with Pharmpy
+#' @param mapping initial mapping object
+#' @return the CAMPSIS model
 #' @importFrom reticulate iterate
 #' @importFrom campsismod autoDetectNONMEM updateCompartments
 #' 
-setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
-  # pmxmod is accepted
-  if (!(dest %in% c("campsis", "pmxmod"))) {
-    stop("dest must be 'campsis'")
-  }
-  
-  pharmpyModel <- object@model[[1]]
+exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   statements <- reticulate::iterate(pharmpyModel$statements)
-  parameters <- object@params
-  
+
   model <- CodeRecords()
   
   emptyRecord <- MainRecord()
@@ -42,8 +42,7 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  # Variance-covariance conversion (NONMEM -> CAMPSIS)
-  parameters@varcov <- object@varcov %>% convertVarcov(parameters)
+  # Instantiate initial CAMPSIS model
   retValue <- new("campsis_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the CAMPSIS model
@@ -56,10 +55,13 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   retValue <- retValue %>% moveInitialConditions()
   
   # Auto-rename parameters
-  retValue <- retValue %>% autoRenameParameters(mapping=object@mapping)
+  retValue <- retValue %>% autoRenameParameters(mapping=mapping)
+  
+  # Store variance-covariance matrix according to the new parameters
+  retValue@parameters@varcov <- varcov %>% convertVarcov(retValue@parameters)
   
   return(retValue)
-})
+}
 
 #' Add record to the specified CAMPSIS model.
 #' 
