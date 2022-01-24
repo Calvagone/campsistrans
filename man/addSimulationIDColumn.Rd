@@ -2,18 +2,22 @@
 % Please edit documentation in R/nonmem_dataset_parser.R
 \name{addSimulationIDColumn}
 \alias{addSimulationIDColumn}
-\title{Add simulation ID column.}
+\title{Add simulation ID column (id's starting at 1 and consecutive). Original column ID
+will be replaced by the new simulation ID column, after being renamed into
+ORIGINAL_ID column.}
 \usage{
 addSimulationIDColumn(dataset, id = "ID")
 }
 \arguments{
 \item{dataset}{NONMEM dataset}
 
-\item{id}{}
+\item{id}{current identifier column, default is 'ID'}
 }
 \value{
 updated data frame
 }
 \description{
-Add simulation ID column.
+Add simulation ID column (id's starting at 1 and consecutive). Original column ID
+will be replaced by the new simulation ID column, after being renamed into
+ORIGINAL_ID column.
 }

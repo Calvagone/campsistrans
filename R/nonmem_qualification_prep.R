@@ -153,7 +153,7 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
 
 #' Update ETA's in NONMEM record.
 #' 
-#' @param ctl NONMEM control stream
+#' @param pharmpyModel pharmpy model
 #' @param recordType record type to adapt
 #' @param params CAMPSIS parameters
 #' @importFrom reticulate import iterate py_has_attr

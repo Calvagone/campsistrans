@@ -7,11 +7,11 @@
 updateETAinNONMEMRecord(pharmpyModel, recordType, params)
 }
 \arguments{
+\item{pharmpyModel}{pharmpy model}
+
 \item{recordType}{record type to adapt}
 
 \item{params}{CAMPSIS parameters}
-
-\item{ctl}{NONMEM control stream}
 }
 \description{
 Update ETA's in NONMEM record.

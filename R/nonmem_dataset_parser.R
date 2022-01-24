@@ -136,10 +136,12 @@ importETAs <- function(x, file, model, id="ID") {
   return(x_)
 }
 
-#' Add simulation ID column.
+#' Add simulation ID column (id's starting at 1 and consecutive). Original column ID
+#' will be replaced by the new simulation ID column, after being renamed into
+#' ORIGINAL_ID column.
 #'
 #' @param dataset NONMEM dataset
-#' @param id 
+#' @param id current identifier column, default is 'ID'
 #' @return updated data frame
 #' @importFrom dplyr arrange group_by group_indices rename_at select
 #' @export
@@ -147,12 +149,16 @@ addSimulationIDColumn <- function(dataset, id="ID") {
   if ("ID" %in% colnames(dataset) && id != "ID") {
     dataset <- dataset %>% dplyr::select(-ID)
   }
+  # Current ID is renamed into ORIGINAL_ID
   if (!("ORIGINAL_ID" %in% colnames(dataset))) {
     dataset <- dataset %>% dplyr::rename_at(.vars=id, .funs=function(x){"ORIGINAL_ID"})
   }
-  dataset <- dataset %>% dplyr::arrange(ORIGINAL_ID) # Not sure this line is needed
+  # Arrange rows by ORIGINAL_ID
+  dataset <- dataset %>% dplyr::arrange(ORIGINAL_ID)
+  # Add simulation ID column
   dataset <- dataset %>% tibble::add_column(ID=dataset %>% dplyr::group_by(ORIGINAL_ID) %>%
                                               dplyr::group_indices(), .before="ORIGINAL_ID")
-  dataset <- dataset %>% dplyr::arrange(ID) # This may be needed in some cases
+  # Arrange rows by ID
+  dataset <- dataset %>% dplyr::arrange(ID) 
   return(dataset)
 }
