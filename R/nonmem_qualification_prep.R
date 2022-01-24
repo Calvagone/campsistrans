@@ -126,10 +126,10 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   
   # Preparing variables to output
   variablesDataset <- colnames(dataset)
-  defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
+  defaultVariables <- c("ID", "ORIGINAL_ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
   defaultVariables <- defaultVariables[defaultVariables %in% variablesDataset]
   allVariables <- unique(c(defaultVariables, variables, compartmentNames))
-  
+
   # Create TABLE record
   table <- pharmpyModel$control_stream$append_record(paste0("$TABLE ", paste0(allVariables, collapse=" "),
                                                              " FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n"))
@@ -139,16 +139,8 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PK", x@campsis@parameters)
   pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "ERROR", x@campsis@parameters)
   
-  # Replace control stream and update source
-  #pharmpyModel$control_stream <- ctl
-  #pharmpyModel$update_source()
-  
   # Write NONMEM dataset
   write.csv(dataset, file=paste0(outputFolder, "/", "dataset.csv"), quote=FALSE, row.names=FALSE)
-  
-  # NOT WORKING
-  # pharmpyModel$update_source() # NOT A GOOD IDEA (restore initial ETA's)
-  # pharmpy$modeling$write_model(model=pharmpyModel, path=paste0(outputFolder, "/", "model.mod"), force=TRUE) # NOT WORKING, SKIP NEW ETA NAMES
   
   # Write qualification control stream
   ctl <- as.character(pharmpyModel$control_stream)
