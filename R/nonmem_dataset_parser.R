@@ -4,29 +4,26 @@
 #' @param campsistrans campsistrans object
 #' @param covariates covariates vector. If provided, only these covariates are kept in dataset.
 #'  NULL is default (all covariates are kept)
+#' @param etas import estimated ETA's that were output by $TABLE in control stream.
+#' By default, ETA's are not imported. Please set it to TRUE to enable this feature.
+#' @param campsis_id rework ID column for simulation with CAMPSIS (ID must start at 1 and must be consecutive).
+#' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
+#' preserved in column 'ORIGINAL_ID'.
 #' @return a data frame
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(campsistrans, covariates=NULL) {
+importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, campsis_id=FALSE) {
   pharmpy <- campsistrans@model[[1]]
   
-  # Loading dataset
-  data <- pharmpy$control_stream$get_records("DATA")
-  if (data %>% length() == 0) {
-    stop("No DATA section in control stream")
-  }
-  data <- data[[1]]
+  # Looking at DATA section
+  data <- getFirstRecord(pharmpy, name="DATA")
   dataset <- read.csv(file=paste0(campsistrans@dirname, "/", data$filename))
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
   
-  # Looking at INPUT definition
-  input <- pharmpy$control_stream$get_records("INPUT")
-  if (input %>% length() == 0) {
-    stop("No INPUT section in control stream")
-  }
-  input <- input[[1]]
+  # Looking at INPUT section
+  input <- getFirstRecord(pharmpy, name="INPUT")
   
   # All options in INPUT
   options <- input$all_options
@@ -39,22 +36,19 @@ importDataset <- function(campsistrans, covariates=NULL) {
   optionKeys <- options %>% purrr::map_chr(~.x$key)
   optionValues <- options %>% purrr::map_chr(~ifelse(is.null(.x$value), NA, .x$value))
   
-  # Copy original dataset
-  dataset_ <- dataset
-  
   # Overwrite column headers with the keys
-  colnames(dataset_) <- optionKeys
+  colnames(dataset) <- optionKeys
   
   # DROP column indexes
   optionsToDrop <- options %>% purrr::keep(~(!is.null(.x$value) && .x$value == "DROP"))
   for (optionToDrop in optionsToDrop) {
-    dataset_ <- dataset_ %>% dplyr::select(-dplyr::all_of(optionToDrop$key))
+    dataset <- dataset %>% dplyr::select(-dplyr::all_of(optionToDrop$key))
   }
   
   # Rename necessary columns
   optionsToRename <- options %>% purrr::keep(~(!is.null(.x$value) && .x$value != "DROP"))
   for (optionToRename in optionsToRename) {
-    dataset_ <- dataset_ %>% dplyr::rename_at(.vars=optionToRename$key, .funs=~optionToRename$value)
+    dataset <- dataset %>% dplyr::rename_at(.vars=optionToRename$key, .funs=~optionToRename$value)
   }
   
   # NONMEM important variables
@@ -62,13 +56,42 @@ importDataset <- function(campsistrans, covariates=NULL) {
   
   # Remove unnecessary columns
   if (!is.null(covariates)) {
-    dataset_ <- dataset_ %>% dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
+    dataset <- dataset %>% dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
   }
   
   # Standardise dataset
-  dataset_ <- dataset_ %>% dplyr::relocate(dplyr::any_of(nmVariables))
+  dataset <- dataset %>% dplyr::relocate(dplyr::any_of(nmVariables))
   
-  return(dataset_)
+  # Import ETAs if it was required (default is FALSE)
+  if (etas) {
+    table <- getFirstRecord(pharmpy, name="TABLE")
+    tabFilename <- table$path %>% as.character()
+    dataset <- dataset %>% importETAs(file=paste0(campsistrans@dirname, "/", tabFilename),
+                                      model=campsistrans@campsis)
+  }
+  
+  # Simulation ID column
+  if (campsis_id) {
+    dataset <- dataset %>% addSimulationIDColumn()
+  }
+  
+  return(dataset)
+}
+
+#' Get first NONMEM record from the NONMEM control stream for the given section name.
+#'
+#' @param pharmpy pharmpy model
+#' @param name NONMEM section name
+#' @param stop_if_not_found throw an error if no section was found
+#' @return a record
+#' 
+getFirstRecord <- function(pharmpy, name, stop_if_not_found=TRUE) {
+  records <- pharmpy$control_stream$get_records(name)
+  if (records %>% length() == 0) {
+    stop(paste0("No ", name, " section in control stream"))
+  }
+  record <- records[[1]]
+  return(record)
 }
 
 #' Import ETA's.
