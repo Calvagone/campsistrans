@@ -6,8 +6,8 @@ context("Test NONMEM import on a few DDMoRE models")
 testFolder <<- ""
 overwriteNonRegressionFiles <- FALSE
 
-modelPath <- function(filename) {
-  return(paste0(testFolder, "ddmore_models/", filename))
+modelPath <- function(folder, filename) {
+  return(paste0(testFolder, "ddmore_models/", folder, "/", filename))
 }
 
 nonRegressionFolderPath <- function(folder) {
@@ -15,7 +15,7 @@ nonRegressionFolderPath <- function(folder) {
 }
 
 generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL) {
-  object <- importNONMEM(modelPath(filename), mapping=mapping, estimate=FALSE)
+  object <- importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE)
   
   model <- object %>% export(dest="campsis")
   if (!is.null(modelfun)) {
