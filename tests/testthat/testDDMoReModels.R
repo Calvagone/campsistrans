@@ -73,7 +73,7 @@ test_that("Midazolam PK (in newborns) can be imported well", {
   # DDMODEL00000250
   # Midazolam PK in obese adults and adolescents
   
-  filename="Executable_Midazolam_PK.mod"
+  filename <- "Executable_Midazolam_PK.mod"
   folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
   expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
@@ -83,7 +83,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   # DDMODEL00000077
   # Krzyzanski_2010_Filgastrim_PKPD
   
-  filename="Executable_simulated_GCSF_dataset_modified.ctl"
+  filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
   folder <- "filgrastim"
   
   mapping <- mapping(theta=c(FF=1, KA1=2, FR=3, D2=4, KEL=5, VD=6, KD=7, KINT=8, KSI=9, KOFF=10, KMT=11, KBB1=12, KTT=13, NB0=14, SC1=15, SM1=16, SM2=17, SM3=18),

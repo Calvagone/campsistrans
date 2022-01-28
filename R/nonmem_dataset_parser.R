@@ -35,14 +35,17 @@ standardiseNMDataset <- function(dataset) {
 #'  NULL is default (all covariates are kept)
 #' @param etas import estimated ETA's that were output by $TABLE in control stream.
 #' By default, ETA's are not imported. Please set it to TRUE to enable this feature.
+#' @param etas_zero if previous argument is set to FALSE, etas_zero set to TRUE will
+#' all ETA's from model to 0 (useful to simulate model without IIV)
 #' @param campsis_id rework ID column for simulation with CAMPSIS (ID must start at 1 and must be consecutive).
 #' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 #' preserved in column 'ORIGINAL_ID'.
 #' @return a data frame
+#' @importFrom campsismod getNameInModel
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, campsis_id=FALSE) {
+importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=FALSE, campsis_id=FALSE) {
   pharmpy <- campsistrans@model[[1]]
   
   # Looking at DATA section
@@ -100,6 +103,13 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, campsis_id=
     tabFilename <- table$path %>% as.character()
     dataset <- dataset %>% importETAs(file=paste0(campsistrans@dirname, "/", tabFilename),
                                       model=campsistrans@campsis)
+  } else {
+    # If etas_zero, all ETAs are added to dataset and set to 0
+    if (etas_zero) {
+      for (omega in campsistrans@campsis@parameters %>% campsismod::select("omega") %>% .@list) {
+        dataset[omega %>% campsismod::getNameInModel()] <- 0
+      }
+    }
   }
   
   # Simulation ID column
