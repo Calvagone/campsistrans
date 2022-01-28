@@ -1,4 +1,33 @@
 
+#' Standardise NONMEM dataset.
+#'
+#' @param dataset NONMEM dataset
+#' @return updated dataset
+#' @export
+standardiseNMDataset <- function(dataset) {
+  mandatoryNMVariables <- c("ID","TIME","DV","AMT")
+  columnNames <- colnames(dataset)
+  
+  if (!all(mandatoryNMVariables %in% columnNames)) {
+    stop("NONMEM dataset must have the mandatory columns ID, TIME, AMT and DV")
+  }
+
+  if (!("MDV" %in% columnNames)) {
+    dataset$MDV <- ifelse(dataset$AMT==0, 0, 1)
+  }
+  if (!("EVID" %in% columnNames)) {
+    dataset$EVID <- dataset$MDV
+  }
+  if (!("RATE" %in% columnNames)) {
+    dataset$RATE <- 0
+  }
+  if (!("CMT" %in% columnNames)) {
+    dataset$CMT <- 1 # TO DO, use DEFDOSE and DEFOBS
+  }
+
+  return(dataset)
+}
+
 #' Import a NONMEM dataset and prepare it for the qualification.
 #'
 #' @param campsistrans campsistrans object
@@ -50,6 +79,9 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, campsis_id=
   for (optionToRename in optionsToRename) {
     dataset <- dataset %>% dplyr::rename_at(.vars=optionToRename$key, .funs=~optionToRename$value)
   }
+  
+  # First standardise NONMEM dataset
+  dataset <- standardiseNMDataset(dataset)
   
   # NONMEM important variables
   nmVariables <- c("ID","TIME","DV","MDV","EVID", "AMT", "CMT", "RATE")

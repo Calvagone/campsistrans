@@ -126,7 +126,7 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   
   # Preparing variables to output
   variablesDataset <- colnames(dataset)
-  defaultVariables <- c("ID", "ORIGINAL_ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
+  defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
   defaultVariables <- defaultVariables[defaultVariables %in% variablesDataset]
   allVariables <- unique(c(defaultVariables, variables, compartmentNames))
 
