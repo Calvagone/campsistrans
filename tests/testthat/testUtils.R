@@ -11,6 +11,12 @@
 # # Install pharmpy
 # python -m pip install pharmpy-core
 
+# # Checkout Pharmpy tag
+# git checkout v0.45.0
+
+# # Install pharmpy from local git repository (always uninstall first)
+# python setup.py install
+
 # Link specific version of Python with R at startup
 # Add line in Rprofile.site: Sys.setenv("RETICULATE_PYTHON"="C:/PsN-5.0.0/python/python-3.7.7.amd64/")
 

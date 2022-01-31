@@ -8,7 +8,7 @@ test_that("nlmixr conversion", {
   pharmpy <- reticulate::import("pharmpy")
   advan <- 4
   trans <- 4
-  nmmodel <- pharmpy$Model(getNONMEMModelTemplate(advan, trans))
+  nmmodel <- pharmpy$Model$create_model(getNONMEMModelTemplate(advan, trans))
   nlmixrmodel <- pharmpy$plugins$nlmixr$convert_model(nmmodel)
   
   # See here that pharmy is able to export to nlmixr

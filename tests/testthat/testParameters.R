@@ -15,7 +15,7 @@ modelPath <- function(advan, trans) {
 
 test_that("Test method retrieveInitialValues", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
+  model <- pharmpy$Model$create_model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
   expect_equal(as.character(class(params)), "parameters")
@@ -24,10 +24,10 @@ test_that("Test method retrieveInitialValues", {
 
 test_that("Test method select and maxIndex", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(getNONMEMModelTemplate(4, 4))
+  model <- pharmpy$Model$create_model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
-  omegas <- params %>% select("omega")
+  omegas <- params %>% campsismod::select("omega")
   expect_equal(length(omegas@list), 5)
   
   maxIndex <- omegas %>% maxIndex()
@@ -36,7 +36,7 @@ test_that("Test method select and maxIndex", {
 
 test_that("Test method getByIndex", {
   pharmpy <- reticulate::import("pharmpy")
-  model <- pharmpy$Model(getNONMEMModelTemplate(1, 2))
+  model <- pharmpy$Model$create_model(getNONMEMModelTemplate(1, 2))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
   

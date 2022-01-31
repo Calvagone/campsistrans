@@ -3,19 +3,19 @@
 #----                               export                                  ----
 #_______________________________________________________________________________
 
+#' Export CAMPSIS model.
+#' 
+#' @param pharmpyModel Pharmpy model
+#' @param parameters parameters (before auto mapping)
+#' @param varcov varcov imported with Pharmpy
+#' @param mapping initial mapping object
+#' @return the CAMPSIS model
 #' @importFrom reticulate iterate
 #' @importFrom campsismod autoDetectNONMEM updateCompartments
 #' 
-setMethod("export", signature = c("campsistrans", "character"), definition = function(object, dest, ...) {
-  # pmxmod is accepted
-  if (!(dest %in% c("campsis", "pmxmod"))) {
-    stop("dest must be 'campsis'")
-  }
-  
-  pharmpyModel <- object@model[[1]]
+exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   statements <- reticulate::iterate(pharmpyModel$statements)
-  parameters <- object@params
-  
+
   model <- CodeRecords()
   
   emptyRecord <- MainRecord()
@@ -42,8 +42,7 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   record <- pharmpyModel$control_stream$get_records("ERROR")
   model <- addconvertRecord(model, record, emptyRecord, parameters)
   
-  # Variance-covariance conversion (NONMEM -> CAMPSIS)
-  parameters@varcov <- object@varcov %>% convertVarcov(parameters)
+  # Instantiate initial CAMPSIS model
   retValue <- new("campsis_model", model=model, parameters=parameters)
   
   # Update compartments list before returning the CAMPSIS model
@@ -52,8 +51,17 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
   # Auto-detect compartment properties from NONMEM special variables
   retValue <- retValue %>% campsismod::autoDetectNONMEM()
   
+  # Move initial conditions
+  retValue <- retValue %>% moveInitialConditions()
+  
+  # Auto-rename parameters
+  retValue <- retValue %>% autoRenameParameters(mapping=mapping)
+  
+  # Store variance-covariance matrix according to the new parameters
+  retValue@parameters@varcov <- varcov %>% convertVarcov(retValue@parameters)
+  
   return(retValue)
-})
+}
 
 #' Add record to the specified CAMPSIS model.
 #' 
@@ -158,9 +166,8 @@ convertRecord <- function(records, emptyRecord, parameters) {
 #' @return ODE record (CAMPSIS domain)
 #' @export
 convertCompartmentSystem <- function(system) {
-  
-  explicitOdes <- system$to_explicit_odes()
-  odes <- explicitOdes[[1]]
+  explicitSystem <- system$to_explicit_system()
+  odes <- explicitSystem$odes
   
   cptNames <- NULL
   odeRecord <- OdeRecord()
@@ -185,7 +192,26 @@ convertCompartmentSystem <- function(system) {
   }
   
   # Add F equation
-  central <- system$find_central()
-  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", central$index)))
+  central <- system$central_compartment
+  centralIndex <- which(system$names==central$name)
+  odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", centralIndex)))
   return(odeRecord)
+}
+
+#' Move initial conditions from MAIN to INIT section.
+#' 
+#' @param model CAMPSIS model
+#' @importFrom campsismod Equation InitialCondition
+#' @return updated CAMPSIS model
+moveInitialConditions <- function(model) {
+  for (compartment in model@compartments@list) {
+    index <- compartment@index
+    initialValueNM <- Equation(paste0("A_0(", index, ")"))
+    equation <- model %>% find(initialValueNM)
+    if (!is.null(equation)) {
+      model <- model %>% add(InitialCondition(compartment=index, rhs=equation@rhs))
+      model <- model %>% delete(equation)
+    }
+  }
+  return(model)
 }

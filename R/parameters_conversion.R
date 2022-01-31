@@ -1,39 +1,57 @@
 
+#' Add mapping to parameters object.
+#' 
+#' @param x mapping vector
+#' @param parameters parameters object
+#' @param type mapping vector type
+#' @importFrom assertthat assert_that
+#' @importFrom campsismod add Theta Omega Sigma
+#' @importFrom purrr map2
+#' @return parameters
+addMapping <- function(x, parameters, type) {
+  if (!is.null(x)) {
+    assertthat::assert_that(is.numeric(x), msg=paste0(type, " is not numeric"))
+    names <- names(x)
+    if (is.null(names)) {
+      names <- rep(NA, length(x))
+    }
+    names <- ifelse(names=="", NA, names)
+    temp <- purrr::map2(x, names, .f=function(index, name) {
+      if (type=="theta") {
+        return(Theta(name=as.character(name), index=index))
+      } else if (type=="omega") {
+        return(Omega(name=as.character(name), index=index, index2=index))
+      } else if (type=="sigma") {
+        return(Sigma(name=as.character(name), index=index, index2=index))
+      } else {
+        stop("Type can only be theta, omega or sigma")
+      }
+    })
+    parameters <- parameters %>% add(temp)
+  }
+  return(parameters)
+}
+
 #' Create PMX mapping.
 #' 
 #' @param theta named integer vector for THETA mapping
 #' @param omega named integer vector for THETA mapping
 #' @param sigma named integer vector for OMEGA mapping
+#' @param auto derive parameter names based on NONMEM equations. Default value
+#' is FALSE for backward compatibility.
 #' @importFrom assertthat assert_that
-#' @importFrom campsismod add Parameters Theta Omega Sigma
-#' @importFrom purrr map2
+#' @importFrom campsismod Parameters
 #' @return PMX mapping object
 #' @export
-mapping <- function(theta=NULL, omega=NULL, sigma=NULL) {
-  params <- Parameters()
-  if (!is.null(theta)) {
-    assertthat::assert_that(is.numeric(theta), msg="theta is not numeric")
-    names <- if (is.character(names(theta))) {names(theta)} else {rep(NA, length(theta))}
-    purrr::map2(theta, names, .f=function(index, name) {
-      params <<- params %>% campsismod::add(Theta(name=as.character(name), index=index))
-    })
-  }
-  if (!is.null(omega)) {
-    assertthat::assert_that(is.numeric(omega), msg="omega is not numeric")
-    names <- if (is.character(names(omega))) {names(omega)} else {rep(NA, length(omega))}
-    purrr::map2(omega, names, .f=function(index, name) {
-      params <<- params %>% campsismod::add(Omega(name=as.character(name), index=index, index2=index))
-    })
-  }
-  if (!is.null(sigma)) {
-    assertthat::assert_that(is.numeric(sigma), msg="sigma is not numeric")
-    names <- if (is.character(names(sigma))) {names(sigma)} else {rep(NA, length(sigma))}
-    purrr::map2(sigma, names, .f=function(index, name) {
-      params <<- params %>% campsismod::add(Sigma(name=as.character(name), index=index, index2=index))
-    })
-  }
+mapping <- function(theta=NULL, omega=NULL, sigma=NULL, auto=FALSE) {
+  parameters <- Parameters()
+  parameters <- addMapping(theta, parameters=parameters, type="theta")
+  parameters <- addMapping(omega, parameters=parameters, type="omega")
+  parameters <- addMapping(sigma, parameters=parameters, type="sigma")
+  
   retValue <- structure(list(
-    params=params
+    params=parameters,
+    auto=auto
   ), class="pmxmapping")
 }
 
