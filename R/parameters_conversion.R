@@ -60,8 +60,8 @@ mapping <- function(theta=NULL, omega=NULL, sigma=NULL, auto=FALSE) {
 #' @param parameters parameters
 #' @return updated parameters
 processParameters <- function(parameters) {
-  # Clean parameters
-  parameters <- parameters %>% campsismod::clean()
+  # Delete attributes
+  attributes(parameters@list) <- NULL
   
   # Sort parameters
   parameters <- parameters %>% campsismod::sort()
@@ -79,7 +79,7 @@ processParameters <- function(parameters) {
 #' @return parameters definition table
 #' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
-#' @importFrom campsismod add clean getByIndex getNONMEMName Parameters sort
+#' @importFrom campsismod add getByIndex getNONMEMName Parameters sort
 #' @export
 convertParameters <- function(model, mapping, estimate) {
   
