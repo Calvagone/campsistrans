@@ -33,6 +33,7 @@ read.nonmem <- function(file, varcov=FALSE) {
 #' the first column is not numeric.
 #' @return a dataframe
 #' @importFrom purrr map_df
+#' @export
 read.nonmemtable <- function(content, varcov=FALSE) {
   
   # Skip first line
@@ -51,6 +52,10 @@ read.nonmemtable <- function(content, varcov=FALSE) {
     .x <- gsub("\\s+", " ", .x)
     .x <- strsplit(.x, " ")[[1]]
     names(.x) <- headers
+    
+    # Remove duplicated headers (otherwise, issues with map_df)
+    .x <- .x[headers %>% unique()]
+    
     return(.x)
   })
   
@@ -58,6 +63,8 @@ read.nonmemtable <- function(content, varcov=FALSE) {
   if (varcov) {
     headers <- headers[-1]
   }
+  
+  # All column as numeric
   data <- data %>% dplyr::mutate_at(.vars=headers, .funs=as.numeric)
   
   return(data)

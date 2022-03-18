@@ -1,5 +1,6 @@
 library(testthat)
 library(campsismod)
+library(campsis)
 library(ggplot2)
 
 context("Test campsistrans")
@@ -102,4 +103,13 @@ test_that("Custom test with RxODE", {
   # Plotting C2
   plot(sim, CP) +
     ylab("Concentration") 
+})
+
+test_that("removePiecewiseStatements method works as expected", {
+  model <- campsismod::model_library$advan1_trans2
+
+  # This is an example of piecewise statement added by Pharmpy
+  model_ <- model %>% replace(Ode("A_CENTRAL", "-CL*A_CENTRAL/V + Piecewise((RATE, t < AMT/RATE), (0, True))"))
+  
+  expect_equal(model, model_ %>% removePiecewiseStatements())
 })
