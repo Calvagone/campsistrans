@@ -215,3 +215,20 @@ moveInitialConditions <- function(model) {
   }
   return(model)
 }
+
+#' Remove the piecewise statements added by Pharmpy.
+#' 
+#' @param model CAMPSIS model
+#' @return updated CAMPSIS model
+#' @importFrom campsismod replace
+#' @export
+removePiecewiseStatements <- function(model) {
+  compartments <- model@compartments
+  for (compartment in compartments@list) {
+    ode <- model %>% find(Ode(paste0("A_", compartment@name)))
+    ode@rhs <- gsub(pattern=" \\+ Piecewise\\(.*", replacement="", ode@rhs)
+    model <- model %>% campsismod::replace(ode)
+  }
+  return(model)
+}
+

@@ -15,7 +15,7 @@ Collate:
     'varcov_conversion.R'
     'auto_mapping.R'
 Title: CAMPSIS Transformation Package (NONMEM Import)
-Version: 0.6.1
+Version: 0.6.2
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
