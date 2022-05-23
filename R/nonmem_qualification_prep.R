@@ -173,7 +173,7 @@ updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
     # Replace all ETA's
     for (index in (seq_along(statements))) {
       statement <- statements[[index]]
-      
+
       # Only if expression is present
       if (reticulate::py_has_attr(statement, name="expression")) {
         free_symbols <- reticulate::iterate(statement$expression$free_symbols)
@@ -188,8 +188,15 @@ updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
             statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
           }
         }
+        # After ETA's replacement, if left = right (e.g. ETA_CL=ETA_CL)
+        # -> the current statement is omitted
+        if (statement$symbol %>% as.character() != statement$expression %>% as.character()) {
+          replacementStatements <- c(replacementStatements, statement)
+        }
+      } else {
+        replacementStatements <- c(replacementStatements, statement)
       }
-      replacementStatements <- c(replacementStatements, statement)
+      
     }
     record_$statements <- replacementStatements
     pharmpyModel$control_stream$replace_records(record, list(record_))
