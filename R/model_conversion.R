@@ -57,6 +57,9 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   # Auto-rename parameters
   retValue <- retValue %>% autoRenameParameters(mapping=mapping)
   
+  # Get rid of useless equations
+  retValue <- retValue %>% removeUselessEquations()
+  
   # Store variance-covariance matrix according to the new parameters
   retValue@parameters@varcov <- varcov %>% convertVarcov(retValue@parameters)
   
@@ -230,5 +233,36 @@ removePiecewiseStatements <- function(model) {
     model <- model %>% campsismod::replace(ode)
   }
   return(model)
+}
+
+#' Remove useless equations (e.g. ETA_CL=ETA_CL). This can be useful when
+#' the auto-mapping is used.
+#' 
+#' @param model CAMPSIS model
+#' @return updated CAMPSIS model
+#' @importFrom campsismod replace
+#' @export
+removeUselessEquations <- function(model) {
+  main <- model %>% find(MainRecord())
+  if (!is.null(main)) {
+    model <- model %>% campsismod::replace(discardUselessEquations(main))
+  }
+  error <- model %>% find(ErrorRecord())
+  if (!is.null(error)) {
+    model <- model %>% campsismod::replace(discardUselessEquations(error))
+  }
+  return(model)
+}
+
+discardUselessEquations <- function(record) {
+  record@statements@list <- record@statements@list %>% purrr::discard(.p=function(statement) {
+    if (is(statement, "equation")) {
+      if (statement@lhs==statement@rhs) {
+        return(TRUE)
+      }
+    }
+    return(FALSE)
+  })
+  return(record)
 }
 
