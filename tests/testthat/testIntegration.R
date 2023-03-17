@@ -33,7 +33,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   model <- model %>% delete(IfStatement("CMT == 4", Equation("IRES")))
   model <- model %>% delete(IfStatement("CMT == 4", Equation("Y")))
   
-  dest <- "RxODE"
+  dest <- "rxode2"
   covariates <- c("ROUT", "BAS")
   settings <- Settings(Declare(covariates))
   

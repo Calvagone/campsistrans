@@ -11,7 +11,7 @@ A library dedicate to drug model conversion in pharmacometrics.
 ## Requirements
 
 * Python framework and Pharmpy package must be installed beforehand
-* R packages pmxmod must also be installed
+* R package campsis must also be installed
 
 ## Installation
 Install the current development version:
@@ -61,12 +61,12 @@ show(model)
 
 Simulate it using CAMPSIS:
 
-```{r}
+```{r campsis_simulation, message=F}
 library(campsis)
-dataset <- Dataset(10)
-dataset <- dataset %>% add(Bolus(time=0, amount=1000))
-dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+dataset <- Dataset(10)%>%
+  add(Bolus(time=0, amount=1000)) %>%
+  add(Observations(times=seq(0,24, by=0.5)))
 
-results <- simulate(model, dataset, dest="RxODE", seed=1)
+results <- simulate(model, dataset, dest="rxode2", seed=1)
 spaghettiPlot(results, "CP")
 ```
