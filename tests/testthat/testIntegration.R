@@ -35,6 +35,8 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   
   dest <- "RxODE"
   covariates <- c("ROUT", "BAS")
+  settings <- Settings(Declare(covariates))
+  
   getDataset <- function(excludeCMT=4) {
     dataset <- importDataset(campsistrans, covariates=c("ROUT", "BAS"), etas_zero=TRUE, campsis_id=TRUE)
     dataset <- dataset %>% dplyr::filter(CMT!=excludeCMT)
@@ -48,7 +50,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZCP
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZCP, variables="ZCP",
-            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, declare=covariates)
+            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, settings=settings)
   expect_true(qual %>% passed())
   if (exportReport) {
     qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
@@ -57,7 +59,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZNB
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZNB, variables="ZNB",
-            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, declare=covariates)
+            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, settings=settings)
   expect_true(qual %>% passed())
   if (exportReport) {
     qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))
