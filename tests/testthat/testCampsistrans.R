@@ -15,17 +15,17 @@ test_that("ADVAN3 TRANS4 - simulation", {
   rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
 
   # Loading model in RxODE
-  mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
+  mod <- rxode2::RxODE(paste0(rxodeMod@code, collapse="\n"))
 
   # Dosing regimen
-  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
-    RxODE::et(amt=1000, cmt="A_CENTRAL")
+  ev <- rxode2::et(amount.units="mg", time.units="hours") %>%
+    rxode2::et(amt=1000, cmt="A_CENTRAL")
  
   # Sampling time
-  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+  ev <- ev %>% rxode2::et(0, 48, length.out=100)
  
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
+  sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
  
   # Plotting C2
   plot(sim, CP) +
@@ -41,17 +41,17 @@ test_that("ADVAN4 TRANS4 - simulation", {
   rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
   
   # Loading model in RxODE
-  mod <- RxODE::RxODE(paste0(rxodeMod@code, collapse="\n"))
+  mod <- rxode2::RxODE(paste0(rxodeMod@code, collapse="\n"))
   
   # Dosing regimen
-  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
-    RxODE::et(amt=1000, cmt="A_DEPOT")
+  ev <- rxode2::et(amount.units="mg", time.units="hours") %>%
+    rxode2::et(amt=1000, cmt="A_DEPOT")
   
   # Sampling time
-  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+  ev <- ev %>% rxode2::et(0, 48, length.out=100)
   
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
+  sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
   # Plotting C2
   plot(sim, CP) +
@@ -70,7 +70,7 @@ test_that("Custom test with RxODE", {
   # Convert to RxODE model
   rxodeMod <- object %>% export(dest="campsis") %>% export(dest="RxODE")
   
-  mod <- RxODE::RxODE("
+  mod <- rxode2::RxODE("
     CL=THETA_CL*exp(ETA_CL)
     V1=THETA_V1*exp(ETA_V1)
     if(V1 < 80) V1=40
@@ -88,14 +88,14 @@ test_that("Custom test with RxODE", {
   ")
 
   # Dosing regimen
-  ev <- RxODE::et(amount.units="mg", time.units="hours") %>%
-    RxODE::et(amt=1000, cmt="A_CENTRAL")
+  ev <- rxode2::et(amount.units="mg", time.units="hours") %>%
+    rxode2::et(amt=1000, cmt="A_CENTRAL")
   
   # Sampling time
-  ev <- ev %>% RxODE::et(0, 48, length.out=100)
+  ev <- ev %>% rxode2::et(0, 48, length.out=100)
   
   # Simulate
-  sim  <- RxODE::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
+  sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
   results <- as.data.frame(sim) 
   results <- results %>% dplyr::mutate(time=as.numeric(time)) %>% dplyr::filter(time==0)
