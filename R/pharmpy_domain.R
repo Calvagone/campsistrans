@@ -95,6 +95,9 @@ toNONMEMStyle <- function(str) {
     
   } else if (isPharmpySigmaParameter(str)) {
     retValue <- sprintf("SIGMA(%i,%i)", index[1], index[2])
+  
+  } else {
+    stop(sprintf("Nothing found for %s", str))  
   }
 
   return(retValue)

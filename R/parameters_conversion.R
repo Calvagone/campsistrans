@@ -189,32 +189,43 @@ retrieveInitialValues <- function(model) {
 #   return(parset)
 # }
 
+getOriginalEtaEpsParameterName <- function(rvs, name) {
+  rvNames <- seq_along(rvs) %>%
+    purrr::map(~as.character(rvs[[.x - 1]]$names)) %>%
+    purrr::flatten_chr()
+  rvParameterNames <- seq_along(rvs) %>%
+    purrr::map(~as.character(rvs[[.x - 1]]$parameter_names)) %>%
+    purrr::flatten_chr()
+  rvIndex <- which(rvParameterNames==name)
+  
+  if (length(rvIndex) > 0) {
+    return(toNONMEMStyle(rvNames[rvIndex]))
+  } else {
+    return(NULL)
+  }
+}
+
 getOriginalParameterName <- function(name, model, index) {
 
-  etas <- model$random_variables$etas
-  etaNames <- seq_along(etas) %>% purrr::map_chr(~as.character(etas[[.x - 1]]$names))
-  etaParameterNames <- seq_along(etas) %>% purrr::map_chr(~as.character(etas[[.x - 1]]$parameter_names))
-  etaIndex <- which(etaParameterNames==name)
-  if (length(etaIndex) > 0) {
-    return(toNONMEMStyle(etaNames[etaIndex]))
+  # Off-diagonal element
+  if (isPharmpyOmegaParameter(name) || isPharmpySigmaParameter(name)) {
+    return(toNONMEMStyle(name))
   }
   
-  epsilons <- model$random_variables$epsilons
-  epsilonNames <- seq_along(epsilons) %>% purrr::map_chr(~as.character(epsilons[[.x - 1]]$names))
-  epsilonParameterNames <- seq_along(epsilons) %>% purrr::map_chr(~as.character(epsilons[[.x - 1]]$parameter_names))
-  epsilonIndex <- which(epsilonParameterNames==name)
-  if (length(epsilonIndex) > 0) {
-    return(toNONMEMStyle(epsilonNames[epsilonIndex]))
+  # ETA
+  originalName <- getOriginalEtaEpsParameterName(rvs=model$random_variables$etas, name=name)
+  if (!is.null(originalName)) {
+    return(originalName)
   }
   
-  retValue <- name
-  
-  # If not off-diagonal element -> we deduce it is a THETA
-  if (!isPharmpyOmegaParameter(name) && !isPharmpySigmaParameter(name)) {
-    retValue <- paste0("THETA_", index)
+  # EPS
+  originalName <- getOriginalEtaEpsParameterName(rvs=model$random_variables$epsilons, name=name)
+  if (!is.null(originalName)) {
+    return(originalName)
   }
 
-  return(toNONMEMStyle(retValue))
+  # Otherwise THETA
+  return(toNONMEMStyle(paste0("THETA_", index)))
 }
 
 #' Convert NONMEM parameter (string form) to campsismod parameter.
