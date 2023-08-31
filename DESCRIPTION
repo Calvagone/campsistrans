@@ -7,6 +7,7 @@ Collate:
     'nonmem_table_parser.R'
     'nonmem_dataset_parser.R'
     'nonmem_qualification_prep.R'
+    'pharmpy_domain.R'
     'nonmem_domain.R'
     'campsistrans.R'
     'symbol_conversion.R'
@@ -15,7 +16,7 @@ Collate:
     'varcov_conversion.R'
     'auto_mapping.R'
 Title: CAMPSIS Transformation Package (NONMEM Import)
-Version: 0.7.0
+Version: 0.8.0
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
@@ -28,7 +29,7 @@ Encoding: UTF-8
 Language: en-US
 LazyData: true
 Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, mrgsolve, rxode2, ggplot2, campsis, campsisqual
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 URL: https://github.com/Calvagone/campsistrans
 BugReports: https://github.com/Calvagone/campsistrans/issues

@@ -4,10 +4,12 @@
 \alias{convertNONMEMParameter}
 \title{Convert NONMEM parameter (string form) to campsismod parameter.}
 \usage{
-convertNONMEMParameter(name, value, fix)
+convertNONMEMParameter(name, originalName, value, fix)
 }
 \arguments{
 \item{name}{NONMEM parameter name, character value}
+
+\item{originalName}{indexed name, i.e. THETA_1, ETA_1, EPS_1}
 
 \item{value}{parameter value}
 

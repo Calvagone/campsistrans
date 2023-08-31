@@ -4,10 +4,10 @@
 \alias{retrieveInitialValues}
 \title{Retrieve initial values from Pharmpy parameter set.}
 \usage{
-retrieveInitialValues(parset)
+retrieveInitialValues(model)
 }
 \arguments{
-\item{parset}{Pharmpy parameter set}
+\item{model}{Pharmpy model}
 }
 \value{
 S4 parameters object

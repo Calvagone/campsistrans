@@ -83,7 +83,7 @@ processParameters <- function(parameters) {
 #' @export
 convertParameters <- function(model, mapping, estimate) {
   
-  assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
+  assertthat::assert_that(inherits(model, "pharmpy.model.model.Model"),
                           msg="model is not a Pharmpy model")
   if (!is.null(mapping)) {
     assertthat::assert_that(inherits(mapping, "pmxmapping"),
@@ -93,9 +93,8 @@ convertParameters <- function(model, mapping, estimate) {
   # Retrieve parameters from mapping
   mappingList <- mapping$params
   
-  # Retrieve initial values from parset
-  parset <- model$parameters
-  pharmpyList <- retrieveInitialValues(parset)
+  # Retrieve initial values
+  pharmpyList <- retrieveInitialValues(model)
   
   # Collect names from mapping list (LOOP 1)
   list <- purrr::map(pharmpyList@list, .f=function(parameter) {
@@ -155,20 +154,26 @@ convertParameters <- function(model, mapping, estimate) {
 
 #' Retrieve initial values from Pharmpy parameter set.
 #' 
-#' @param parset Pharmpy parameter set
+#' @param model Pharmpy model
 #' @return S4 parameters object
 #' @importFrom purrr map2
 #' @importFrom assertthat assert_that
 #' @export
-retrieveInitialValues <- function(parset) {
-  assertthat::assert_that(inherits(parset, "pharmpy.parameter.Parameters"),
+retrieveInitialValues <- function(model) {
+  parset <- model$parameters
+  assertthat::assert_that(inherits(parset, "pharmpy.model.parameters.Parameters"),
                           msg="parset is not a parameter set")
   
-  paramsList <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
-    fix <- as.logical(parset$fix[name])
-    return(convertNONMEMParameter(name=name, value=initialValue, fix=fix))
-  })
-  
+  paramsList <- NULL
+  indexes <- seq_along(parset$names)
+  for (index in indexes) {
+    name <- parset$names[index]
+    originalName <- getOriginalParameterName(name=name, model=model, index=index)
+    fix <- as.logical(parset$fix[index])
+    initialValue <- as.numeric(parset$inits[index])
+    paramsList <- paramsList %>% append(convertNONMEMParameter(name=name, originalName=originalName, value=initialValue, fix=fix))
+  }
+
   # Skip parameters validation because SAME omegas are not returned!
   parameters <- Parameters()
   parameters@list <- paramsList
@@ -176,19 +181,57 @@ retrieveInitialValues <- function(parset) {
   return(parameters)
 }
 
+# leftJoinOriginalParameterNames <- function(parset, model) {
+#   rownames <- parset$names
+#   originalNames <- seq_along(rownames) %>% purrr::map_chr(~getOriginalParameterName(name=rownames[.x], model=model, index=.x))
+#   parset <- parset %>%
+#     dplyr::mutate(original_name=originalNames)
+#   return(parset)
+# }
+
+getOriginalParameterName <- function(name, model, index) {
+
+  etas <- model$random_variables$etas
+  etaNames <- seq_along(etas) %>% purrr::map_chr(~as.character(etas[[.x - 1]]$names))
+  etaParameterNames <- seq_along(etas) %>% purrr::map_chr(~as.character(etas[[.x - 1]]$parameter_names))
+  etaIndex <- which(etaParameterNames==name)
+  if (length(etaIndex) > 0) {
+    return(toNONMEMStyle(etaNames[etaIndex]))
+  }
+  
+  epsilons <- model$random_variables$epsilons
+  epsilonNames <- seq_along(epsilons) %>% purrr::map_chr(~as.character(epsilons[[.x - 1]]$names))
+  epsilonParameterNames <- seq_along(epsilons) %>% purrr::map_chr(~as.character(epsilons[[.x - 1]]$parameter_names))
+  epsilonIndex <- which(epsilonParameterNames==name)
+  if (length(epsilonIndex) > 0) {
+    return(toNONMEMStyle(epsilonNames[epsilonIndex]))
+  }
+  
+  retValue <- name
+  
+  # If not off-diagonal element -> we deduce it is a THETA
+  if (!isPharmpyOmegaParameter(name) && !isPharmpySigmaParameter(name)) {
+    retValue <- paste0("THETA_", index)
+  }
+
+  return(toNONMEMStyle(retValue))
+}
+
 #' Convert NONMEM parameter (string form) to campsismod parameter.
 #' 
 #' @param name NONMEM parameter name, character value
+#' @param originalName indexed name, i.e. THETA_1, ETA_1, EPS_1
 #' @param value parameter value
 #' @param fix is fixed or not, logical value
 #' @return S4 parameters object
 #' @importFrom campsismod Theta Omega Sigma
 #' @export
-convertNONMEMParameter <- function(name, value, fix) {
-  index <- extractValueInParentheses(name)
-  isTheta <- isNMThetaParameter(name)
-  isOmega <- isNMOmegaParameter(name)
-  isSigma <- isNMSigmaParameter(name)
+convertNONMEMParameter <- function(name, originalName, value, fix) {
+  print(originalName)
+  index <- extractValueInParentheses(originalName)
+  isTheta <- isNMThetaParameter(originalName)
+  isOmega <- isNMOmegaParameter(originalName)
+  isSigma <- isNMSigmaParameter(originalName)
   
   if (isTheta) {
     param <- campsismod::Theta(index=index, value=value, fix=fix)
@@ -204,7 +247,7 @@ convertNONMEMParameter <- function(name, value, fix) {
       param <- campsismod::Sigma(index=index1, index2=index2, value=value, fix=fix)
     }
   } else {
-    stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
+    stop(sprintf("Unknown parameter %s (%s): estimated parameter type must be THETA, OMEGA or SIGMA.", name, originalName))
   }
   return(param)
 }

@@ -25,7 +25,7 @@ getNONMEMModelTemplate <- function(advan, trans) {
   close(fileConn)
   
   # Add real CSV data to make pharmpy happy
-  csvContent <- "ID,TIME,MDV,DV,AMT,RATE,CMT\n1,0,1,.,1000,0,1"
+  csvContent <- "ID,TIME,MDV,DV,AMT,RATE,CMT\n1,0,1,.,1000,0,1\n1,0,0,0.5,0,0,1"
   fileConn <- file(csvFile)
   writeLines(text=csvContent, fileConn)
   close(fileConn)
