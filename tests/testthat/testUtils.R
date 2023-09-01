@@ -49,8 +49,13 @@ modelContent <- "$PROBLEM 1-compartment model\r\n$INPUT\r\n$DATA dataset.csv IGN
 pharmpy <- reticulate::import("pharmpy")
 model <- pharmpy$modeling$read_model_from_string(modelContent)
 
+pathMod1 <- "C:/Calvagone/Clients/KUL/22KUL0203_HeartTransplant/ModelDevelopment/run006/run006.mod"
+model <- pharmpy$modeling$read_model(path=pathMod1)
+results <- pharmpy$tools$read_modelfit_results(path=pathMod1)
 
-model <- pharmpy$modeling$read_model(path="C:/Calvagone/Clients/KUL/22KUL0203_HeartTransplant/ModelDevelopment/run006/run006.mod")
+pathMod2 <- "C:/Calvagone/Clients/LCB/23LCB0209/NI3201_POPPK_IV_Monkey/run051/NONMEM/run051.mod"
+model <- pharmpy$modeling$read_model(path=pathMod2)
+results <- pharmpy$tools$read_modelfit_results(path=pathMod2)
 
 
 class(model$parameters)
