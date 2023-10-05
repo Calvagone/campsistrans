@@ -43,6 +43,13 @@ installPython <- function(envname, python) {
   reticulate::use_virtualenv(envname, required=TRUE)
 }
 
+#'
+#' Import python package without error.
+#' 
+#' @return NULL if an error occurs
+#' @importFrom reticulate import use_virtualenv
+#' @export
+#' 
 importPythonPackage <- function(package) {
   env <- tryCatch(expr={
     reticulate::use_virtualenv(getPythonEnvName(), required=TRUE)
