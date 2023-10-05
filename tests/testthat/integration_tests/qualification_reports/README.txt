@@ -1,0 +1,1 @@
+Transient folder used to save the qualification report
