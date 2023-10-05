@@ -24,11 +24,22 @@ setClass(
 #' @param mapping a possible PMX mapping object
 #' @param estimate use estimated parameter values or initial ones, logical value, default is FALSE
 #' @param uncertainty import the variance-covariance matrix (.cov file), logical value, default is FALSE
+#' @param auto_install auto install pharmpy and dependencies if not installed yet
+#' @param envname virtual python environment name, can be configured in config.yml
+#' @param python path to python, can be configured in config.yml
 #' @return a campsistrans object
 #' @importFrom reticulate import
 #' @export
-importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE) {
-  pharmpy <- reticulate::import("pharmpy")
+importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
+                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath()) {
+  pharmpy <- importPythonPackage("pharmpy")
+  if (is.null(pharmpy)) {
+    if (auto_install) {
+      installPython(envname=envname, python=python)
+    }
+    pharmpy <- reticulate::import("pharmpy")
+  }
+
   model <- pharmpy$Model$create_model(file)
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   dirname <- dirname(file)

@@ -3,7 +3,6 @@ library(campsismod)
 library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
-
 testFolder <<- ""
 
 advanFilename <- function(advan, trans, ext=".txt") {

@@ -4,6 +4,7 @@ library(campsis)
 library(ggplot2)
 
 context("Test campsistrans")
+
 testFolder <<- ""
 
 test_that("ADVAN3 TRANS4 - simulation", {
@@ -27,8 +28,8 @@ test_that("ADVAN3 TRANS4 - simulation", {
   # Simulate
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
  
-  # Plotting C2
-  plot(sim, CP) +
+  # Plotting CONC
+  plot(sim, CONC) +
     ylab("Concentration") 
 })
 
@@ -53,8 +54,8 @@ test_that("ADVAN4 TRANS4 - simulation", {
   # Simulate
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
-  # Plotting C2
-  plot(sim, CP) +
+  # Plotting CONC
+  plot(sim, CONC) +
     ylab("Concentration")
 })
 

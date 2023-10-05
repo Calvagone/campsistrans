@@ -1,6 +1,48 @@
-Package: campsistrans
 Type: Package
+Package: campsistrans
+Title: CAMPSIS Transformation Package (NONMEM Import)
+Version: 0.8.0
+Authors@R: 
+    person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
+Description: Wrapper to pharmpy for NONMEM import.
+License: file LICENSE
+URL: https://github.com/Calvagone/campsistrans
+BugReports: https://github.com/Calvagone/campsistrans/issues
+Depends: 
+    campsismod,
+    R (>= 4.0.0)
+Imports: 
+    assertthat,
+    callr,
+    config,
+    dplyr,
+    plyr,
+    purrr,
+    reticulate,
+    tibble,
+    tidyr
+Suggests: 
+    bookdown,
+    campsis,
+    campsisqual,
+    devtools,
+    ggplot2,
+    knitr,
+    mrgsolve,
+    pkgdown,
+    rmarkdown,
+    roxygen2,
+    rxode2,
+    stringr,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.2.3
 Collate:
+    'python_configuration.R'
     'data.R'
     'model_library.R'
     'print.R'
@@ -14,21 +56,3 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
     'auto_mapping.R'
-Title: CAMPSIS Transformation Package (NONMEM Import)
-Version: 0.7.0
-Authors@R: c(
-  person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
-  )
-Description: TODO.
-Depends: R (>= 4.0.0), campsismod
-Imports: assertthat, dplyr, plyr, purrr, reticulate, tibble, tidyr
-Remotes: 
-License: file LICENSE
-Encoding: UTF-8
-Language: en-US
-LazyData: true
-Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, mrgsolve, rxode2, ggplot2, campsis, campsisqual
-RoxygenNote: 7.1.2
-VignetteBuilder: knitr
-URL: https://github.com/Calvagone/campsistrans
-BugReports: https://github.com/Calvagone/campsistrans/issues

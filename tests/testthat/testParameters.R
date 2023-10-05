@@ -13,8 +13,10 @@ modelPath <- function(advan, trans) {
   return(paste0(testFolder, "models/subroutine/", advanFilename(advan, trans, ext="mod")))
 }
 
+installPython(envname=getPythonEnvName(), python=getPythonPath())
+pharmpy <- reticulate::import("pharmpy")
+
 test_that("Test method retrieveInitialValues", {
-  pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model$create_model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
@@ -23,7 +25,6 @@ test_that("Test method retrieveInitialValues", {
 })
 
 test_that("Test method select and maxIndex", {
-  pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model$create_model(getNONMEMModelTemplate(4, 4))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
@@ -35,7 +36,6 @@ test_that("Test method select and maxIndex", {
 })
 
 test_that("Test method getByIndex", {
-  pharmpy <- reticulate::import("pharmpy")
   model <- pharmpy$Model$create_model(getNONMEMModelTemplate(1, 2))
   parset <- model$parameters
   params <- retrieveInitialValues(parset)
