@@ -12,9 +12,9 @@ $PK
  Q4 = THETA(7) * EXP(ETA(7))
  S2 = V2
 $ERROR 
- CP = F
- OBS_CP = CP * (1+EPS(1))
- Y = OBS_CP
+ CONC = F
+ CONC_ERR = CONC * (1+EPS(1))
+ Y = CONC_ERR
 $THETA 1     ; KA 
 $THETA 5     ; CL 
 $THETA 80    ; V2 

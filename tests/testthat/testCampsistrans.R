@@ -4,6 +4,7 @@ library(campsis)
 library(ggplot2)
 
 context("Test campsistrans")
+
 testFolder <<- ""
 
 test_that("ADVAN3 TRANS4 - simulation", {
@@ -27,8 +28,8 @@ test_that("ADVAN3 TRANS4 - simulation", {
   # Simulate
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
  
-  # Plotting C2
-  plot(sim, CP) +
+  # Plotting CONC
+  plot(sim, CONC) +
     ylab("Concentration") 
 })
 
@@ -53,8 +54,8 @@ test_that("ADVAN4 TRANS4 - simulation", {
   # Simulate
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
-  # Plotting C2
-  plot(sim, CP) +
+  # Plotting CONC
+  plot(sim, CONC) +
     ylab("Concentration")
 })
 
@@ -106,7 +107,7 @@ test_that("Custom test with RxODE", {
 })
 
 test_that("removePiecewiseStatements method works as expected", {
-  model <- campsismod::model_library$advan1_trans2
+  model <- campsismod::model_suite$nonmem$advan1_trans2
 
   # This is an example of piecewise statement added by Pharmpy
   model_ <- model %>% replace(Ode("A_CENTRAL", "-CL*A_CENTRAL/V + Piecewise((RATE, t < AMT/RATE), (0, True))"))

@@ -9,16 +9,20 @@ testFolder <<- ""
 qualFolder <- paste0(testFolder, "integration_tests/", "nonmem_qualification/")
 reportFolder <- paste0(testFolder, "integration_tests/", "qualification_reports/")
 exportReport <- FALSE # Only working if testFolder is specified
+reexecuteNONMEM <- FALSE
 
 modelPath <- function(folder, filename) {
   return(paste0(testFolder, "ddmore_models/", folder, "/", filename))
 }
 
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
-
+  if (!reexecuteNONMEM) {
+    return(TRUE)
+  }
+  
   filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
   modelFolder <- "filgrastim"
-  
+
   # Pharmpy import
   campsistrans <- importNONMEM(modelPath(modelFolder, filename), mapping(auto=TRUE), estimate=FALSE)
   

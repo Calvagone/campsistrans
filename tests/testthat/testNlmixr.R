@@ -5,6 +5,7 @@ context("Test nlmixr conversion")
 testFolder <<- ""
 
 test_that("nlmixr conversion", {
+  installPython(envname=getPythonEnvName(), python=getPythonPath())
   pharmpy <- reticulate::import("pharmpy")
   advan <- 4
   trans <- 4

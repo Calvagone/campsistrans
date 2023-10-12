@@ -4,7 +4,15 @@
 \alias{importNONMEM}
 \title{Import NONMEM control stream and results using Pharmpy.}
 \usage{
-importNONMEM(file, mapping = NULL, estimate = FALSE, uncertainty = FALSE)
+importNONMEM(
+  file,
+  mapping = NULL,
+  estimate = FALSE,
+  uncertainty = FALSE,
+  auto_install = TRUE,
+  envname = getPythonEnvName(),
+  python = getPythonPath()
+)
 }
 \arguments{
 \item{file}{path to NONMEM control stream, character value}
@@ -14,6 +22,12 @@ importNONMEM(file, mapping = NULL, estimate = FALSE, uncertainty = FALSE)
 \item{estimate}{use estimated parameter values or initial ones, logical value, default is FALSE}
 
 \item{uncertainty}{import the variance-covariance matrix (.cov file), logical value, default is FALSE}
+
+\item{auto_install}{auto install pharmpy and dependencies if not installed yet}
+
+\item{envname}{virtual python environment name, can be configured in config.yml}
+
+\item{python}{path to python, can be configured in config.yml}
 }
 \value{
 a campsistrans object

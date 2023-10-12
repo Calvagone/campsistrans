@@ -3,7 +3,6 @@ library(campsismod)
 library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
-
 testFolder <<- ""
 
 advanFilename <- function(advan, trans, ext=".txt") {
@@ -20,7 +19,9 @@ loadAdvanNonRegressionFile <- function(advan, trans) {
 
 generateModel <- function(advan, trans, mapping=NULL) {
   object <- importNONMEM(getNONMEMModelTemplate(advan, trans), mapping=mapping)
-  model <- object %>% export(dest="campsis")
+  model <- object %>%
+    export(dest="campsis") %>%
+    delete(Equation("Y"))
   # model %>% write(file=nonRegressionFolderPath(advan, trans)) # TO DISABLE LATER ON
   return(model)
 }
