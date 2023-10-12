@@ -56,3 +56,4 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
     'auto_mapping.R'
+Remotes: github::Calvagone/campsismod
