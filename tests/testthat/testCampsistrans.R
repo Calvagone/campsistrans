@@ -107,7 +107,7 @@ test_that("Custom test with RxODE", {
 })
 
 test_that("removePiecewiseStatements method works as expected", {
-  model <- campsismod::model_library$advan1_trans2
+  model <- campsismod::model_suite$nonmem$advan1_trans2
 
   # This is an example of piecewise statement added by Pharmpy
   model_ <- model %>% replace(Ode("A_CENTRAL", "-CL*A_CENTRAL/V + Piecewise((RATE, t < AMT/RATE), (0, True))"))

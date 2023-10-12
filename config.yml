@@ -1,5 +1,5 @@
 default:
   python_linux: "/usr/bin/python3"
-  python_windows: "C:/Users/nicolas.luyckx.CALVAGONE/AppData/Local/Programs/Python/Python39/python.exe"
+  python_windows: "C:/Python/Python39/python.exe"
   python_installation_stdout: "stdout_python_installation.txt"
   python_installation_stderr: "stderr_python_installation.txt"
