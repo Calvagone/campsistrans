@@ -63,6 +63,10 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   # Store variance-covariance matrix according to the new parameters
   retValue@parameters@varcov <- varcov %>% convertVarcov(retValue@parameters)
   
+  # Replace NONMEM simulation time T by Campsis simulation time t
+  retValue <- retValue %>%
+    replaceAll("T", "t")
+  
   return(retValue)
 }
 

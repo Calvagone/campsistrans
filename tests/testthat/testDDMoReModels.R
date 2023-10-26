@@ -49,7 +49,7 @@ test_that("Rifampin PK can be imported well", {
   ode <- model@model %>% getByName("ODE")
   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
   
-  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "T >= TDOS")
+  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
   
   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
