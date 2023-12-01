@@ -46,6 +46,7 @@ installPython <- function(envname, python) {
 #'
 #' Import python package without error.
 #' 
+#' @param package package name
 #' @return NULL if an error occurs
 #' @importFrom reticulate import use_virtualenv
 #' @export
