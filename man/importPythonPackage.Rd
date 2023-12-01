@@ -6,6 +6,9 @@
 \usage{
 importPythonPackage(package)
 }
+\arguments{
+\item{package}{package name}
+}
 \value{
 NULL if an error occurs
 }

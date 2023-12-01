@@ -61,6 +61,16 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
   
+  # In case parameters are not valid (e.g. because of the SAME omega's)
+  # Try to make it valid using auto-extraction
+  if (mapping$auto && !isTRUE(validObject(campsis@parameters, test=TRUE, complete=TRUE))) {
+      campsis <- tryCatch(
+        expr=autoExtractParameters2(campsis),
+        error = function(e) {
+        return(campsis)
+      })
+  }
+  
   # Create campsistrans object
   retValue <- new(
     "campsistrans",

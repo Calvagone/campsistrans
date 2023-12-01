@@ -16,8 +16,15 @@ replaceSymbolAuto <- function(expression, symbol, parameters) {
   if (is.null(type)) {
     # Do nothing
   } else {
-    replacementSymbol <- sympy$symbols(nameParameter(type, parameters))
-    expression <- replaceSymbol(expression, symbol, replacementSymbol)
+    replacementSymbol <- tryCatch(
+      expr=sympy$symbols(nameParameter(type, parameters)),
+      error = function(e) {
+        warning(e$message)
+        return(NULL)
+      })
+    if (!is.null(replacementSymbol)) {
+      expression <- replaceSymbol(expression, symbol, replacementSymbol)
+    }
   }
   return(expression)
 }

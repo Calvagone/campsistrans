@@ -67,8 +67,14 @@ processParameters <- function(parameters) {
   parameters <- parameters %>% campsismod::sort()
   
   # Fix OMEGA's
-  parameters <- parameters %>% campsismod::fixOmega()
-  
+  parameters <- tryCatch(
+    expr=parameters %>% campsismod::fixOmega(),
+    error=function(cond) {
+      print(sprintf("Fixing OMEGAs did not work: %s", cond$message))
+      return(parameters)
+    }
+  )
+
   return(parameters)
 }
 

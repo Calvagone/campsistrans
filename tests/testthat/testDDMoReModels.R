@@ -49,7 +49,29 @@ test_that("Rifampin PK can be imported well", {
   ode <- model@model %>% getByName("ODE")
   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
   
-  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "T >= TDOS")
+  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
+  nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
+  
+  expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
+})
+
+test_that("Rifampin PK can be imported well (no omega mapping)", {
+  # DDMODEL00000280
+  # Pharmacokinetics of rifampin in tuberculosis patients
+  
+  filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  folder <- "rifampin_no_omega_mapping"
+
+  model <- suppressWarnings(generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE)))
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionFolderPath(folder))
+  }
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  ode <- model@model %>% getByName("ODE")
+  nonreg_ode <- nonreg_model@model %>% getByName("ODE")
+  
+  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
   
   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
@@ -58,7 +80,7 @@ test_that("Rifampin PK can be imported well", {
 test_that("Paracetamol PK (in newborns) can be imported well", {
   # DDMODEL00000271
   # Paracetamol and metabolite PK in newborns
-  
+
   filename="Executable_ParacetamolInNewborns.mod"
   folder <- "paracetamol"
 
@@ -72,7 +94,7 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
 test_that("Midazolam PK (in newborns) can be imported well", {
   # DDMODEL00000250
   # Midazolam PK in obese adults and adolescents
-  
+
   filename <- "Executable_Midazolam_PK.mod"
   folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
@@ -82,13 +104,13 @@ test_that("Midazolam PK (in newborns) can be imported well", {
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   # DDMODEL00000077
   # Krzyzanski_2010_Filgastrim_PKPD
-  
+
   filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
   folder <- "filgrastim"
-  
+
   mapping <- mapping(theta=c(FF=1, KA1=2, FR=3, D2=4, KEL=5, VD=6, KD=7, KINT=8, KSI=9, KOFF=10, KMT=11, KBB1=12, KTT=13, NB0=14, SC1=15, SM1=16, SM2=17, SM3=18),
                      omega=c(NB0=1, KEL=2, VD=3, KA1=4, KSI=5, SC1=6, SM1=7, SM2=8))
-  
+
   modelfun <- function(model) {
     model <- model %>%
       delete(IfStatement("CMT == 2", Equation("IPRED")))%>%
