@@ -92,7 +92,6 @@ addconvertRecord <- function(model, record, emptyRecord, parameters) {
 #' @importFrom reticulate iterate
 #' @export
 convertStatement <- function(statement, parameters) {
-  
   symbol <- statement$symbol
   symbol_chr <- as.character(symbol)
   expression <- statement$expression
