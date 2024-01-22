@@ -51,6 +51,7 @@ Collate:
     'nonmem_dataset_parser.R'
     'nonmem_qualification_prep.R'
     'nonmem_domain.R'
+    'substitute_duplicates.R'
     'campsistrans.R'
     'symbol_conversion.R'
     'model_conversion.R'

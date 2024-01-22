@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Tests on custom model 1")
 
-testFolder <<- ""
+testFolder <- ""
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(modelDir, modelName) {
@@ -51,3 +51,22 @@ test_that("Model 1 (auto-mapping)", {
   model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
 })
+
+test_that("Model 2 (duplicate variables in model)", {
+  modelDir <- "model2"
+  modelName <- "model2.mod"
+  regFolder <- "model2_auto_mapping"
+  
+  # Also map OMEGA names because 'SAME' OMEGAS related to IOV not listed in Pharmpy parameter set
+  mapping <- mapping(auto=TRUE)
+  
+  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
+
+  model <- model %>%
+    substituteDuplicates()
+})
+
+
+
+
+
