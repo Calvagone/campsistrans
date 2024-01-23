@@ -20,7 +20,7 @@ generateModel <- function(modelDir, modelName, regFolder, mapping) {
   
   model <- object %>% export(dest="campsis")
   if (overwriteNonRegressionFiles) {
-    model %>% write(nonRegressionFolderPath(regFolder))
+    model %>% campsismod::write(nonRegressionFolderPath(regFolder))
   }
   return(model)
 }
