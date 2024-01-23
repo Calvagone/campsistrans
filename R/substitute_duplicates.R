@@ -1,8 +1,10 @@
 
-#' Substitute duplicate equations (using underscore characters).
+#' Substitute duplicate equation names (using underscore characters).
 #' 
+#' @param model Campsis model with duplicate equation names
+#' @return Campsis model without duplicate equation names
 #' @export
-substituteDuplicates <- function(model) {
+substituteDuplicateEquationNames <- function(model) {
   
   retValue <- CampsisModel()
   notDone <- TRUE
@@ -76,13 +78,17 @@ removeFirstStatementCore <- function(record, model) {
   return(list(statement=statement, record=record, model=model))
 }
 
-checkForDuplicateEquations <- function(model) {
+#' Check for duplicate equation names.
+#' 
+#' @param model Campsis model
+#' @return Campsis model without duplicate equation names
+#' @export
+checkForDuplicateEquationNames <- function(model) {
   main <- model %>% campsismod::find(MainRecord())
   ode <- model %>% campsismod::find(OdeRecord())
   error <- model %>% campsismod::find(ErrorRecord())
   
-  retValue <- NULL
-  retValue <- retValue %>%
+  retValue <- NULL %>%
     append(collectEquationNames(main)) %>%
     append(collectEquationNames(ode)) %>%
     append(collectEquationNames(error))

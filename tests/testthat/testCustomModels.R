@@ -61,9 +61,7 @@ test_that("Model 2 (duplicate variables in model)", {
   mapping <- mapping(auto=TRUE)
   
   model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
-
-  model <- model %>%
-    substituteDuplicates()
+  expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
 

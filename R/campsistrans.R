@@ -55,11 +55,15 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     varcov <- matrix(numeric(0), nrow=0, ncol=0)
   }
   
-  # Convert parameters from NONMEM to pmxmod
+  # Convert parameters from NONMEM to Campsis
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
   
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
+  
+  # Substitute duplicate equation names
+  campsis <- campsis %>%
+    substituteDuplicateEquationNames()
   
   # In case parameters are not valid (e.g. because of the SAME omega's)
   # Try to make it valid using auto-extraction
