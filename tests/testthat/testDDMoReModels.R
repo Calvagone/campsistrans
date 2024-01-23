@@ -218,9 +218,22 @@ test_that("Pimasertib can be imported well", {
 test_that("SLD model can be imported well", {
   # DDMODEL00000217
   # Super strange: I had to add this DUMMY_EQ=0 equation in $DES to make it work
-  
+
   filename <- "Executable_SLD.mod"
   folder <- "sld_model"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("OS model can be imported well", {
+  # DDMODEL00000218
+
+  filename <- "Executable_OS.mod"
+  folder <- "os_model"
   
   mapping <- mapping(auto=TRUE)
   
