@@ -155,6 +155,19 @@ test_that("Likert pain count can be imported well", {
 
   filename <- "Executable_likert_pain_count.mod"
   folder <- "likert_pain_count"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("Biomarker GIST can be imported well", {
+  # DDMODEL00000197
+  
+  filename <- "Executable_Biomarker_GIST.mod"
+  folder <- "biomarker_gist"
   
   mapping <- mapping(auto=TRUE)
   
