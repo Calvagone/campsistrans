@@ -22,7 +22,7 @@ substituteDuplicateEquationNames <- function(model) {
         if (retValue %>% campsismod::contains(statement)) {
           
           # Find replacement equation
-          replacement <- findReplacementEquation(retValue, original)
+          replacement <- findReplacementEquation(model1=retValue, model2=model, original)
           statement@lhs <- replacement
           
           # Update everywhere
@@ -42,9 +42,10 @@ substituteDuplicateEquationNames <- function(model) {
   return(retValue)
 }
 
-findReplacementEquation <- function(model, original) {
+findReplacementEquation <- function(model1, model2, original) {
   replacement <- paste0(original, "_")
-  while (model %>% campsismod::contains(Equation(replacement))) {
+  while (model1 %>% campsismod::contains(Equation(replacement)) ||
+         model2 %>% campsismod::contains(Equation(replacement))) {
     replacement <- paste0(replacement, "_")
   }
   return(replacement)

@@ -7,18 +7,18 @@ MAIN__=MAIN_+1
 ODE=10
 d/dt(A_1)=0
 MAIN___=MAIN__+1
-ODE_=ODE+1
-ODE__=ODE_+1
+ODE__=ODE+1
+ODE___=ODE__+1
 
 [INIT]
-A_1=ODE*MAIN*ERROR
+A_1=ODE_____*MAIN___*ERROR__
 
 [ERROR]
 ERROR=15
-ODE___=ODE__+1
 ODE____=ODE___+1
-ODE_____=99
-ASSIGN=ODE_____
+ODE_____=ODE____+1
+ODE_=99
+ASSIGN=ODE_
 ERROR_=ERROR+1
 ERROR__=ERROR_+1
 
