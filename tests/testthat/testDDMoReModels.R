@@ -178,14 +178,27 @@ test_that("Biomarker GIST can be imported well", {
 
 test_that("TGI GIST can be imported well", {
   # DDMODEL00000198
-  
+
   filename <- "Executable_TGI_GIST.mod"
   folder <- "tgi_gist"
-  
+
   mapping <- mapping(auto=TRUE)
-  
+
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-  
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("HFS model can be imported well", {
+  # DDMODEL00000214
+
+  filename <- "Executable_HFSmodel.mod"
+  folder <- "hfs_model"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+
   expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
 })
 
