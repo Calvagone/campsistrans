@@ -202,4 +202,15 @@ test_that("HFS model can be imported well", {
   expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
 })
 
+test_that("Pimasertib can be imported well", {
+  # DDMODEL00000215
 
+  filename <- "Executable_Pimasertib_AeDropout.mod"
+  folder <- "pimasertib"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
