@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test NONMEM import on a few DDMoRE models")
 
-testFolder <<- ""
+testFolder <- ""
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
@@ -14,8 +14,12 @@ nonRegressionFolderPath <- function(folder) {
   return(paste0(testFolder, "non_regression/ddmore/", folder, "/"))
 }
 
-generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL) {
-  object <- importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE)
+generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppressWarnings=TRUE, unknownStatements=FALSE) {
+  if (suppressWarnings) {
+    object <- suppressWarnings(importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE))
+  } else {
+    object <- importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE)
+  }
   
   model <- object %>% export(dest="campsis")
   if (!is.null(modelfun)) {
@@ -25,40 +29,47 @@ generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL) {
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(folder))
   }
+  
+  # Generate unknown statements by writing/reading the model
+  if (unknownStatements) {
+    dir <- tempdir()
+    model %>% write(dir)
+    model <- suppressWarnings(read.campsis(dir))
+  }
   return(model)
 }
 
 test_that("Rifampin PK can be imported well", {
   # DDMODEL00000280
   # Pharmacokinetics of rifampin in tuberculosis patients
-  
+
   filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
   folder <- "rifampin"
   mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
-  
+
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   # NOTE THAT ODE:
   # if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
   # IS NOT IMPORTED CORRECTLY...
   # As a consequence, NONMEM auto-detection is incorrect: [F] A_2=F1 (only 1 compartment is detected)
-  
+
   # Furthemore this ODE, is read as a unknown statement by campsismod (as variable is incorrect)
   # For this test, we delete this 'ODE' on both sides
   ode <- model@model %>% getByName("ODE")
   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
-  
+
   ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
-  
+
   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
 })
 
 test_that("Rifampin PK can be imported well (no omega mapping)", {
   # DDMODEL00000280
   # Pharmacokinetics of rifampin in tuberculosis patients
-  
+
   filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
   folder <- "rifampin_no_omega_mapping"
 
@@ -67,13 +78,13 @@ test_that("Rifampin PK can be imported well (no omega mapping)", {
     model %>% write(nonRegressionFolderPath(folder))
   }
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   ode <- model@model %>% getByName("ODE")
   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
-  
+
   ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
-  
+
   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
 })
 
@@ -124,3 +135,32 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
   expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
 })
+
+test_that("Colistin Meropenem can be imported well", {
+  # DDMODEL00000173
+  # Import non perfect because of unknow statements (-> DADT in conditional statements)
+
+  filename <- "ColistinMeropenem_Interaction_original_simulated.mod"
+  folder <- "colistin_meropenem"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping, unknownStatements=TRUE)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("Likert pain count can be imported well", {
+  # DDMODEL00000194
+
+  filename <- "Executable_likert_pain_count.mod"
+  folder <- "likert_pain_count"
+  
+  mapping <- mapping(auto=TRUE)
+  
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+
