@@ -40,6 +40,7 @@ OCB=CB
 OG=G
 
 $DES
+DUMMY_EQ = 0
 ; Model for dSLD(t) 
 DADT(1) = KG/1000 * A(1) - (KD0/1000 * E0 + KD1/100 * E1) * A(1) 
 
