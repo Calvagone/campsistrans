@@ -234,10 +234,33 @@ test_that("OS model can be imported well", {
 
   filename <- "Executable_OS.mod"
   folder <- "os_model"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("BDQ M2 popPK model can be imported well", {
+  # DDMODEL00000219
+  
+  filename <- "Executable_BDQ_M2_PK_plus_WT_ALB_in_MDR-TB_patients.mod"
+  folder <- "bdq_m2_poppk"
   
   mapping <- mapping(auto=TRUE)
   
-  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  modelfun <- function(model) {
+    model <- model %>%
+      add(Omega(name="BOV F SAME", index=7, index2=7, value=0)) %>%
+      add(Omega(name="BOV MAT SAME", index=9, index2=9, value=0))
+    model <- model %>%
+      campsismod::sort()
+    return(model)
+  }
+  
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
   
   expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
 })
+
