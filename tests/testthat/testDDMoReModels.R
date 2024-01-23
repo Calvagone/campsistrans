@@ -245,12 +245,12 @@ test_that("OS model can be imported well", {
 
 test_that("BDQ M2 popPK model can be imported well", {
   # DDMODEL00000219
-  
+
   filename <- "Executable_BDQ_M2_PK_plus_WT_ALB_in_MDR-TB_patients.mod"
   folder <- "bdq_m2_poppk"
-  
+
   mapping <- mapping(auto=TRUE)
-  
+
   modelfun <- function(model) {
     model <- model %>%
       add(Omega(name="BOV F SAME", index=7, index2=7, value=0)) %>%
@@ -259,8 +259,21 @@ test_that("BDQ M2 popPK model can be imported well", {
       campsismod::sort()
     return(model)
   }
-  
+
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+})
+
+test_that("CPHPC model can be imported well", {
+  # DDMODEL00000262
+  
+  filename <- "Executable_simulated_CPHPC_dataset.ctl"
+  folder <- "cphpc_model"
+  
+  mapping <- mapping(auto=TRUE)
+  
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
   
   expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
 })
