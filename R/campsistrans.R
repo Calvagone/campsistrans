@@ -27,11 +27,14 @@ setClass(
 #' @param auto_install auto install pharmpy and dependencies if not installed yet
 #' @param envname virtual python environment name, can be configured in config.yml
 #' @param python path to python, can be configured in config.yml
+#' @param copy_dir copy directory in which the control stream is
+#' @param rem_rate remote RATE in control stream automatically to avoid issues with Pharmpy.
+#'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates.
 #' @return a campsistrans object
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
-                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath()) {
+                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(), copy_dir=TRUE, rem_rate=TRUE) {
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
@@ -39,14 +42,40 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     }
     pharmpy <- reticulate::import("pharmpy")
   }
-
-  model <- pharmpy$Model$create_model(file)
-  mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
+  
   dirname <- dirname(file)
+  ctlBasename <- basename(file)
+  
+  # Copy directory (default)
+  if (copy_dir) {
+    allFiles <- list.files(dirname)
+    tmpDir <- tempdir()
+    if (!dir.exists(tmpDir)) dir.create(tmpDir)
+    specificDir <- file.path(tmpDir, paste0("dir_", sample(x=1e9, 1, replace=TRUE)))
+    if (!dir.exists(specificDir)) dir.create(specificDir)
+    
+    for (myFile in allFiles) {
+      originalFilePath <- file.path(dirname, myFile)
+      file.copy(originalFilePath, file.path(specificDir, myFile))
+    }
+    ctlPath <- file.path(specificDir, ctlBasename)
+    finalDir <- specificDir
+  } else {
+    ctlPath <- file
+    finalDir <- dirname
+  }
+  
+  # Remove RATE from control stream
+  if (rem_rate) {
+    removeRateFromCtl(ctlPath)
+  }
+
+  model <- pharmpy$Model$create_model(ctlPath)
+  mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   
   if (uncertainty) {
-    fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(file))
-    covFile <- paste0(dirname, "/", fileNoExt, ".cov")
+    fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", ctlBasename)
+    covFile <- paste0(finalDir, "/", fileNoExt, ".cov")
     if (!file.exists(covFile)) {
       stop(paste0("File ", covFile, " could not be found"))
     }
@@ -85,6 +114,34 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     campsis = campsis
   )
   return(retValue)
+}
+
+#'
+#' Remove RATE input from $INPUT field (string-based model). 
+#' 
+#' @param x string value (the whole control stream)
+#' @return the same string value without RATE input
+#' @export
+#' 
+removeRateFromString <- function(x) {
+  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[ ]*)(.*)", replacement="\\1\\2\\3 \\5", x=x)
+  return(retValue)
+}
+
+#'
+#' Remove RATE input from $INPUT field in given control stream. 
+#' 
+#' @param file control stream file name
+#' @return nothing
+#' @export
+#' 
+removeRateFromCtl <- function(file) {
+  fileConn = file(file)
+  x <- paste0(readLines(con=fileConn), collapse="\n")
+  x_ <- removeRateFromString(x)
+  
+  writeLines(text=x_, con=fileConn)
+  close(fileConn)
 }
 
 #_______________________________________________________________________________

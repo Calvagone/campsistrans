@@ -11,7 +11,9 @@ importNONMEM(
   uncertainty = FALSE,
   auto_install = TRUE,
   envname = getPythonEnvName(),
-  python = getPythonPath()
+  python = getPythonPath(),
+  copy_dir = TRUE,
+  rem_rate = TRUE
 )
 }
 \arguments{
@@ -28,6 +30,11 @@ importNONMEM(
 \item{envname}{virtual python environment name, can be configured in config.yml}
 
 \item{python}{path to python, can be configured in config.yml}
+
+\item{copy_dir}{copy directory in which the control stream is}
+
+\item{rem_rate}{remote RATE in control stream automatically to avoid issues with Pharmpy.
+Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates.}
 }
 \value{
 a campsistrans object

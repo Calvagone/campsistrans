@@ -4,7 +4,7 @@ library(ggplot2)
 
 context("Working with variance-covariance matrices")
 
-testFolder <<- ""
+testFolder <- ""
 overwriteNonRegressionFiles <- FALSE
 
 test_that("Import NONMEM model with cov file and export it to CAMPSIS", {
