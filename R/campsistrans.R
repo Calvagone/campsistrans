@@ -124,7 +124,15 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
 #' @export
 #' 
 removeRateFromString <- function(x) {
-  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[ ]*)(.*)", replacement="\\1\\2\\3 \\5", x=x)
+  retValue <- x
+  
+  # RATE followed by at least one space
+  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[ ]+)(.*)", replacement="\\1\\2\\3 \\5", x=retValue)
+  
+  # RATE followed by a combination of break line or space
+  # In that case, break line is re-added
+  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[[:space:]]+)(.*)", replacement="\\1\\2\\3 \n\\5", x=retValue)
+  
   return(retValue)
 }
 

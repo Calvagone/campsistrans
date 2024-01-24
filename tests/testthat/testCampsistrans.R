@@ -127,5 +127,12 @@ test_that("RATE is properly removed from control stream", {
   filgrastim <- "$INPUT ID AMT TIME CMT DV DRUG PERD ROUT BAS RATE\n$DATA Simulated_GCSF_dataset.csv IGNORE=I"
   expect_equal(removeRateFromString(filgrastim),
                "$INPUT ID AMT TIME CMT DV DRUG PERD ROUT BAS \n$DATA Simulated_GCSF_dataset.csv IGNORE=I")
+  
+  # RATE2 -> not removed
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD")
+  
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 RATE DOSENO DV DOSE TDOS TSLD"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD")
 })
 
