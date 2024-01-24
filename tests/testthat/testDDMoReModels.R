@@ -33,7 +33,7 @@ generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppres
   # Generate unknown statements by writing/reading the model
   if (unknownStatements) {
     dir <- tempdir()
-    dir.create(dir)
+    if (!dir.exists(dir)) dir.create(dir)
     model %>% campsismod::write(dir)
     model <- suppressWarnings(read.campsis(dir))
   }
