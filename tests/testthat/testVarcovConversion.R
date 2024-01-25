@@ -12,7 +12,7 @@ test_that("Import NONMEM model with cov file and export it to CAMPSIS", {
   file <- paste0(testFolder, "parameter_uncertainty/", "example1/", "advan3_trans4.ctl")
   
   # Import with estimates and full uncertainty
-  object <- importNONMEM(file, mapping=mapping, estimate=TRUE, uncertainty=TRUE)
+  object <- importNONMEM(file, mapping=mapping, estimate=TRUE, uncertainty=TRUE, copy_dir=TRUE, rem_rate=TRUE)
   model <- object %>% export(dest="campsis")
   
   # Save CAMPSIS model for non-regression

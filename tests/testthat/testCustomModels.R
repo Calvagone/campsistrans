@@ -16,7 +16,7 @@ nonRegressionFolderPath <- function(regFolder) {
 
 generateModel <- function(modelDir, modelName, regFolder, mapping) {
   # Import your NONMEM model using pharmpy
-  object <- importNONMEM(modelPath(modelDir, modelName), mapping)
+  object <- importNONMEM(modelPath(modelDir, modelName), mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
   
   model <- object %>% export(dest="campsis")
   if (overwriteNonRegressionFiles) {

@@ -12,8 +12,8 @@ importNONMEM(
   auto_install = TRUE,
   envname = getPythonEnvName(),
   python = getPythonPath(),
-  copy_dir = TRUE,
-  rem_rate = TRUE
+  copy_dir = FALSE,
+  rem_rate = FALSE
 )
 }
 \arguments{

@@ -16,9 +16,9 @@ nonRegressionFolderPath <- function(folder) {
 
 generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppressWarnings=TRUE, unknownStatements=FALSE) {
   if (suppressWarnings) {
-    object <- suppressWarnings(importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE))
+    object <- suppressWarnings(importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE, copy_dir=TRUE, rem_rate=TRUE))
   } else {
-    object <- importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE)
+    object <- importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE, copy_dir=TRUE, rem_rate=TRUE)
   }
   
   model <- object %>% export(dest="campsis")

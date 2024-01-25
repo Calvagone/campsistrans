@@ -34,7 +34,7 @@ setClass(
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
-                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(), copy_dir=TRUE, rem_rate=TRUE) {
+                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(), copy_dir=FALSE, rem_rate=FALSE) {
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
