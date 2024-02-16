@@ -79,7 +79,9 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
 #' @return updated CAMPSIS model
 addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
-    model <- model %>% add(convertRecord(record, emptyRecord, parameters))
+    campsisRecord <- convertRecord(record, emptyRecord, parameters)
+    model <- model %>%
+      add(campsisRecord)
   }
   return(model)
 }
@@ -159,7 +161,12 @@ convertRecord <- function(records, emptyRecord, parameters) {
     # Retrieve all equations
     for (index in (seq_along(statements))) {
       statement <- statements[[index]]
-      retValue <- retValue %>% add(convertStatement(statement, parameters))
+      campsisStatement <- convertStatement(statement, parameters)
+      
+      # Don't add statement using Campsis add function (on model) since it checks for duplicates
+      # Use append on list
+      retValue@statements@list <- retValue@statements@list %>%
+        append(campsisStatement)
     }
   }
   return(retValue)
@@ -215,8 +222,9 @@ moveInitialConditions <- function(model) {
     initialValueNM <- Equation(paste0("A_0(", index, ")"))
     equation <- model %>% find(initialValueNM)
     if (!is.null(equation)) {
-      model <- model %>% add(InitialCondition(compartment=index, rhs=equation@rhs))
-      model <- model %>% delete(equation)
+      model <- model %>%
+        add(InitialCondition(compartment=index, rhs=equation@rhs)) %>%
+        delete(equation)
     }
   }
   return(model)

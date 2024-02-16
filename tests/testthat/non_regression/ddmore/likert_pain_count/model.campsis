@@ -1,0 +1,82 @@
+[MAIN]
+NFLG=0
+NFLG_=NFLG + 1
+TVBAS=(1.0/10.0)*THETA_BAS
+PHI=ETA_PHI + log(TVBAS/(1 - TVBAS))
+BAS=10*exp(PHI)/(exp(PHI) + 1)
+PEF=THETA_PEF*exp(ETA_PEF)/((1 - THETA_PEF)*(THETA_PEF*exp(ETA_PEF)/(1 - THETA_PEF) + 1))
+PHA=THETA_PHA*exp(ETA_PHA)
+PLC=-PEF*(1 - exp(-DAYS*M_LN2/PHA)) + 1
+COV=0
+if (PCM == 1) COV=THETA_COV
+TVLAM=(1.0/10.0)*BAS*PLC
+PHL=COV + log(TVLAM/(1 - TVLAM))
+LAM=10*exp(PHL)/(exp(PHL) + 1)
+TE=THETA_TE*exp(ETA_TE)
+TEF=DAYS*TE
+PIN00=THETA_PIN00*exp(ETA_PIN00 + TEF)/((1 - THETA_PIN00)*(THETA_PIN00*exp(ETA_PIN00 + TEF)/(1 - THETA_PIN00) + 1))
+PIN09=THETA_PIN09*exp(ETA_PIN00 + TEF)/((1 - THETA_PIN09)*(THETA_PIN09*exp(ETA_PIN00 + TEF)/(1 - THETA_PIN09) + 1))
+if (PDV == 0) PIN0=PIN00
+if (PDV == 1) PIN0=(8.0/9.0)*PIN00 + (1.0/9.0)*PIN09
+if (PDV == 2) PIN0=(7.0/9.0)*PIN00 + (2.0/9.0)*PIN09
+if (PDV == 3) PIN0=(2.0/3.0)*PIN00 + (1.0/3.0)*PIN09
+if (PDV == 4) PIN0=(5.0/9.0)*PIN00 + (4.0/9.0)*PIN09
+if (PDV == 5) PIN0=(4.0/9.0)*PIN00 + (5.0/9.0)*PIN09
+if (PDV == 6) PIN0=(1.0/3.0)*PIN00 + (2.0/3.0)*PIN09
+if (PDV == 7) PIN0=(2.0/9.0)*PIN00 + (7.0/9.0)*PIN09
+if (PDV == 8) PIN0=(1.0/9.0)*PIN00 + (8.0/9.0)*PIN09
+if (PDV == 9) PIN0=PIN09
+if (PDV == 10) PIN0=THETA_PIN0*exp(ETA_PIN00 + TEF)/((1 - THETA_PIN0)*(THETA_PIN0*exp(ETA_PIN00 + TEF)/(1 - THETA_PIN0) + 1))
+if (NEWIND != 2) PIN0=0
+PIN1=0.5*THETA_PIN1*exp(ETA_PIN1)/((1 - THETA_PIN1)*(THETA_PIN1*exp(ETA_PIN1)/(1 - THETA_PIN1) + 1))
+PIN1_=PIN1*(1 - PIN0)
+if (NEWIND != 2) PIN1_=0
+PIN1D=2*PIN1_
+if (PDV == 0 || PDV == 10) PIN1D=PIN1_
+PIN2=0.5*THETA_PIN2*exp(ETA_PIN2)/((1 - THETA_PIN2)*(THETA_PIN2*exp(ETA_PIN2)/(1 - THETA_PIN2) + 1))
+PIN2_=PIN2*(-PIN0 - PIN1D + 1)
+if (NEWIND != 2) PIN2_=0
+PIN2D=2*PIN2_
+if (PDV >= 9 || PDV <= 1) PIN2D=PIN2_
+PIN3=0.5*THETA_PIN3*exp(ETA_PIN3)/((1 - THETA_PIN3)*(THETA_PIN3*exp(ETA_PIN3)/(1 - THETA_PIN3) + 1))
+PIN3_=PIN3*(-PIN0 - PIN1D - PIN2D + 1)
+if (NEWIND != 2) PIN3_=0
+PIN3D=2*PIN3_
+if (PDV >= 8 || PDV <= 2) PIN3D=PIN3_
+PTOT=PIN0 + PIN1D + PIN2D + PIN3D
+PH=ETA_PH + log(THETA_PH/(1 - THETA_PH))
+TH=exp(PH)/(exp(PH) + 1)
+DIS=-LAM*TH/(10 - LAM)
+SUM0=exp(-LAM*(1 - DIS))/(LAM*(1 - DIS))
+SUM1=exp(-DIS - LAM*(1 - DIS))
+SUM2=(1.0/2.0)*(2*DIS + LAM*(1 - DIS))*exp(-2*DIS - LAM*(1 - DIS))
+SUM3=(1.0/6.0)*pow(3*DIS + LAM*(1 - DIS), 2)*exp(-3*DIS - LAM*(1 - DIS))
+SUM4=(1.0/24.0)*pow(4*DIS + LAM*(1 - DIS), 3)*exp(-4*DIS - LAM*(1 - DIS))
+SUM5=(1.0/120.0)*pow(5*DIS + LAM*(1 - DIS), 4)*exp(-5*DIS - LAM*(1 - DIS))
+SUM6=(1.0/720.0)*pow(6*DIS + LAM*(1 - DIS), 5)*exp(-6*DIS - LAM*(1 - DIS))
+SUM7=(1.0/5040.0)*pow(7*DIS + LAM*(1 - DIS), 6)*exp(-7*DIS - LAM*(1 - DIS))
+SUM8=(1.0/40320.0)*pow(8*DIS + LAM*(1 - DIS), 7)*exp(-8*DIS - LAM*(1 - DIS))
+SUM9=(1.0/362880.0)*pow(9*DIS + LAM*(1 - DIS), 8)*exp(-9*DIS - LAM*(1 - DIS))
+SUM10=(1.0/3628800.0)*pow(10*DIS + LAM*(1 - DIS), 9)*exp(-10*DIS - LAM*(1 - DIS))
+SUM=LAM*(1 - DIS)*(SUM0 + SUM1 + SUM10 + SUM2 + SUM3 + SUM4 + SUM5 + SUM6 + SUM7 + SUM8 + SUM9)
+if (DV <= 1) LFAC=0
+GP=LAM*(1 - DIS)*exp(-DIS*DV - LAM*(1 - DIS) - LFAC + (DV - 1)*log(DIS*DV + LAM*(1 - DIS)))
+YY=GP*(1 - PTOT)/SUM
+if (DIF == 0) YY=GP*(1 - PTOT)/SUM + PIN0
+if (DIF == -1 || DIF == 1) YY=GP*(1 - PTOT)/SUM + PIN1_
+if (DIF == -2 || DIF == 2) YY=GP*(1 - PTOT)/SUM + PIN2_
+if (DIF == -3 || DIF == 3) YY=GP*(1 - PTOT)/SUM + PIN3_
+if (NEWIND != 2) YY=GP*(1 - PTOT)/SUM
+Y=-2*log(YY)
+if (ICALL == 4) PRN=0
+if (ICALL == 4) N=0
+if (ICALL == 4) DV=N
+if (ICALL == 4) PSDV=DV
+if (ICALL == 4) TRA=DV + 100*PDV
+if (ICALL == 4) MEA=DV + MEA
+if (ICALL == 4) MEAN=MEA/NFLG_
+if (ICALL == 4) MES=pow(DV, 2) + MES
+if (ICALL == 4) MEAS=MES/NFLG_
+if (ICALL == 4) VAR=-pow(MEAN, 2) + MEAS
+if (ICALL == 4) RATI=VAR/MEAN
+

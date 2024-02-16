@@ -1,0 +1,6 @@
+"name","index","index2","value","fix","type"
+"RSV_1",1,1,0.00500974,FALSE,"var"
+"RSV_2",2,2,0.00114573,FALSE,"var"
+"RSV_3",3,3,0.0518161,FALSE,"var"
+NA,4,3,0.0189319,FALSE,"covar"
+"RSV_4",4,4,0.0366836,FALSE,"var"

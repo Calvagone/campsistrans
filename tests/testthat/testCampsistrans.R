@@ -114,3 +114,25 @@ test_that("removePiecewiseStatements method works as expected", {
   
   expect_equal(model, model_ %>% removePiecewiseStatements())
 })
+
+test_that("RATE is properly removed from control stream", {
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT RATE DOSENO DV DOSE TDOS TSLD"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT DOSENO DV DOSE TDOS TSLD")
+  
+  # Dollar tag detected, no replacement
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT $DATA RATE"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT $DATA RATE")
+  
+  # In filgrastim, RATE is at the end
+  filgrastim <- "$INPUT ID AMT TIME CMT DV DRUG PERD ROUT BAS RATE\n$DATA Simulated_GCSF_dataset.csv IGNORE=I"
+  expect_equal(removeRateFromString(filgrastim),
+               "$INPUT ID AMT TIME CMT DV DRUG PERD ROUT BAS \n$DATA Simulated_GCSF_dataset.csv IGNORE=I")
+  
+  # RATE2 -> not removed
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD")
+  
+  expect_equal(removeRateFromString("$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 RATE DOSENO DV DOSE TDOS TSLD"),
+               "$INPUT ID ARM TIME EVID MDV AMT CMT RATE2 DOSENO DV DOSE TDOS TSLD")
+})
+
