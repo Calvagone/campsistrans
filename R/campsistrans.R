@@ -71,7 +71,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   }
 
   model <- pharmpy$Model$create_model(ctlPath)
-  mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   
   if (uncertainty) {
     fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", ctlBasename)
@@ -84,8 +83,24 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     varcov <- matrix(numeric(0), nrow=0, ncol=0)
   }
   
+  # Line needed! Otherwise pharmpyOmegas[[index]]$eta_map not working in getNumberOfEtas()
+  # Probably due to lazy instantiation
+  # Problem: only there when estimated parameters are provided
+  if (estimate) {
+    pharmpyEstimates <- model$modelfit_results$parameter_estimates
+  }
+  
+  # Always provide OMEGA mapping if unset
+  mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
+  if (estimate && (mapping$params %>% campsismod::select("omega") %>% length() == 0)) {
+    omegaIndexes <- seq_len(getNumberOfEtas(model))
+    mapping$params <- addMapping(omegaIndexes, parameters=mapping$params, type="omega") %>%
+      campsismod::sort()
+  }
+  
   # Convert parameters from NONMEM to Campsis
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
+  
   
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
@@ -114,6 +129,16 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     campsis = campsis
   )
   return(retValue)
+}
+
+getNumberOfEtas <- function(model) {
+  pharmpyOmegas <- model$control_stream$get_records("OMEGA")
+  etas <- 0
+  for (index in seq_along(pharmpyOmegas)) {
+    map <- pharmpyOmegas[[index]]$eta_map
+    etas <- etas + length(map)
+  }
+  return(etas)
 }
 
 #'
