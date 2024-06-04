@@ -113,3 +113,25 @@ getCovarianceName <- function(parameters, index1, index2) {
     return(paste0(name1, "_", name2))
   }
 }
+
+#'
+#' Convert off-diagonal elements to correlations.
+#' 
+#' @param model Campsis model
+#' @return updated Campsis model
+#' @importFrom campsismod getByIndex replace standardise
+#' @export
+#' 
+covarToCor <- function(model) {
+  parameters <- model@parameters
+  for (param in parameters@list) {
+    if (is(param, "omega") && param@type=="covar") {
+      omega1 <- parameters %>% campsismod::getByIndex(Omega(index=param@index, index2=param@index)) %>% campsismod::standardise()
+      omega2 <- parameters %>% campsismod::getByIndex(Omega(index=param@index2, index2=param@index2)) %>% campsismod::standardise()
+      param@value <- param@value/(sqrt(omega1@value)*sqrt(omega2@value))
+      param@type <- "cor"
+      model <- model %>% campsismod::replace(param)
+    }
+  }
+  return(model)
+}
