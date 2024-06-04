@@ -29,7 +29,7 @@ getNumberOfEtas <- function(model) {
 #'
 #' Remove RATE input from $INPUT field (string-based model). 
 #' 
-#' @param x string value (the whole control stream)
+#' @param x string value (the whole control stream, 1 line)
 #' @return the same string value without RATE input
 #' @export
 #' 
@@ -47,19 +47,41 @@ removeRateFromString <- function(x) {
 }
 
 #'
-#' Remove RATE input from $INPUT field in given control stream. 
+#' Adapt NONMEM control stream by manipulating the source file. 
 #' 
 #' @param file control stream file name
+#' @param rem_rate remove RATE in control stream automatically to avoid issues with Pharmpy.
+#'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates, default is FALSE
+#' @param rem_abbr_replace remove section ABBREVIATED REPLACE, causing issue in import, default is FALSE
 #' @return nothing
 #' @export
 #' 
-removeRateFromCtl <- function(file) {
+adaptNONMEMControlStream <- function(file, rem_rate, rem_abbr_replace) {
   fileConn = file(file)
-  x <- paste0(readLines(con=fileConn), collapse="\n")
-  x_ <- removeRateFromString(x)
+  retValue <- paste0(readLines(con=fileConn), collapse="\n")
   
-  writeLines(text=x_, con=fileConn)
+  if (rem_rate) {
+    retValue <- removeRateFromString(retValue)
+  }
+  if (rem_abbr_replace) {
+    retValue <- removeAbbreviatedReplaceFromString(retValue)
+  }
+  
+  writeLines(text=retValue, con=fileConn)
   close(fileConn)
+}
+
+#'
+#' Remove $ABBREVIATED REPLACE section from string. 
+#' 
+#' @param x string value (the whole control stream, 1 line)
+#' @return the same string value without the abbreviated replace section
+#' @export
+#' 
+removeAbbreviatedReplaceFromString <- function(x) {
+  retValue <- x
+  retValue <- gsub(pattern="^(.*)(\\$ABBREVIATED REPLACE)([^\n]*)(\n)(.*)", replacement="\\1\\4\\5", x=retValue)
+  return(retValue)
 }
 
 #'

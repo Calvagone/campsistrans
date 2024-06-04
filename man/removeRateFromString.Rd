@@ -7,7 +7,7 @@
 removeRateFromString(x)
 }
 \arguments{
-\item{x}{string value (the whole control stream)}
+\item{x}{string value (the whole control stream, 1 line)}
 }
 \value{
 the same string value without RATE input

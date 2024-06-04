@@ -30,15 +30,16 @@ setClass(
 #' @param envname virtual python environment name, can be configured in config.yml
 #' @param python path to python, can be configured in config.yml
 #' @param copy_dir copy directory in which the control stream is
-#' @param rem_rate remote RATE in control stream automatically to avoid issues with Pharmpy.
-#'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates.
+#' @param rem_rate remove RATE in control stream automatically to avoid issues with Pharmpy.
+#'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates, default is FALSE
+#' @param rem_abbr_replace remove section ABBREVIATED REPLACE, causing issue in import, default is TRUE
 #' @return a campsistrans object
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          covar_name=FALSE, covar_as_cor=FALSE,
                          auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(),
-                         copy_dir=FALSE, rem_rate=FALSE) {
+                         copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
@@ -69,11 +70,10 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     finalDir <- dirname
   }
   
-  # Remove RATE from control stream
-  if (rem_rate) {
-    removeRateFromCtl(ctlPath)
-  }
+  # Adapt source control stream file based on arguments
+  adaptNONMEMControlStream(file=ctlPath, rem_rate=rem_rate, rem_abbr_replace=rem_abbr_replace)
 
+  # Create model with Pharmpy
   model <- pharmpy$Model$create_model(ctlPath)
   
   if (uncertainty) {

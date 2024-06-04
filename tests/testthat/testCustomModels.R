@@ -14,9 +14,9 @@ nonRegressionFolderPath <- function(regFolder) {
   return(paste0(testFolder, "non_regression/custom/", regFolder, "/"))
 }
 
-generateModel <- function(modelDir, modelName, regFolder, mapping) {
+generateModel <- function(modelDir, modelName, regFolder, mapping, ...) {
   # Import your NONMEM model using pharmpy
-  object <- importNONMEM(modelPath(modelDir, modelName), mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
+  object <- importNONMEM(modelPath(modelDir, modelName), mapping=mapping, ...)
   
   model <- object %>% export(dest="campsis")
   if (overwriteNonRegressionFiles) {
@@ -36,7 +36,7 @@ test_that("Model 1", {
                      omega=1:24,
                      sigma=c("ADD"=1))
 
-  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=modelDir, mapping=mapping)
+  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=modelDir, mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(modelDir)))
 })
 
@@ -48,7 +48,7 @@ test_that("Model 1 (auto-mapping)", {
   # Also map OMEGA names because 'SAME' OMEGAS related to IOV not listed in Pharmpy parameter set
   mapping <- mapping(omega=1:24, sigma=c("ADD"=1), auto=TRUE)
 
-  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
+  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
@@ -60,7 +60,7 @@ test_that("Model 2 (duplicate variables in model)", {
   # Also map OMEGA names because 'SAME' OMEGAS related to IOV not listed in Pharmpy parameter set
   mapping <- mapping(auto=TRUE)
 
-  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
+  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
@@ -113,9 +113,13 @@ test_that("Model 3 (remove ABBREVIATED REPLACE)", {
   
   mapping <- mapping(auto=TRUE)
   
-  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping)
+  model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
+  
+  expect_equal(removeAbbreviatedReplaceFromString("BEFORE\n$ABBREVIATED REPLACE HELLO\n$AFTER"), "BEFORE\n\n$AFTER")
 })
+
+
 
 
 
