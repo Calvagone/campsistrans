@@ -9,6 +9,8 @@ importNONMEM(
   mapping = NULL,
   estimate = FALSE,
   uncertainty = FALSE,
+  covar_name = FALSE,
+  covar_as_cor = FALSE,
   auto_install = TRUE,
   envname = getPythonEnvName(),
   python = getPythonPath(),
@@ -24,6 +26,10 @@ importNONMEM(
 \item{estimate}{use estimated parameter values or initial ones, logical value, default is FALSE}
 
 \item{uncertainty}{import the variance-covariance matrix (.cov file), logical value, default is FALSE}
+
+\item{covar_name}{give a name to each covariance value}
+
+\item{covar_as_cor}{transform covariance values to correlation values}
 
 \item{auto_install}{auto install pharmpy and dependencies if not installed yet}
 

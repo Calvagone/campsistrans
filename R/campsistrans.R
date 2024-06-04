@@ -24,6 +24,8 @@ setClass(
 #' @param mapping a possible PMX mapping object
 #' @param estimate use estimated parameter values or initial ones, logical value, default is FALSE
 #' @param uncertainty import the variance-covariance matrix (.cov file), logical value, default is FALSE
+#' @param covar_name give a name to each covariance value
+#' @param covar_as_cor transform covariance values to correlation values
 #' @param auto_install auto install pharmpy and dependencies if not installed yet
 #' @param envname virtual python environment name, can be configured in config.yml
 #' @param python path to python, can be configured in config.yml
@@ -34,7 +36,9 @@ setClass(
 #' @importFrom reticulate import
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
-                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(), copy_dir=FALSE, rem_rate=FALSE) {
+                         covar_name=FALSE, covar_as_cor=FALSE,
+                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(),
+                         copy_dir=FALSE, rem_rate=FALSE) {
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
@@ -119,6 +123,16 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
       })
   }
   
+  # Give a name to each correlation
+  if (covar_name) {
+    campsis <- nameCovariance(model=campsis)
+  }
+  
+  # Convert to correlation values
+  if (covar_as_cor) {
+    campsis <- covarToCor(model=campsis)
+  }
+  
   # Create campsistrans object
   retValue <- new(
     "campsistrans",
@@ -129,52 +143,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     campsis = campsis
   )
   return(retValue)
-}
-
-getNumberOfEtas <- function(model) {
-  pharmpyOmegas <- model$control_stream$get_records("OMEGA")
-  etas <- 0
-  for (index in seq_along(pharmpyOmegas)) {
-    map <- pharmpyOmegas[[index]]$eta_map
-    etas <- etas + length(map)
-  }
-  return(etas)
-}
-
-#'
-#' Remove RATE input from $INPUT field (string-based model). 
-#' 
-#' @param x string value (the whole control stream)
-#' @return the same string value without RATE input
-#' @export
-#' 
-removeRateFromString <- function(x) {
-  retValue <- x
-  
-  # RATE followed by at least one space
-  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[ ]+)(.*)", replacement="\\1\\2\\3 \\5", x=retValue)
-  
-  # RATE followed by a combination of break line or space
-  # In that case, break line is re-added
-  retValue <- gsub(pattern="^(.*)(\\$INPUT)([^\\$]*)([[:space:]]+RATE[[:space:]]+)(.*)", replacement="\\1\\2\\3 \n\\5", x=retValue)
-  
-  return(retValue)
-}
-
-#'
-#' Remove RATE input from $INPUT field in given control stream. 
-#' 
-#' @param file control stream file name
-#' @return nothing
-#' @export
-#' 
-removeRateFromCtl <- function(file) {
-  fileConn = file(file)
-  x <- paste0(readLines(con=fileConn), collapse="\n")
-  x_ <- removeRateFromString(x)
-  
-  writeLines(text=x_, con=fileConn)
-  close(fileConn)
 }
 
 #_______________________________________________________________________________
