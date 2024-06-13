@@ -9,11 +9,14 @@ importNONMEM(
   mapping = NULL,
   estimate = FALSE,
   uncertainty = FALSE,
+  covar_name = FALSE,
+  covar_as_cor = FALSE,
   auto_install = TRUE,
   envname = getPythonEnvName(),
   python = getPythonPath(),
   copy_dir = FALSE,
-  rem_rate = FALSE
+  rem_rate = FALSE,
+  rem_abbr_replace = TRUE
 )
 }
 \arguments{
@@ -25,6 +28,10 @@ importNONMEM(
 
 \item{uncertainty}{import the variance-covariance matrix (.cov file), logical value, default is FALSE}
 
+\item{covar_name}{give a name to each covariance value}
+
+\item{covar_as_cor}{transform covariance values to correlation values}
+
 \item{auto_install}{auto install pharmpy and dependencies if not installed yet}
 
 \item{envname}{virtual python environment name, can be configured in config.yml}
@@ -33,8 +40,10 @@ importNONMEM(
 
 \item{copy_dir}{copy directory in which the control stream is}
 
-\item{rem_rate}{remote RATE in control stream automatically to avoid issues with Pharmpy.
-Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates.}
+\item{rem_rate}{remove RATE in control stream automatically to avoid issues with Pharmpy.
+Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates, default is FALSE}
+
+\item{rem_abbr_replace}{remove section ABBREVIATED REPLACE, causing issue in import, default is TRUE}
 }
 \value{
 a campsistrans object
