@@ -23,7 +23,7 @@ getPythonPath <- function() {
 #' @export
 #' 
 getPythonEnvName <- function() {
-  return("python3_env_with_pharmpy_v0_46")
+  return("python3_env_pharmpy_v0_46")
 }
 
 # reticulate::virtualenv_remove(getPythonEnvName())
@@ -38,7 +38,12 @@ getPythonEnvName <- function() {
 #' @export
 #' 
 installPython <- function(envname, python) {
-  env <- reticulate::virtualenv_create(envname=envname, python=python) 
+  requirements <- getPharmpyRequirements()
+  reqPath <- tempfile(fileext=".txt")
+  fileConn <- file(reqPath)
+  writeLines(requirements, fileConn)
+  close(fileConn)
+  env <- reticulate::virtualenv_create(envname=envname, python=python, requirements=reqPath)
   reticulate::virtualenv_install(envname, packages=c("pharmpy-core@git+https://github.com/Calvagone/pharmpy@5ef5633ba837cf2f0cede1c90b608064057392ec")) # Bump version: 0.45.0 → 0.46.0
   reticulate::use_virtualenv(envname, required=TRUE)
 }
