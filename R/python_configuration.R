@@ -38,7 +38,7 @@ getPythonEnvName <- function() {
 #' @export
 #' 
 installPython <- function(envname, python) {
-  requirements <- getPharmpyRequirements()
+  requirements <- campsistrans::getPharmpyRequirements()
   reqPath <- tempfile(fileext=".txt")
   fileConn <- file(reqPath)
   writeLines(requirements, fileConn)

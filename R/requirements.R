@@ -1,4 +1,9 @@
-
+#'
+#' Get the Pharmpy requirements. 
+#' 
+#' @return a character vector
+#' @export
+#' 
 getPharmpyRequirements <- function() {
 retValue <- "alabaster==0.7.16
 altair==5.2.0
