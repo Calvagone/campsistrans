@@ -1,7 +1,7 @@
 Type: Package
 Package: campsistrans
 Title: CAMPSIS Transformation Package (NONMEM Import)
-Version: 1.1.1
+Version: 1.2.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: Wrapper to pharmpy for NONMEM import.
@@ -42,6 +42,7 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.2.3
 Collate:
+    'requirements.R'
     'python_configuration.R'
     'data.R'
     'model_library.R'
