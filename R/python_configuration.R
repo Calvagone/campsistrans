@@ -44,7 +44,6 @@ installPython <- function(envname, python) {
   writeLines(requirements, fileConn)
   close(fileConn)
   env <- reticulate::virtualenv_create(envname=envname, python=python, requirements=reqPath)
-  reticulate::virtualenv_install(envname, packages=c("pharmpy-core@git+https://github.com/Calvagone/pharmpy@5ef5633ba837cf2f0cede1c90b608064057392ec")) # Bump version: 0.45.0 → 0.46.0
   reticulate::use_virtualenv(envname, required=TRUE)
 }
 
