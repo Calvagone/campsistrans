@@ -68,6 +68,7 @@ typing_extensions==4.9.0
 tzdata==2024.1
 urllib3==2.2.0
 zict==3.0.0
-zipp==3.17.0"
+zipp==3.17.0
+pharmpy-core @ git+https://github.com/Calvagone/pharmpy@5ef5633ba837cf2f0cede1c90b608064057392ec"
 return(strsplit(retValue, split="\n")[[1]])
 }
