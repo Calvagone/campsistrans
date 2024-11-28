@@ -5,21 +5,17 @@ library(campsisqual)
 
 context("Test NONMEM import on a few DDMoRE models")
 
-testFolder <<- ""
+testFolder <- ""
 qualFolder <- paste0(testFolder, "integration_tests/", "nonmem_qualification/")
 reportFolder <- paste0(testFolder, "integration_tests/", "qualification_reports/")
-exportReport <- FALSE # Only working if testFolder is specified
 reexecuteNONMEM <- FALSE
 
 modelPath <- function(folder, filename) {
-  return(paste0(testFolder, "ddmore_models/", folder, "/", filename))
+  return(normalizePath(paste0(testFolder, "ddmore_models/", folder, "/", filename)))
 }
 
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
-  if (!reexecuteNONMEM) {
-    return(TRUE)
-  }
-  
+
   filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
   modelFolder <- "filgrastim"
 
@@ -54,18 +50,18 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZCP
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZCP, variables="ZCP",
-            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, settings=settings)
+            outputFolder=paste0(qualFolder, modelFolder, "_zcp"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
-  if (exportReport) {
-    qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
-  }
+  # if (exportReport) {
+  #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
+  # }
   
   # Qualify ZNB
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZNB, variables="ZNB",
-            outputFolder=paste0(qualFolder, modelFolder), reexecuteNONMEM=TRUE, settings=settings)
+            outputFolder=paste0(qualFolder, modelFolder, "_znb"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
-  if (exportReport) {
-    qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))
-  }
+  # if (exportReport) {
+  #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))
+  # }
 })
