@@ -1,1 +1,0 @@
-Transient folder used to run the NONMEM qualification

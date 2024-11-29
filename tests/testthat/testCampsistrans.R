@@ -29,8 +29,8 @@ test_that("ADVAN3 TRANS4 - simulation", {
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
  
   # Plotting CONC
-  plot(sim, CONC) +
-    ylab("Concentration") 
+  expect_no_error(plot(sim, CONC) +
+    ylab("Concentration"))
 })
 
 test_that("ADVAN4 TRANS4 - simulation", {
@@ -55,8 +55,8 @@ test_that("ADVAN4 TRANS4 - simulation", {
   sim  <- rxode2::rxSolve(mod, params=rxodeMod@theta, ev, omega=rxodeMod@omega, sigma=rxodeMod@sigma, nSub=100)
   
   # Plotting CONC
-  plot(sim, CONC) +
-    ylab("Concentration")
+  expect_no_error(plot(sim, CONC) +
+    ylab("Concentration"))
 })
 
 test_that("Custom test with RxODE", {
@@ -102,8 +102,8 @@ test_that("Custom test with RxODE", {
   results <- results %>% dplyr::mutate(time=as.numeric(time)) %>% dplyr::filter(time==0)
   
   # Plotting C2
-  plot(sim, CP) +
-    ylab("Concentration") 
+  expect_no_error(plot(sim, CP) +
+    ylab("Concentration"))
 })
 
 test_that("removePiecewiseStatements method works as expected", {
