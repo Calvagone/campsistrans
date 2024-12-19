@@ -1,7 +1,7 @@
 Type: Package
 Package: campsistrans
 Title: Campsis Transformation Package (NONMEM -> Campsis)
-Version: 1.2.3
+Version: 1.2.4
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: Wrapper to pharmpy for NONMEM import.
