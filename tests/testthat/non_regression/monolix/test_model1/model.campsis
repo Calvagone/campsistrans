@@ -1,0 +1,57 @@
+[ODE]
+K42=exp(K42_pop + omega_K42)
+LAG5=exp(LAG5_pop + omega_LAG5)
+DUR5=exp(DUR5_pop + omega_DUR5)
+K52=exp(K52_pop + omega_K52)
+K12=exp(K12_pop + omega_K12)
+DUR4=exp(DUR4_pop + omega_DUR4)
+CL20=exp(CL20_pop + omega_CL20)
+V2=exp(V2_pop + omega_V2)
+V6=exp(V6_pop + omega_V6)
+Q6=exp(Q6_pop + omega_Q6)
+CL30=exp(CL30_pop + omega_CL30)
+V7=exp(V7_pop + omega_V7)
+Q7=exp(Q7_pop + omega_Q7)
+CL23=exp(CL23_pop + omega_CL23)
+DUR8=exp(DUR8_pop + omega_DUR8)
+K82=exp(K82_pop + omega_K82)
+FT=exp(FT_pop + omega_FT)
+FR1=exp(FR1_pop + omega_FR1)
+FR2=exp(FR2_pop + omega_FR2)
+FR3=exp(FR3_pop + omega_FR3)
+V3=V2
+K20=CL20/V2
+K26=Q6/V2
+K62=Q6/V6
+K23=CL23/V2
+K30=CL30/V3
+K37=Q7/V3
+K73=Q7/V7
+d/dt(A_DEP1)=-K12 * A_DEP1
+d/dt(A_PAR1)=K12 * A_DEP1 + K42 * A_DEP2 + K52 * A_DEP3 + K82 * A_DEP4 - K20 * A_PAR1 - K26 * A_PAR1 + K62 * A_PAR2 - K23 * A_PAR1
+d/dt(A_MET1)=K23 * A_PAR1 - K30 * A_MET1 - K37 * A_MET1 + K73 * A_MET2
+d/dt(A_DEP2)=-K42 * A_DEP2
+d/dt(A_DEP3)=-K52 * A_DEP3
+d/dt(A_PAR2)=K26 * A_PAR1 - K62 * A_PAR2
+d/dt(A_MET2)=K37 * A_MET1 - K73 * A_MET2
+d/dt(A_DEP4)=-K82 * A_DEP4
+par=log(max(A_PAR1/V2, 1e-04))
+met=log(max(A_MET1/V3, 1e-04))
+CONC=par
+CONC ~ add(a) + prop(b) + combined1()
+
+[F]
+A_DEP1=FT * FR1
+A_DEP2=FT * (1 - FR1) * FR2
+A_DEP3=FT * (1 - FR1) * (1 - FR2) * FR3
+A_DEP4=FT * (1 - FR1) * (1 - FR2) * (1 - FR3)
+
+[LAG]
+A_DEP3=LAG5
+A_DEP4=LAG5
+
+[DURATION]
+A_DEP2=DUR4
+A_DEP3=DUR5
+A_DEP4=DUR8
+

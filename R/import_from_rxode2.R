@@ -3,7 +3,7 @@
 #' 
 #' @param rxModel the rxode2 function object
 #' @return a functional Campsis model
-#' 
+#' @export
 importRxode2 <- function(rxModel) {
   
   # Extract model code
@@ -12,6 +12,8 @@ importRxode2 <- function(rxModel) {
   # Extract compartment properties
   model <- model %>%
     extractCompartmentPropertiesFromRxode()
+  
+  return(model)
 }
 
 #' Extract model code from an rxode2 function object.

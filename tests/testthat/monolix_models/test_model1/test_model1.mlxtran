@@ -1,0 +1,115 @@
+
+<MODEL>
+
+[INDIVIDUAL]
+input={K42,LAG5,DUR5,K52,K12,DUR4,CL20,V2,V6,Q6,CL30,V7,Q7,CL23,DUR8,K82,FT,FR1,FR2,FR3}
+
+DEFINITION:
+K42 = {distribution=logNormal, typical=K42_pop, sd=omega_K42}
+LAG5 = {distribution=logNormal, typical=LAG5_pop, sd=omega_LAG5}
+DUR5 = {distribution=logNormal, typical=DUR5_pop, sd=omega_DUR5}
+K52 = {distribution=logNormal, typical=K52_pop, sd=omega_K52}
+K12 = {distribution=logNormal, typical=K12_pop, sd=omega_K12}
+DUR4 = {distribution=logNormal, typical=DUR4_pop, sd=omega_DUR4}
+CL20 = {distribution=logNormal, typical=CL20_pop, sd=omega_CL20}
+V2 = {distribution=logNormal, typical=V2_pop, sd=omega_V2}
+V6 = {distribution=logNormal, typical=V6_pop, sd=omega_V6}
+Q6 = {distribution=logNormal, typical=Q6_pop, sd=omega_Q6}
+CL30 = {distribution=logNormal, typical=CL30_pop, sd=omega_CL30} 
+V7 = {distribution=logNormal, typical=V7_pop, sd=omega_V7}
+Q7 = {distribution=logNormal, typical=Q7_pop, sd=omega_Q7}
+CL23 = {distribution=logNormal, typical=CL23_pop, sd=omega_CL23}
+DUR8 = {distribution=logNormal, typical=DUR8_pop, sd=omega_DUR8}
+K82 = {distribution=logNormal, typical=K82_pop, sd=omega_K82}
+FT = {distribution=logNormal, typical=FT_pop, sd=omega_FT}
+FR1 = {distribution=logNormal, typical=FR1_pop, sd=omega_FR1}
+FR2 = {distribution=logNormal, typical=FR2_pop, sd=omega_FR2}
+FR3 = {distribution=logNormal, typical=FR3_pop, sd=omega_FR3}
+
+[LONGITUDINAL]
+input = {a, b}
+
+PK:
+depot(target=DEP1, p=FT*FR1)
+depot(target=DEP2, p=FT*(1-FR1)*FR2, Tk0=DUR4)
+depot(target=DEP3, p=FT*(1-FR1)*(1-FR2)*FR3, Tk0=DUR5, Tlag=LAG5)
+depot(target=DEP4, p=FT*(1-FR1)*(1-FR2)*(1-FR3), Tk0=DUR8, Tlag=LAG5)
+
+EQUATION:
+V3 = V2
+K20 = CL20/V2
+K26 = Q6/V2
+K62 = Q6/V6
+K23 = CL23/V2
+K30 = CL30/V3
+K37 = Q7/V3
+K73 = Q7/V7
+ddt_DEP1 = -K12*DEP1
+ddt_PAR1 = K12*DEP1 + K42*DEP2 + K52*DEP3 + K82*DEP4 - K20*PAR1 - K26*PAR1 + 
+K62*PAR2  - K23*PAR1
+ddt_MET1 = K23*PAR1 - K30*MET1 - K37*MET1 + K73*MET2
+ddt_DEP2 = -K42*DEP2
+ddt_DEP3 = -K52*DEP3
+ddt_PAR2  = K26*PAR1 - K62*PAR2 
+ddt_MET2 = K37*MET1 - K73*MET2
+ddt_DEP4 = -K82*DEP4
+par=log(max(PAR1/V2,0.0001))
+met=log(max(MET1/V3,0.0001))
+
+OUTPUT:
+output = {par, met}
+
+DEFINITION:
+CONC = {distribution=normal, prediction=par, errorModel=combined1(a, b)}
+
+
+<PARAMETER>
+K42_pop = {value=0.008}
+LAG5_pop = {value=300}
+DUR5_pop = {value=450} 
+K52_pop = {value=0.05} 
+K12_pop = {value=3.25} 
+DUR4_pop = {value=0.5} 
+CL20_pop = {value=2.70}
+V2_pop = {value=155}
+V6_pop = {value=120} 
+Q6_pop = {value=3.1} 
+CL30_pop = {value=4.50} 
+V7_pop = {value=124} 
+Q7_pop = {value=1.82} 
+CL23_pop = {value=15.6} 
+DUR8_pop = {value=354} 
+K82_pop = {value=0.025} 
+FT_pop = {value=1.04} 
+FR1_pop = {value=0.025} 
+FR2_pop = {value=0.5} 
+FR3_pop = {value=0.6} 
+omega_K42 = {value=0.1} 
+omega_LAG5 = {value=0.2} 
+omega_DUR5 = {value=0.3} 
+omega_K52 = {value=0.4} 
+omega_K12 = {value=0.5} 
+omega_DUR4 = {value=0.6}
+omega_CL20 = {value=0.7} 
+omega_V2 = {value=0.8} 
+omega_V6 = {value=0.9} 
+omega_Q6 = {value=0.1} 
+omega_CL30 = {value=0.2} 
+omega_V7 = {value=0.3} 
+omega_Q7 = {value=0} 
+omega_CL23 = {value=0.4} 
+omega_DUR8 = {value=0.5} 
+omega_K82 = {value=0.6} 
+omega_FT = {value=0.7} 
+omega_FR1 = {value=0.8} 
+omega_FR2 = {value=0.9} 
+omega_FR3 = {value=0.1}
+a = {value=1}
+b = {value=0.25}
+
+<MONOLIX>
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'tp'
+

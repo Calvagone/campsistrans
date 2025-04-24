@@ -16,6 +16,7 @@ Imports:
     callr,
     config,
     dplyr,
+    monolix2rx,
     plyr,
     purrr,
     reticulate,
