@@ -27,6 +27,11 @@ generateModel <- function(filename, folder) {
 test_that("Test model 1 can be imported successfully", {
   filename="test_model1.mlxtran"
   folder <- "test_model1"
+  
+  # file <- modelPath(folder, filename)
+  # mlxtran <- monolix2rx::mlxtran(file=file)
+  # mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file <- basename(file)
+  # rxModel <- monolix2rx::monolix2rx(mlxtran)
 
   model <- generateModel(filename=filename, folder=folder)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))

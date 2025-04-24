@@ -111,7 +111,33 @@ extractParametersFromRxode <- function(rxModel) {
   parameters <- parameters %>%
     add(thetas)
   
+  # Retrieve OMEGAs
+  omegaMatrix <- rxModel$omega
+  assertthat::assert_that(all(dimnames(omegaMatrix)[[1]]==dimnames(omegaMatrix)[[2]]))
+  omegaNames <- dimnames(omegaMatrix)[[1]]
+  omegaNames <- gsub(pattern="^omega_", replacement="", x=omegaNames)
   
+  for (index1 in seq_along(omegaNames)) {
+    for (index2 in seq_along(omegaNames)) {
+      if (index1 > index2) {
+        next
+      }
+      omegaValue <- omegaMatrix[index1, index2]
+      # Discard automatically zeroes on the off-diagonal elements
+      if (omegaValue != 0 || index1==index2) {
+        omegaName1 <- omegaNames[index1]
+        omegaName2 <- omegaNames[index2]
+        if (index1 == index2) {
+          omegaName <- omegaName1
+        } else {
+          omegaName <- paste0(omegaName1, "_", omegaName2)
+        }
+        omega <- Omega(name=omegaName, value=omegaValue, index=index1, index2=index2, type=ifelse(index1==index2, "var", "covar"))
+        parameters <- parameters %>%
+          add(omega)
+      }
+    }
+  }
   
   return(parameters)
 }
