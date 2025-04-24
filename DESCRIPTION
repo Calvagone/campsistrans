@@ -59,4 +59,6 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
     'auto_mapping.R'
+    'import_from_rxode2.R'
+    'import_from_monolix.R'
 Remotes: github::Calvagone/campsismod
