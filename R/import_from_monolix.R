@@ -11,6 +11,6 @@ importMonolix <- function(file) {
   mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file <- basename(file)
   
   rxModel <- monolix2rx(mlxtran)
-  
+
   return(importRxode2(rxModel))
 }

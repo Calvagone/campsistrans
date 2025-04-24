@@ -32,15 +32,9 @@ extractModelCodeFromRxode <- function(rxModel) {
   # Replace R assignments by equals
   code <- gsub(pattern="<-", replacement="=", x=code)
   
-  # Detect compartments based on d/dt
-  cmtNames <- code %>% purrr::map_chr(function(x) {
-    if (isODE(x)) {
-      return(extractTextBetweenBrackets(extractLhs(x)))
-    } else {
-      return("")
-    }
-  }) %>% purrr::discard(~ .x=="") %>% unique()
-  
+  # Retrieve compartments
+  cmtNames <- rxModel$stateDf[, "Compartment Name"]
+
   # Add A_ prefix to compartment names
   for (cmtName in cmtNames) {
     code <- replaceAll(object=code, pattern=VariablePattern(cmtName),
