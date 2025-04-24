@@ -13,6 +13,9 @@ importRxode2 <- function(rxModel) {
   model <- model %>%
     extractCompartmentPropertiesFromRxode()
   
+  # Extract parameters
+  model@parameters <- extractParametersFromRxode(rxModel)
+  
   return(model)
 }
 
@@ -97,6 +100,20 @@ extractCompartmentPropertiesFromRxode <- function(model) {
     replace(ode)
   
   return(model)
+}
+
+extractParametersFromRxode <- function(rxModel) {
+  parameters <- Parameters()
+  
+  # Retrieve THETAs
+  thetas <- rxModel$theta %>%
+    purrr::imap(~Theta(name=.y, value=.x))
+  parameters <- parameters %>%
+    add(thetas)
+  
+  
+  
+  return(parameters)
 }
 
 isRxodeCompartmentPropertyEquation <- function(x) {
