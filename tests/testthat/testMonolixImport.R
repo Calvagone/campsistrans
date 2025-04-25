@@ -60,9 +60,12 @@ test_that("PK_01 can be imported successfully", {
   mlxtranFile <- modelPath(folder, filename)
   
   mlxtran <- monolix2rx::mlxtran(file=mlxtranFile)
+  rxModel <- monolix2rx::monolix2rx(mlxtran)
   
-  modelFile <- modelPath(folder, "infusion_2cpt_ClV1QV2.txt")
+  # Problem in compartment properties: check on monday
+  model <- importRxode2(rxmod=rxModel, rem_omega_prefix=TRUE, rem_pop_suffix=TRUE)
   
+  rxModel$funTxt
 })
 
 

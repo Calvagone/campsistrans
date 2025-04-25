@@ -7,14 +7,13 @@
 #' @return a functional Campsis model
 #' @export
 importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
-  
+  browser()
   # Extract model code
   model <- extractModelCodeFromRxode(rxmod)
   
   # Extract compartment properties
-  model <- model %>%
-    extractCompartmentPropertiesFromRxode()
-  
+  model <- extractCompartmentPropertiesFromRxode(model)
+
   # Extract parameters
   model@parameters <- extractParametersFromRxode(rxmod,
                                                  rem_pop_suffix=rem_pop_suffix,
@@ -118,6 +117,11 @@ extractCompartmentPropertiesFromRxode <- function(model) {
   indexes <- ode@statements@list %>%
     purrr::map_lgl(~is(.x, "unknown_statement") && isRxodeCompartmentPropertyEquation(.x@line)) %>%
     which()
+  
+  # Return model if no compartment properties
+  if (length(indexes)==0) {
+    return(model)
+  }
   
   # Extract compartment properties
   compartmentProperties <- ode@statements@list[indexes] %>%
