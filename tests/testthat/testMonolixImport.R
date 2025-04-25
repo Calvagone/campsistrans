@@ -38,3 +38,32 @@ test_that("Test model 1 can be imported successfully", {
   
   expect_equal(model, nonreg_model)
 })
+
+test_that("PK_01 can be imported successfully", {
+  
+  filename="PK_01.mlxtran"
+  folder <- "PK_01"
+  
+  mlxtranFile <- modelPath(folder, filename)
+  mlxtranFileStr <- readLines(mlxtranFile)
+  
+  longitudinalIndex <- which(grepl("\\s*\\[LONGITUDINAL\\]\\s*", mlxtranFileStr))
+  filePathIndexes <- which(grepl("\\s*file\\s*=\\s*.*", mlxtranFileStr))
+  
+  if (length(longitudinalIndex) > 0) {
+    filePathIndexes <- filePathIndexes[filePathIndexes > longitudinalIndex]
+    modelFilePathIndex <- filePathIndexes[1]
+    mlxtranFileStr[modelFilePathIndex] <- "file = 'infusion_2cpt_ClV1QV2.txt'"
+  }
+
+  writeLines(mlxtranFileStr, mlxtranFile)
+  mlxtranFile <- modelPath(folder, filename)
+  
+  mlxtran <- monolix2rx::mlxtran(file=mlxtranFile)
+  
+  modelFile <- modelPath(folder, "infusion_2cpt_ClV1QV2.txt")
+  
+})
+
+
+
