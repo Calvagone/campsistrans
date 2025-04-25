@@ -10,7 +10,9 @@ importMonolix <- function(file) {
   mlxtran <- monolix2rx::mlxtran(file=file)
   mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file <- basename(file)
   
-  rxModel <- monolix2rx(mlxtran)
-
-  return(importRxode2(rxModel))
+  rxmod <- monolix2rx(mlxtran)
+  
+  model <- importRxode2(rxmod, rem_pop_suffix=TRUE, rem_omega_prefix=TRUE)
+  
+  return(model)
 }

@@ -4,10 +4,10 @@
 \alias{extractModelCodeFromRxode}
 \title{Extract model code from an rxode2 function object.}
 \usage{
-extractModelCodeFromRxode(rxModel)
+extractModelCodeFromRxode(rxmod)
 }
 \arguments{
-\item{rxModel}{the rxode2 function object}
+\item{rxmod}{the rxode2 function object}
 }
 \value{
 a Campsis model with all original rxode2 statements in the ODE block and detected compartments

@@ -1,31 +1,70 @@
 
 #' Extract model code from an rxode2 function object.
 #' 
-#' @param rxModel the rxode2 function object
+#' @param rxmod the rxode2 function object
+#' @param rem_pop_suffix remove the '_pop' suffix from the population parameters. The model code is adapted accordingly.
+#' @param rem_omega_prefix remove the 'omega_' prefix from the OMEGA parameters. The model code is adapted accordingly.
 #' @return a functional Campsis model
 #' @export
-importRxode2 <- function(rxModel) {
+importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
   
   # Extract model code
-  model <- extractModelCodeFromRxode(rxModel)
+  model <- extractModelCodeFromRxode(rxmod)
   
   # Extract compartment properties
   model <- model %>%
     extractCompartmentPropertiesFromRxode()
   
   # Extract parameters
-  model@parameters <- extractParametersFromRxode(rxModel)
+  model@parameters <- extractParametersFromRxode(rxmod,
+                                                 rem_pop_suffix=rem_pop_suffix,
+                                                 rem_omega_prefix=rem_omega_prefix)
   
+  # Rename THETAs in model code
+  for (parameter in model@parameters@list %>% purrr::keep(~is(.x, "theta"))) {
+    oldNameInCode <- parameter@name
+    
+    # Rebuild old name in code
+    if (!is.na(parameter@comment) && parameter@comment=="Population parameter" && rem_pop_suffix) {
+      oldNameInCode <- paste0(oldNameInCode, "_pop")
+    }
+    # Replace in model code
+    model <- model %>%
+      replaceAll(VariablePattern(oldNameInCode), sprintf("THETA_%s", parameter@name))
+  }
+  
+  # Rename ETAs in model code
+  for (parameter in model@parameters@list %>% purrr::keep(~is(.x, "omega"))) {
+    if (!parameter %>% campsismod::isDiag()) {
+      next
+    }
+    
+    # Rebuild old name in code
+    if (rem_omega_prefix) {
+      oldNameInCode <- sprintf("omega_%s", parameter@name)
+    } else {
+      oldNameInCode <- parameter@name
+    }
+    
+    # Replace in model code
+    model <- model %>%
+      replaceAll(VariablePattern(oldNameInCode), sprintf("ETA_%s", parameter@name))
+  }
+  
+  # Sort everything in the model for consistency (especially in non-regression tests)
+  model <- model %>%
+    campsismod::sort()
+
   return(model)
 }
 
 #' Extract model code from an rxode2 function object.
 #' 
-#' @param rxModel the rxode2 function object
+#' @param rxmod the rxode2 function object
 #' @return a Campsis model with all original rxode2 statements in the ODE block and detected compartments
 #' 
-extractModelCodeFromRxode <- function(rxModel) {
-  code <- strsplit(rxModel$funTxt, "\n")[[1]]
+extractModelCodeFromRxode <- function(rxmod) {
+  code <- strsplit(rxmod$funTxt, "\n")[[1]]
   
   # Remove compartment declarations if any
   # Not sure at this stage if this is needed
@@ -36,7 +75,7 @@ extractModelCodeFromRxode <- function(rxModel) {
   code <- gsub(pattern="<-", replacement="=", x=code)
   
   # Retrieve compartments
-  cmtNames <- rxModel$stateDf[, "Compartment Name"]
+  cmtNames <- rxmod$stateDf[, "Compartment Name"]
 
   # Add A_ prefix to compartment names
   for (cmtName in cmtNames) {
@@ -102,21 +141,48 @@ extractCompartmentPropertiesFromRxode <- function(model) {
   return(model)
 }
 
-extractParametersFromRxode <- function(rxModel) {
+#' Extract all parameters from an rxode2 function object.
+#' 
+#' @param rxmod the rxode2 function object
+#' @param rem_pop_suffix remove the '_pop' suffix from the population parameters.
+#' @param rem_omega_prefix remove the 'omega_' prefix from the OMEGA parameters.
+#' @return a functional Campsis model
+#' @export
+extractParametersFromRxode <- function(rxmod, rem_pop_suffix, rem_omega_prefix) {
   parameters <- Parameters()
   
   # Retrieve THETAs
-  thetas <- rxModel$theta %>%
+  thetas <- rxmod$theta %>%
     purrr::imap(~Theta(name=.y, value=.x))
   parameters <- parameters %>%
     add(thetas)
   
+  # Remove 'pop' suffix from THETA names if asked
+  # Note that this is not systematic (e.g. a, b (error-related parameters) do not have a pop suffix)
+  # Because of that, we explicitly mention in the comment slot that the parameter is
+  # a 'Population parameter' when pop is removed
+  if (rem_pop_suffix) {
+    parameters@list <- parameters@list %>%
+      purrr::map(.f=function(.x) {
+        popSuffixDetected <- grepl(pattern="_pop$", x=.x@name)
+        if (popSuffixDetected) {
+          .x@name <- gsub(pattern="_pop$", replacement="", x=.x@name)
+          .x@comment <- "Population parameter"
+        }
+        return(.x)
+      })
+  }
+  
   # Retrieve OMEGAs
-  omegaMatrix <- rxModel$omega
+  omegaMatrix <- rxmod$omega
   assertthat::assert_that(all(dimnames(omegaMatrix)[[1]]==dimnames(omegaMatrix)[[2]]))
   omegaNames <- dimnames(omegaMatrix)[[1]]
-  omegaNames <- gsub(pattern="^omega_", replacement="", x=omegaNames)
   
+  # Remove 'omega_' prefix from OMEGA names if asked
+  if (rem_omega_prefix) {
+    omegaNames <- gsub(pattern="^omega_", replacement="", x=omegaNames)
+  }
+
   for (index1 in seq_along(omegaNames)) {
     for (index2 in seq_along(omegaNames)) {
       if (index1 > index2) {

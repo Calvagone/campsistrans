@@ -4,7 +4,7 @@ library(campsismod)
 context("Test the Monolix import on a few models")
 
 testFolder <- "C:/prj/campsistrans/tests/testthat/"
-overwriteNonRegressionFiles <- TRUE
+overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
   return(paste0(testFolder, "monolix_models/", folder, "/", filename))
@@ -35,4 +35,6 @@ test_that("Test model 1 can be imported successfully", {
 
   model <- generateModel(filename=filename, folder=folder)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
 })
