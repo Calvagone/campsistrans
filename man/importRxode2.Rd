@@ -4,7 +4,7 @@
 \alias{importRxode2}
 \title{Extract model code from an rxode2 function object.}
 \usage{
-importRxode2(rxmod, rem_pop_str = FALSE, rem_omega_str = FALSE)
+importRxode2(rxmod, rem_pop_suffix = FALSE, rem_omega_prefix = FALSE)
 }
 \arguments{
 \item{rxmod}{the rxode2 function object}

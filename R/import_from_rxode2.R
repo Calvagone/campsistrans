@@ -51,6 +51,14 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
       replaceAll(VariablePattern(oldNameInCode), sprintf("ETA_%s", parameter@name))
   }
   
+  # Heuristic move to MAIN block
+  model <- model %>%
+    heuristicMoveToMain()
+  
+  # Process error model
+  model <- model %>%
+    convertRxodeErrorModel()
+  
   # Sort everything in the model for consistency (especially in non-regression tests)
   model <- model %>%
     campsismod::sort()
@@ -206,6 +214,56 @@ extractParametersFromRxode <- function(rxmod, rem_pop_suffix, rem_omega_prefix) 
   }
   
   return(parameters)
+}
+
+#' Heuristic move from ODE to main.
+#' 
+#' @param model model with all statements in the ODE block
+#' @return updated model with a MAIN block
+#' 
+heuristicMoveToMain <- function(model) {
+  # Identify all continuous variables
+  continuousVariables <- model@compartments@list %>%
+    purrr::map_chr(.f=~paste0("A_", .x@name)) %>% # Compartment names
+    append("t") # Simulation time
+  
+  oldOde <- model %>%
+    find(OdeRecord())
+  
+  # Replace all continuous variables by empty string
+  oldOdeTmp <- oldOde
+  for (continuousVariable in continuousVariables) {
+    oldOdeTmp <- oldOdeTmp %>%
+      replaceAll(pattern=VariablePattern(continuousVariable), replacement="")
+  }
+  
+  # Search for the first statement that has changed
+  main <- MainRecord()
+  updatedOde <- oldOde
+  
+  for (index in seq_along(oldOde@statements@list)) {
+    statementA <- oldOde@statements@list[[index]]
+    statementB <- oldOdeTmp@statements@list[[index]]
+    if (isTRUE(all.equal(statementA, statementB))) {
+      lastIndex <- index
+      main@statements@list <- main@statements@list %>%
+        append(statementA)
+      updatedOde@statements@list <- updatedOde@statements@list[-1]
+    } else {
+      break
+    }
+  }
+  
+  # Replace records in original model
+  model <- model %>%
+    add(main) %>%
+    replace(updatedOde)
+    
+  return(model)
+}
+
+convertRxodeErrorModel <- function(model) {
+  model
 }
 
 isRxodeCompartmentPropertyEquation <- function(x) {
