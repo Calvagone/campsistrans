@@ -12,5 +12,4 @@ V=V1
 k12=Q/V1
 k21=Q/V2
 DV=Cc
-DV ~ add(a) + prop(b) + combined1()
 

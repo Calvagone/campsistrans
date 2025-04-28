@@ -40,7 +40,6 @@ d/dt(A_DEP4)=-K82 * A_DEP4
 par=log(max(A_PAR1/V2, 1e-04))
 met=log(max(A_MET1/V3, 1e-04))
 CONC=par
-CONC ~ add(a) + prop(b) + combined1()
 
 [F]
 A_DEP1=FT * FR1

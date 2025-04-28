@@ -267,7 +267,22 @@ heuristicMoveToMain <- function(model) {
 }
 
 convertRxodeErrorModel <- function(model) {
-  model
+  ode <- model %>%
+    find(OdeRecord())
+  
+  ode@statements@list <- ode@statements@list %>%
+    purrr::discard(.p=function(statement) {
+      if (is(statement, "unknown_statement") && isRxodeErrorEquation(statement@line)) {
+        return(TRUE)
+      } else {
+        return(FALSE)
+      }
+    })
+  
+  # Update ODE record in model
+  model <- model %>%
+    replace(ode)
+  return(model)
 }
 
 isRxodeCompartmentPropertyEquation <- function(x) {
@@ -278,4 +293,13 @@ isRxodeCompartmentPropertyEquation <- function(x) {
   }
   return(grepl(pattern=paste0("^(f|alag|dur|rate)\\(", campsismod:::variablePatternStr(),
                               "\\)$"), x=parts[1] %>% trim()))
+}
+
+isRxodeErrorEquation <- function(x) {
+  assertSingleCharacterString(x)
+  parts <- strsplit(x, split="~")[[1]]
+  if (length(parts) == 1) {
+    return(FALSE)
+  }
+  return(TRUE)
 }

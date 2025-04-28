@@ -17,5 +17,4 @@ k21=Q2/V2
 k13=Q3/V1
 k31=Q3/V3
 DV=Cc
-DV ~ add(a) + prop(b) + combined1()
 
