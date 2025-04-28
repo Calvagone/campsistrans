@@ -19,9 +19,9 @@ generateModel <- function(folder) {
   
   model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile)
   
-  # if (overwriteNonRegressionFiles) {
-  #   model %>% write(nonRegressionFolderPath(folder))
-  # }
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionFolderPath(folder))
+  }
 
   return(model)
 }
@@ -45,5 +45,63 @@ test_that("PK_01 can be imported successfully", {
   expect_equal(model, nonreg_model)
 })
 
+test_that("PK_02 can be imported successfully", {
+  
+  folder <- "PK_02"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
 
+test_that("PK_03 can be imported successfully", {
+  
+  folder <- "PK_03"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
+
+test_that("PK_04 can be imported successfully", {
+  
+  folder <- "PK_04"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
+
+test_that("PK_05 can be imported successfully", {
+  
+  folder <- "PK_05"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
+
+test_that("PK_06 can be imported successfully", {
+  
+  folder <- "PK_06"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
+
+test_that("PK_07 can be imported successfully", {
+  
+  folder <- "PK_07"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+})
 

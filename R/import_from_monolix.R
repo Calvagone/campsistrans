@@ -19,6 +19,7 @@ copyAndRename <- function(file, tempDir, newName) {
 #' @param parametersFile path to estimated parameters file, optional
 #' @return a functional Campsis model
 #' @export
+#' @importFrom digest sha1
 #' @importFrom monolix2rx mlxtran monolix2rx
 #' 
 importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
@@ -31,6 +32,12 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   if (!dir.exists(tempDir)) {
     dir.create(tempDir)
   }
+  
+  # Create export directory
+  exportDir <- file.path(tempDir, "export")
+  if (!dir.exists(exportDir)) {
+    dir.create(exportDir)
+  }
   print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
   
   noExternalModel <- is.null(modelFile) || !file.exists(modelFile)
@@ -42,9 +49,9 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   if (!noExternalModel) {
     copyAndRename(file=modelFile, tempDir=tempDir, newName="model.txt")
   }
-  # Copy parameters file to temporary directory if provided
+  # Copy parameters file to export directory if provided
   if (!is.null(parametersFile) && file.exists(parametersFile)) {
-    copyAndRename(file=parametersFile, tempDir=tempDir, newName="PopulationParameters.txt")
+    copyAndRename(file=parametersFile, tempDir=exportDir, newName="populationParameters.txt")
   }
   
   # Read mlxtran file and adapt the link to the model file on the fly
@@ -69,6 +76,9 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
 
   # Import the mlxtran file
   mlxtranObj <- monolix2rx::mlxtran(file=mlxtran)
+  
+  # Set the export path to the export directory
+  mlxtranObj$MONOLIX$SETTINGS$GLOBAL$exportpath <- "export"
   
   # Error in if (!file.exists(.mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file)) {
   # file is of length 1
