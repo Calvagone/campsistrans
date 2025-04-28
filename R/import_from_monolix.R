@@ -104,7 +104,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
         variable <- trimws(parts[1])
         if (model %>% contains(Equation(variable))) {
           model <- model %>%
-            move(x=Equation(variable), to=campsismod::Position(MainRecord()))
+            campsismod::move(x=Equation(variable), to=campsismod::Position(MainRecord()))
         }
       }
     }
