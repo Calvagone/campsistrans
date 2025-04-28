@@ -94,5 +94,22 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   # Convert the rxode2 model to a functional Campsis model
   model <- importRxode2(rxmod, rem_pop_suffix=TRUE, rem_omega_prefix=TRUE)
   
+  # Move pre-equations at right place (end of MAIN, instead of end of ODE)
+  preEquations <- mlxtranObj$MODEL$LONGITUDINAL$PK$preEq
+  
+  if (length(preEquations) > 0) {
+    for (preEquation in preEquations) {
+      parts <- strsplit(preEquation, split="<-")[[1]]
+      if (length(parts) > 1) {
+        variable <- trimws(parts[1])
+        if (model %>% contains(Equation(variable))) {
+          model <- model %>%
+            move(x=Equation(variable), to=campsismod::Position(MainRecord()))
+        }
+      }
+    }
+  }
+  
+  
   return(model)
 }

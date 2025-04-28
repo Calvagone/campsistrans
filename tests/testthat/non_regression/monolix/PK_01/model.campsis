@@ -3,13 +3,13 @@ Cl=exp(THETA_Cl + ETA_Cl)
 Q=exp(THETA_Q + ETA_Q)
 V1=exp(THETA_V1 + ETA_V1)
 V2=exp(THETA_V2 + ETA_V2)
+V=V1
+k12=Q/V1
+k21=Q/V2
 
 [ODE]
 d/dt(A_central)=-k12 * A_central + k21 * A_cmt2 - Cl/V * A_central
 Cc=A_central/V
 d/dt(A_cmt2)=+k12 * A_central - k21 * A_cmt2
-V=V1
-k12=Q/V1
-k21=Q/V2
 DV=Cc
 
