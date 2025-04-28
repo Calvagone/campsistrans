@@ -3,11 +3,11 @@ library(campsis)
 
 context("Test the Monolix import on a few models")
 
-testFolder <- ""
+testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 nonRegressionFolderPath <- function(folder) {
-  return(paste0(testFolder, "non_regression/monolix/", folder, "/"))
+  return(file.path(testFolder, "non_regression", "monolix", folder))
 }
 
 generateModel <- function(folder) {
@@ -218,12 +218,12 @@ test_that("PK_15 can be imported successfully", {
 })
 
 test_that("PK_16 can be imported successfully", {
-  
+
   folder <- "PK_16"
-  
+
   model <- generateModel(folder=folder)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   expect_equal(model, nonreg_model)
   validateRemifentanilPK(folder=folder, model=model)
 })
