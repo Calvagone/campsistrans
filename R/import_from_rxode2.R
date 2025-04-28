@@ -7,7 +7,7 @@
 #' @return a functional Campsis model
 #' @export
 importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
-  browser()
+  # browser()
   # Extract model code
   model <- extractModelCodeFromRxode(rxmod)
   

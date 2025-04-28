@@ -4,9 +4,13 @@
 \alias{importMonolix}
 \title{Extract the model from Monolix.}
 \usage{
-importMonolix(file)
+importMonolix(mlxtranFile, modelFile = NULL, parametersFile = NULL)
 }
 \arguments{
+\item{modelFile}{path to model file, optional}
+
+\item{parametersFile}{path to estimated parameters file, optional}
+
 \item{path}{to mlxtran file}
 }
 \value{

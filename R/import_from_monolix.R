@@ -1,17 +1,82 @@
 
+copyAndRename <- function(file, tempDir, newName) {
+  if (!file.exists(file)) {
+    stop(paste0("File ", file, " could not be found"))
+  }
+  # Copy file to temporary directory
+  file.copy(from=file, to=tempDir)
+  
+  # Rename file in temporary directory
+  file.rename(from=file.path(tempDir, basename(file)), to=file.path(tempDir, newName))
+  
+  return(file.path(tempDir, newName))
+}
+
 #' Extract the model from Monolix.
 #' 
 #' @param path to mlxtran file
+#' @param modelFile path to model file, optional
+#' @param parametersFile path to estimated parameters file, optional
 #' @return a functional Campsis model
 #' @export
 #' @importFrom monolix2rx mlxtran monolix2rx
 #' 
-importMonolix <- function(file) {
-  mlxtran <- monolix2rx::mlxtran(file=file)
-  mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file <- basename(file)
+importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
+  # browser()
   
-  rxmod <- monolix2rx(mlxtran)
+  # Create temporary directory
+  tempDir <- tempdir()
+  # print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
   
+  noExternalModel <- is.null(modelFile) || !file.exists(modelFile)
+  
+  # Copy mlxtran file to temporary directory
+  mlxtran <- copyAndRename(file=mlxtranFile, tempDir=tempDir, newName="project.mlxtran")
+  
+  # Copy model file to temporary directory if provided
+  if (!noExternalModel) {
+    copyAndRename(file=modelFile, tempDir=tempDir, newName="model.txt")
+  }
+  # Copy parameters file to temporary directory if provided
+  if (!is.null(parametersFile) && file.exists(parametersFile)) {
+    copyAndRename(file=parametersFile, tempDir=tempDir, newName="PopulationParameters.txt")
+  }
+  
+  # Read mlxtran file and adapt the link to the model file on the fly
+  mlxtranStr <- readLines(mlxtran)
+  
+  # longitudinalIndex <- which(grepl("\\s*\\[LONGITUDINAL\\]\\s*", mlxtranStr))
+  # filePathIndexes <- which(grepl("\\s*file\\s*=\\s*.*", mlxtranStr))
+  # 
+  # if (length(longitudinalIndex) > 0) {
+  #   if (noExternalModel) {
+  #     modelBasename <- basename(mlxtran)
+  #   } else {
+  #     modelBasename <- basename(modelFile)
+  #   }
+  #   filePathIndexes <- filePathIndexes[filePathIndexes > longitudinalIndex]
+  #   modelFilePathIndex <- filePathIndexes[1]
+  #   mlxtranStr[modelFilePathIndex] <- sprintf("file = '%s'", modelBasename)
+  # }
+  
+  # Overwrite the mlxtran file with the modified content
+  writeLines(mlxtranStr, mlxtran)
+
+  # Import the mlxtran file
+  mlxtranObj <- monolix2rx::mlxtran(file=mlxtran)
+  
+  # Error in if (!file.exists(.mlxtran$MODEL$LONGITUDINAL$LONGITUDINAL$file)) {
+  # file is of length 1
+  if (noExternalModel) {
+    mlxtranObj$MODEL$LONGITUDINAL$LONGITUDINAL$file <- "project.mlxtran"
+  } else {
+    mlxtranObj$MODEL$LONGITUDINAL$LONGITUDINAL$file <- "model.txt"
+  }
+
+  # Convert the mlxtran object to rxode2 model
+  rxmod <- monolix2rx(mlxtranObj)
+  
+  # Convert the rxode2 model to a functional Campsis model
   model <- importRxode2(rxmod, rem_pop_suffix=TRUE, rem_omega_prefix=TRUE)
   
   return(model)
