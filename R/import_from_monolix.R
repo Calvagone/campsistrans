@@ -26,7 +26,12 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   
   # Create temporary directory
   tempDir <- tempdir()
-  # print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
+  hash <- substr(digest::sha1(mlxtranFile), 1, 10)
+  tempDir <- file.path(tempDir, paste0("monolix_", hash))
+  if (!dir.exists(tempDir)) {
+    dir.create(tempDir)
+  }
+  print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
   
   noExternalModel <- is.null(modelFile) || !file.exists(modelFile)
   
@@ -45,19 +50,19 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   # Read mlxtran file and adapt the link to the model file on the fly
   mlxtranStr <- readLines(mlxtran)
   
-  # longitudinalIndex <- which(grepl("\\s*\\[LONGITUDINAL\\]\\s*", mlxtranStr))
-  # filePathIndexes <- which(grepl("\\s*file\\s*=\\s*.*", mlxtranStr))
-  # 
-  # if (length(longitudinalIndex) > 0) {
-  #   if (noExternalModel) {
-  #     modelBasename <- basename(mlxtran)
-  #   } else {
-  #     modelBasename <- basename(modelFile)
-  #   }
-  #   filePathIndexes <- filePathIndexes[filePathIndexes > longitudinalIndex]
-  #   modelFilePathIndex <- filePathIndexes[1]
-  #   mlxtranStr[modelFilePathIndex] <- sprintf("file = '%s'", modelBasename)
-  # }
+  longitudinalIndex <- which(grepl("\\s*\\[LONGITUDINAL\\]\\s*", mlxtranStr))
+  filePathIndexes <- which(grepl("\\s*file\\s*=\\s*.*", mlxtranStr))
+
+  if (length(longitudinalIndex) > 0) {
+    if (noExternalModel) {
+      modelBasename <- basename(mlxtran)
+    } else {
+      modelBasename <- basename(modelFile)
+    }
+    filePathIndexes <- filePathIndexes[filePathIndexes > longitudinalIndex]
+    modelFilePathIndex <- filePathIndexes[1]
+    mlxtranStr[modelFilePathIndex] <- sprintf("file = '%s'", modelBasename)
+  }
   
   # Overwrite the mlxtran file with the modified content
   writeLines(mlxtranStr, mlxtran)

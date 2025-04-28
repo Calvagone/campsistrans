@@ -19,29 +19,29 @@ generateModel <- function(folder) {
   
   model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile)
   
-  if (overwriteNonRegressionFiles) {
-    model %>% write(nonRegressionFolderPath(folder))
-  }
+  # if (overwriteNonRegressionFiles) {
+  #   model %>% write(nonRegressionFolderPath(folder))
+  # }
 
   return(model)
 }
 
 test_that("Test model 1 can be imported successfully", {
   folder <- "test_model1"
-  
+
   model <- generateModel(folder=folder)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   expect_equal(model, nonreg_model)
 })
 
 test_that("PK_01 can be imported successfully", {
-  
+
   folder <- "PK_01"
 
   model <- generateModel(folder=folder)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   expect_equal(model, nonreg_model)
 })
 
