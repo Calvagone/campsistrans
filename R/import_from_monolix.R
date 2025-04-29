@@ -62,9 +62,9 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
 
   if (length(longitudinalIndex) > 0) {
     if (noExternalModel) {
-      modelBasename <- basename(mlxtran)
+      modelBasename <- "project.mlxtran"
     } else {
-      modelBasename <- basename(modelFile)
+      modelBasename <- "model.txt"
     }
     filePathIndexes <- filePathIndexes[filePathIndexes > longitudinalIndex]
     modelFilePathIndex <- filePathIndexes[1]
@@ -76,6 +76,9 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
 
   # Import the mlxtran file
   mlxtranObj <- monolix2rx::mlxtran(file=mlxtran)
+  
+  # Delete dataset file path
+  mlxtranObj$DATAFILE$FILEINFO$FILEINFO$file <- ""
   
   # Set the export path to the export directory
   mlxtranObj$MONOLIX$SETTINGS$GLOBAL$exportpath <- "export"

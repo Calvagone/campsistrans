@@ -13,6 +13,9 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
   
   # Extract compartment properties
   model <- extractCompartmentPropertiesFromRxode(model)
+  
+  # Extract initial conditions
+  model <- extractInitialConditionsFromRxode(model)
 
   # Extract parameters
   model@parameters <- extractParametersFromRxode(rxmod,
@@ -66,6 +69,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
 }
 
 #' Extract model code from an rxode2 function object.
+#' Note that all compartment names will be prefixed with 'A_'.
 #' 
 #' @param rxmod the rxode2 function object
 #' @return a Campsis model with all original rxode2 statements in the ODE block and detected compartments
@@ -146,6 +150,44 @@ extractCompartmentPropertiesFromRxode <- function(model) {
   model@compartments@properties@list <- compartmentProperties
   
   # Remove compartment properties from code
+  ode@statements@list <- ode@statements@list[-indexes]
+  model <- model %>%
+    replace(ode)
+  
+  return(model)
+}
+
+#' Extract initial conditions from rxode2 statements.
+#' 
+#' @param model a Campsis model with all original rxode2 statements in the ODE block
+#' @return a Campsis model with updated initial conditions
+#' 
+extractInitialConditionsFromRxode <- function(model) {
+  ode <- model %>%
+    find(OdeRecord())
+  
+  # Compartment properties indexes
+  indexes <- ode@statements@list %>%
+    purrr::map_lgl(~is(.x, "unknown_statement") && isRxodeInitialConditionEquation(.x@line)) %>%
+    which()
+  
+  # Return model if no compartment properties
+  if (length(indexes)==0) {
+    return(model)
+  }
+  
+  # Extract initial conditions
+  initialConditions <- ode@statements@list[indexes] %>%
+    purrr::map(~{
+      lhs <- extractLhs(.x@line)
+      compartmentNameWithA <- sub("\\(.*\\)", "", lhs) %>% trimws()
+      rhs <- extractRhs(.x@line) %>% trimws()
+      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
+      return(InitialCondition(compartment=compartmentIndex, rhs=rhs))
+    })
+  model@compartments@properties@list <- c(model@compartments@properties@list, initialConditions)
+  
+  # Remove initial conditions from code
   ode@statements@list <- ode@statements@list[-indexes]
   model <- model %>%
     replace(ode)
@@ -293,6 +335,16 @@ isRxodeCompartmentPropertyEquation <- function(x) {
   }
   return(grepl(pattern=paste0("^(f|alag|dur|rate)\\(", campsismod:::variablePatternStr(),
                               "\\)$"), x=parts[1] %>% trim()))
+}
+
+isRxodeInitialConditionEquation <- function(x) {
+  assertSingleCharacterString(x)
+  parts <- strsplit(x, split="=")[[1]]
+  if (length(parts) == 1) {
+    return(FALSE)
+  }
+  return(grepl(pattern=sprintf("^%s\\(0\\)$", campsismod:::variablePatternStr()),
+               x=parts[1] %>% trim()))
 }
 
 isRxodeErrorEquation <- function(x) {

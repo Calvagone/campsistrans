@@ -11,7 +11,6 @@ nonRegressionFolderPath <- function(folder) {
 }
 
 generateModel <- function(folder) {
-  
   # Adding full path
   mlxtranFile <- file.path(testFolder, "monolix_models", folder, "project.mlxtran")
   modelFile <- file.path(testFolder, "monolix_models", folder, "model.txt")
@@ -25,15 +24,6 @@ generateModel <- function(folder) {
 
   return(model)
 }
-
-test_that("Test model 1 can be imported successfully", {
-  folder <- "test_model1"
-
-  model <- generateModel(folder=folder)
-  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-
-  expect_equal(model, nonreg_model)
-})
 
 getRemifentanilDataset <- function() {
   dataset <- Dataset() %>%
@@ -226,4 +216,13 @@ test_that("PK_16 can be imported successfully", {
 
   expect_equal(model, nonreg_model)
   validateRemifentanilPK(folder=folder, model=model)
+})
+
+test_that("Test model 1 can be imported successfully", {
+  folder <- "test_model1"
+
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+
+  expect_equal(model, nonreg_model)
 })
