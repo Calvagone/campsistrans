@@ -142,6 +142,7 @@ Rxode2Parser <- R6::R6Class(
                          | ode
                          | line_break
                          | comment
+                         | simple_if_statement
                          | unknown_statement', p) {
         p$set(1, list(p$get(2)))
     },
@@ -160,22 +161,9 @@ Rxode2Parser <- R6::R6Class(
       }
     },
     
-    # p_simple_if_statement = function(doc='if_statement : IF CONDITION EQUATION
-    #                         | IF CONDITION IF_CONTENT
-    #                         | ELSE_IF CONDITION IF_CONTENT
-    #                         | ELSE IF_CONTENT', p) {
-    #   if (p$get(2) == 'if') {
-    #     if (startsWith(trimws(p$get(4)), "{")) {
-    #       p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="if"))
-    #     } else {
-    #       p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="if"))
-    #     }
-    #   } else if (p$get(2) == 'else if') {
-    #     p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="else if"))
-    #   } else if (p$get(2) == 'else') {
-    #     p$set(1, buildIfStatement(condition="()", content=p$get(3), type="else"))
-    #   }
-    # },
+    p_simple_if_statement = function(doc='simple_if_statement : IF CONDITION EQUATION', p) {
+      p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="if"))
+    },
     
     p_if_statement = function(doc='if_statement : IF CONDITION EQUATION
                             | IF CONDITION IF_CONTENT
