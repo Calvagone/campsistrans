@@ -183,7 +183,7 @@ Rxode2Parser <- R6::R6Class(
     p_ode = function(doc='ode : ODE', p) {
       lhs <- extractLhs(p$get(2)) %>% trimws()
       rhs <- extractRhs(p$get(2)) %>% trimws()
-      ode <- Ode(lhs=sprintf("A_%s", extractTextBetweenBrackets(lhs)), rhs=getExpr(rhs), comment=getComment(rhs))
+      ode <- Ode(lhs=sprintf("%s", extractTextBetweenBrackets(lhs)), rhs=getExpr(rhs), comment=getComment(rhs))
       p$set(1, ode)
     },
     

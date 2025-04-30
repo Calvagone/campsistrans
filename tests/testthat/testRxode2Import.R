@@ -16,7 +16,7 @@ test_that("Test the rxode2 parser", {
   HELLO=B # Yes
   
   # This is a comment
-  d/dt(BJH)=12
+  d/dt(A_BJH)=12
   if (A==0) BASIC=0
   if (A==0 || (A==1 && A==3)) {
     OUTPUT=1 

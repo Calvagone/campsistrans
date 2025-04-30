@@ -73,6 +73,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
 #' 
 #' @param rxmod the rxode2 function object
 #' @return a Campsis model with all original rxode2 statements in the ODE block and detected compartments
+#' @importFrom rly lex yacc
 #' 
 extractModelCodeFromRxode <- function(rxmod) {
   code <- strsplit(rxmod$funTxt, "\n")[[1]]
@@ -95,12 +96,17 @@ extractModelCodeFromRxode <- function(rxmod) {
   }
   
   # Parse code using campsismod
-  statements <- campsismod:::parseStatements(code)
+  lexer  <- rly::lex(Rxode2Lexer)
+  parser <- rly::yacc(Rxode2Parser)
+  
+  # browser()
+  list <- parser$parse(paste0(code, collapse="\n"), lexer)
   
   # Create raw Campsis model, put all statements in ODE record, and update compartments
   model <- CampsisModel()
   ode <- OdeRecord()
-  ode@statements <- statements
+  ode@statements@list <- list
+  
   model <- model %>%
     add(ode) %>%
     updateCompartments()
