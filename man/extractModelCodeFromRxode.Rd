@@ -2,7 +2,8 @@
 % Please edit documentation in R/import_from_rxode2.R
 \name{extractModelCodeFromRxode}
 \alias{extractModelCodeFromRxode}
-\title{Extract model code from an rxode2 function object.}
+\title{Extract model code from an rxode2 function object.
+Note that all compartment names will be prefixed with 'A_'.}
 \usage{
 extractModelCodeFromRxode(rxmod)
 }
@@ -14,4 +15,5 @@ a Campsis model with all original rxode2 statements in the ODE block and detecte
 }
 \description{
 Extract model code from an rxode2 function object.
+Note that all compartment names will be prefixed with 'A_'.
 }
