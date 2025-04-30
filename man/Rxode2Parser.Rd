@@ -19,7 +19,6 @@ Rxode2 parser.
 \item \href{#method-Parser-p_ode}{\code{Rxode2Parser$p_ode()}}
 \item \href{#method-Parser-p_line_break}{\code{Rxode2Parser$p_line_break()}}
 \item \href{#method-Parser-p_comment}{\code{Rxode2Parser$p_comment()}}
-\item \href{#method-Parser-p_if_single_line}{\code{Rxode2Parser$p_if_single_line()}}
 \item \href{#method-Parser-p_unknown_statement}{\code{Rxode2Parser$p_unknown_statement()}}
 \item \href{#method-Parser-p_error}{\code{Rxode2Parser$p_error()}}
 \item \href{#method-Parser-clone}{\code{Rxode2Parser$clone()}}
@@ -71,7 +70,7 @@ Rxode2 parser.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_if_statement(
   doc =
-    "if_statement : IF CONDITION IF_CONTENT\\n                            | ELSE_IF CONDITION IF_CONTENT\\n                            | ELSE IF_CONTENT",
+    "if_statement : IF CONDITION EQUATION\\n                            | IF CONDITION IF_CONTENT\\n                            | ELSE_IF CONDITION IF_CONTENT\\n                            | ELSE IF_CONTENT",
   p
 )}\if{html}{\out{</div>}}
 }
@@ -110,15 +109,6 @@ Rxode2 parser.
 \subsection{Method \code{p_comment()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_comment(doc = "comment : COMMENT", p)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Parser-p_if_single_line"></a>}}
-\if{latex}{\out{\hypertarget{method-Parser-p_if_single_line}{}}}
-\subsection{Method \code{p_if_single_line()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_if_single_line(doc = "if_single_line : IF_SINGLE_LINE", p)}\if{html}{\out{</div>}}
 }
 
 }

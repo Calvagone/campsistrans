@@ -47,6 +47,10 @@ test_that("Test the rxode2 parser", {
 
   expect_equal(res, expected)
 
+  
+  complexIfElse <- "if (NbCibleEH == 0) {     tNbCibleEH = \"G_0\" } else if (NbCibleEH == 1 || NbCibleEH == 2 || NbCibleEH == 3 || NbCibleEH == 4 || NbCibleEH == 5) {     tNbCibleEH = \"G_1_2_3_4_5\" } else {     tNbCibleEH = \"G_0\" }\n"
+  res <- parser$parse(complexIfElse, lexer)
+  
 # myString <- "if (A==0 || (A==1 && A==3)) { OUTPUT=1 } else if (A==1) { OUTPUT=2 } else {OUTPUT=3}"
 # res2 <- parser$parse(myString2, lexer)
 

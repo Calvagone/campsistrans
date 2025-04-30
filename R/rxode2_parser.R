@@ -5,7 +5,7 @@ getParserTokens <- function() {
     'ODE',
     'COMMENT',
     'LINE_BREAK',
-    'IF_SINGLE_LINE',
+    # 'IF_SINGLE_LINE',
     'IF',
     'ELSE_IF',
     'ELSE',
@@ -80,10 +80,10 @@ Rxode2Lexer <- R6::R6Class(
       if (self$debug) message("Found comment: ", t$value)
       return(t)
     },
-    t_IF_SINGLE_LINE = function(re='if\\s*\\((?>[^()]|(?R))*\\).*[^\n]+', t) {
-      if (self$debug) message("Found if single line: ", t$value)
-      return(t)
-    },
+    # t_IF_SINGLE_LINE = function(re='if\\s*\\((?>[^()]|(?R))*\\)[^\\{\\}]+[^\n]+$', t) {
+    #   if (self$debug) message("Found if single line: ", t$value)
+    #   return(t)
+    # },
     t_IF = function(re='if', t) {
       if (self$debug) message("Found if: ", t$value)
       return(t)
@@ -142,7 +142,6 @@ Rxode2Parser <- R6::R6Class(
                          | ode
                          | line_break
                          | comment
-                         | if_single_line
                          | unknown_statement', p) {
         p$set(1, list(p$get(2)))
     },
@@ -161,11 +160,33 @@ Rxode2Parser <- R6::R6Class(
       }
     },
     
-    p_if_statement = function(doc='if_statement : IF CONDITION IF_CONTENT
+    # p_simple_if_statement = function(doc='if_statement : IF CONDITION EQUATION
+    #                         | IF CONDITION IF_CONTENT
+    #                         | ELSE_IF CONDITION IF_CONTENT
+    #                         | ELSE IF_CONTENT', p) {
+    #   if (p$get(2) == 'if') {
+    #     if (startsWith(trimws(p$get(4)), "{")) {
+    #       p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="if"))
+    #     } else {
+    #       p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="if"))
+    #     }
+    #   } else if (p$get(2) == 'else if') {
+    #     p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="else if"))
+    #   } else if (p$get(2) == 'else') {
+    #     p$set(1, buildIfStatement(condition="()", content=p$get(3), type="else"))
+    #   }
+    # },
+    
+    p_if_statement = function(doc='if_statement : IF CONDITION EQUATION
+                            | IF CONDITION IF_CONTENT
                             | ELSE_IF CONDITION IF_CONTENT
                             | ELSE IF_CONTENT', p) {
       if (p$get(2) == 'if') {
-        p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="if"))
+        if (startsWith(trimws(p$get(4)), "{")) {
+          p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="if"))
+        } else {
+          p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="if"))
+        }
       } else if (p$get(2) == 'else if') {
         p$set(1, buildIfStatement(condition=p$get(3), content=p$get(4), type="else if"))
       } else if (p$get(2) == 'else') {
@@ -194,11 +215,11 @@ Rxode2Parser <- R6::R6Class(
     p_comment = function(doc='comment : COMMENT', p) {
       p$set(1, Comment(getComment(p$get(2))))
     },
-    
-    p_if_single_line = function(doc='if_single_line : IF_SINGLE_LINE', p) {
-      ifStatement <- campsismod:::parseIfStatement(getExpr(p$get(2)), comment=getComment(p$get(2)))
-      p$set(1, ifStatement)
-    },
+    # 
+    # p_if_single_line = function(doc='if_single_line : IF_SINGLE_LINE', p) {
+    #   ifStatement <- campsismod:::parseIfStatement(getExpr(p$get(2)), comment=getComment(p$get(2)))
+    #   p$set(1, ifStatement)
+    # },
     
     p_unknown_statement = function(doc='unknown_statement : UNKNOWN_STATEMENT', p) {
       p$set(1, UnknownStatement(line=getExpr(p$get(2)), comment=getComment(p$get(2))))

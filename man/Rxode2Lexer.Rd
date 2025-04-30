@@ -15,7 +15,6 @@ Rxode2 lexer.
 \item \href{#method-Lexer-t_ODE}{\code{Rxode2Lexer$t_ODE()}}
 \item \href{#method-Lexer-t_LINE_BREAK}{\code{Rxode2Lexer$t_LINE_BREAK()}}
 \item \href{#method-Lexer-t_COMMENT}{\code{Rxode2Lexer$t_COMMENT()}}
-\item \href{#method-Lexer-t_IF_SINGLE_LINE}{\code{Rxode2Lexer$t_IF_SINGLE_LINE()}}
 \item \href{#method-Lexer-t_IF}{\code{Rxode2Lexer$t_IF()}}
 \item \href{#method-Lexer-t_ELSE_IF}{\code{Rxode2Lexer$t_ELSE_IF()}}
 \item \href{#method-Lexer-t_ELSE}{\code{Rxode2Lexer$t_ELSE()}}
@@ -60,18 +59,6 @@ Rxode2 lexer.
 \subsection{Method \code{t_COMMENT()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_COMMENT(re = "\\\\s*#.*[^\\n]+", t)}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Lexer-t_IF_SINGLE_LINE"></a>}}
-\if{latex}{\out{\hypertarget{method-Lexer-t_IF_SINGLE_LINE}{}}}
-\subsection{Method \code{t_IF_SINGLE_LINE()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_IF_SINGLE_LINE(
-  re = "if\\\\s*\\\\((?>[^()]|(?R))*\\\\).*[^\\n]+",
-  t
-)}\if{html}{\out{</div>}}
 }
 
 }

@@ -111,7 +111,56 @@ extractModelCodeFromRxode <- function(rxmod) {
     add(ode) %>%
     updateCompartments()
   
+  # Convert complex if statements into simple ones
+  model <- model %>%
+    convertComplexIfStatements()
+  
   return(model)
+}
+
+#' The goal is to convert a complex if statement structure into simple if statements.
+#' 
+#' @param model original Campsis model
+#' @return a Campsis model without complex if statements
+#' 
+convertComplexIfStatements <- function(model) {
+  # Retrieve all ODE statements
+  ode <- model %>% find(OdeRecord())
+  
+  # Modify all complex if statements
+  ode@statements@list <- ode@statements@list %>% purrr::map(.f=function(x) {
+    if (is(x, "complex_if_statement")) {
+      return(convertComplexIfStatement(x))
+    } else {
+      return(x)
+    }
+  }) %>% unlist()
+
+  # Update ODE record in model
+  model <- model %>% replace(ode)
+  
+  return(model)
+}
+
+convertComplexIfStatement <- function(x) {
+  retValue <- list()
+  ifStatement <- x@list %>%
+    purrr::detect(.f=~is(.x, "if_statement"))
+  elseIfStatements <- x@list %>%
+    purrr::keep(.p=~is(.x, "else_if_statement"))
+  elseStatement <- x@list %>%
+    purrr::detect(.f=~is(.x, "else_statement"))
+  
+  assertthat::assert_that(!is.null(ifStatement), msg="Complex if statement without if clause")
+  assertthat::assert_that(!is.null(elseStatement), msg="Complex if statement without else clause")
+  
+  retValue <- retValue %>%
+    append(elseStatement@equation) %>%
+    append(ifStatement) %>%
+    append(elseIfStatements) %>%
+    unlist()
+  
+  return(retValue)
 }
 
 #' Extract compartment properties from rxode2 statements.
