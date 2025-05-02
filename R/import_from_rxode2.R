@@ -115,6 +115,10 @@ extractModelCodeFromRxode <- function(rxmod) {
   model <- model %>%
     convertComplexIfStatements()
   
+  # Automatically convert time to t
+  model <- model %>%
+    replaceAll("time", "t")
+  
   return(model)
 }
 
