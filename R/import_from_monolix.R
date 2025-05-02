@@ -14,7 +14,7 @@ copyAndRename <- function(file, tempDir, newName) {
 
 #' Extract the model from Monolix.
 #' 
-#' @param path to mlxtran file
+#' @param mlxtranFile to mlxtran file
 #' @param modelFile path to model file, optional
 #' @param parametersFile path to estimated parameters file, optional
 #' @return a functional Campsis model
@@ -27,12 +27,12 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   
   # Create temporary directory
   tempDir <- tempdir()
-  hash <- substr(digest::sha1(mlxtranFile), 1, 10)
+  hash <- substr(digest::sha1(paste0(Sys.time(), mlxtranFile)), 1, 10)
   tempDir <- file.path(tempDir, paste0("monolix_", hash))
   if (!dir.exists(tempDir)) {
     dir.create(tempDir)
   }
-  
+
   # Create export directory
   exportDir <- file.path(tempDir, "export")
   if (!dir.exists(exportDir)) {
@@ -92,7 +92,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
   }
 
   # Convert the mlxtran object to rxode2 model
-  rxmod <- monolix2rx(mlxtranObj)
+  rxmod <- monolix2rx(mlxtranObj, envir=new.env())
   
   # Convert the rxode2 model to a functional Campsis model
   model <- importRxode2(rxmod, rem_pop_suffix=TRUE, rem_omega_prefix=TRUE)

@@ -7,11 +7,11 @@
 importMonolix(mlxtranFile, modelFile = NULL, parametersFile = NULL)
 }
 \arguments{
+\item{mlxtranFile}{to mlxtran file}
+
 \item{modelFile}{path to model file, optional}
 
 \item{parametersFile}{path to estimated parameters file, optional}
-
-\item{path}{to mlxtran file}
 }
 \value{
 a functional Campsis model

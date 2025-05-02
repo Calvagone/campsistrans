@@ -13,7 +13,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
   
   # Extract compartment properties
   model <- extractCompartmentPropertiesFromRxode(model)
-  
+
   # Extract initial conditions
   model <- extractInitialConditionsFromRxode(model)
 
@@ -202,7 +202,17 @@ extractCompartmentPropertiesFromRxode <- function(model) {
         stop("Should never occur since left-hand side is checked by regex") 
       }
     })
-  model@compartments@properties@list <- compartmentProperties
+  model@compartments@properties@list <- list()
+  
+  # Add compartment properties to model
+  # Check property wasn't added yet to due issue in monolix2rx package when the same model is imported twice
+  # See issue #70
+  for (compartmentProperty in compartmentProperties) {
+    if (!model %>% campsismod::contains(compartmentProperty)) {
+      model <- model %>%
+        add(compartmentProperty)
+    }
+  }
   
   # Remove compartment properties from code
   ode@statements@list <- ode@statements@list[-indexes]
