@@ -3,15 +3,15 @@ library(campsismod)
 
 context("Test NONMEM import on a few DDMoRE models")
 
-testFolder <- ""
+testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
-  return(paste0(testFolder, "ddmore_models/", folder, "/", filename))
+  return(file.path(testFolder, "ddmore_models", folder, filename))
 }
 
-nonRegressionFolderPath <- function(folder) {
-  return(paste0(testFolder, "non_regression/ddmore/", folder, "/"))
+nonRegressionPharmpyPath <- function(folder) {
+  return(file.path(testFolder, "non_regression", "ddmore", folder, "pharmpy"))
 }
 
 generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppressWarnings=TRUE, unknownStatements=FALSE) {
@@ -28,7 +28,7 @@ generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppres
   }
   
   if (overwriteNonRegressionFiles) {
-    model %>% write(nonRegressionFolderPath(folder))
+    model %>% write(nonRegressionPharmpyPath(folder))
   }
   
   # Generate unknown statements by writing/reading the model
@@ -41,6 +41,22 @@ generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppres
   return(model)
 }
 
+generateModel2 <- function(filename, ctlExt="mod", extExt="ext", covExt="cov") {
+  dir <- dirname(filename)
+  
+  ctl <- list.files(dir, pattern=sprintf("*\\.%s$", ctlExt), full.names=TRUE)
+  ext <- list.files(dir, pattern=sprintf("*\\.%s$", extExt), full.names=TRUE)
+  cov <- list.files(dir, pattern=sprintf("*\\.%s$", covExt), full.names=TRUE)
+  
+  ext <- if (length(ext)==0) NULL else ext
+  cov <- if (length(cov)==0) NULL else cov
+  
+  rxmod <- importNONMEM2(ctlFile=ctl, extFile=ext, covFile=cov)
+  model <- importRxode2(rxmod)
+  
+  return(model)
+}
+
 test_that("Rifampin PK can be imported well", {
   # DDMODEL00000280
   # Pharmacokinetics of rifampin in tuberculosis patients
@@ -50,7 +66,7 @@ test_that("Rifampin PK can be imported well", {
   mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
 
   # NOTE THAT ODE:
   # if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
@@ -77,9 +93,9 @@ test_that("Rifampin PK can be imported well (no omega mapping)", {
 
   model <- suppressWarnings(generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE)))
   if (overwriteNonRegressionFiles) {
-    model %>% write(nonRegressionFolderPath(folder))
+    model %>% write(nonRegressionPharmpyPath(folder))
   }
-  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
 
   ode <- model@model %>% getByName("ODE")
   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
@@ -101,7 +117,11 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
   # I had to rename (CENTRAL,DEFDOSE) into (COMP1)
   # Otherwise, there was a bug in Pharmpy (file advan.py, line 201, lhs_sum = dadt_dose.expression)
   model <- generateModel(filename=filename, folder=folder)
-  expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
+  expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
+  
+  
+  # Same with 
+  
 })
 
 test_that("Midazolam PK (in newborns) can be imported well", {
@@ -111,7 +131,7 @@ test_that("Midazolam PK (in newborns) can be imported well", {
   filename <- "Executable_Midazolam_PK.mod"
   folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
-  expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
+  expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
 })
 
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
@@ -135,7 +155,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
     return(model)
   }
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
-  expect_equal(model, read.campsis(nonRegressionFolderPath(folder)))
+  expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
 })
 
 test_that("Colistin Meropenem can be imported well", {
@@ -149,7 +169,7 @@ test_that("Colistin Meropenem can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, unknownStatements=TRUE)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("Likert pain count can be imported well", {
@@ -162,7 +182,7 @@ test_that("Likert pain count can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("Biomarker GIST can be imported well", {
@@ -175,7 +195,7 @@ test_that("Biomarker GIST can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("TGI GIST can be imported well", {
@@ -188,7 +208,7 @@ test_that("TGI GIST can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("HFS model can be imported well", {
@@ -201,7 +221,7 @@ test_that("HFS model can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("Pimasertib can be imported well", {
@@ -214,7 +234,7 @@ test_that("Pimasertib can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("SLD model can be imported well", {
@@ -228,7 +248,7 @@ test_that("SLD model can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("OS model can be imported well", {
@@ -241,7 +261,7 @@ test_that("OS model can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("BDQ M2 popPK model can be imported well", {
@@ -263,19 +283,19 @@ test_that("BDQ M2 popPK model can be imported well", {
 
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
 
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 
 test_that("CPHPC model can be imported well", {
   # DDMODEL00000262
-  
+
   filename <- "Executable_simulated_CPHPC_dataset.ctl"
   folder <- "cphpc_model"
-  
+
   mapping <- mapping(auto=TRUE)
-  
+
   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-  
-  expect_equal(model, suppressWarnings(read.campsis(nonRegressionFolderPath(folder))))
+
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
 })
 

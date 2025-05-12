@@ -18,6 +18,7 @@ Imports:
     digest,
     dplyr,
     monolix2rx,
+    nonmem2rx,
     plyr,
     purrr,
     reticulate,
@@ -66,4 +67,5 @@ Collate:
     'rxode2_parser.R'
     'import_from_rxode2.R'
     'import_from_monolix.R'
+    'import_from_nonmem.R'
 Remotes: github::Calvagone/campsismod
