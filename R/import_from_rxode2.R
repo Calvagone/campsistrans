@@ -94,7 +94,17 @@ extractModelCodeFromRxode <- function(rxmod) {
     code <- replaceAll(object=code, pattern=VariablePattern(cmtName),
                        replacement=sprintf("A_%s", cmtName))
   }
-  
+
+  # Possibly replace strange coding of compartment properties (especially with the dot)
+  for (cmtIndex in seq_along(cmtNames)) {
+    # Fractions
+    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxf.rxddta%s\\.", cmtIndex)),
+                       replacement=sprintf("F_A%s", cmtIndex))
+    # Initial conditions
+    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxini.rxddta%s\\.", cmtIndex)),
+                       replacement=sprintf("INIT_A%s", cmtIndex))
+  }
+
   # Parse code using campsismod
   lexer  <- rly::lex(Rxode2Lexer)
   parser <- rly::yacc(Rxode2Parser)

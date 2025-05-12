@@ -64,7 +64,8 @@ Rxode2Lexer <- R6::R6Class(
   public = list(
     tokens = getParserTokens(),
     debug = TRUE,
-    t_EQUATION = function(re='[a-zA-Z_][a-zA-Z0-9_]*\\s*=\\s*[^\n]+', t) {
+    t_EQUATION = function(re='[a-zA-Z_][a-zA-Z0-9_\\.]*\\s*=\\s*[^\n]+', t) {
+      # Not that the dot is accepted for the nonmem2rx importer to work properly
       if (self$debug) message("Found equation: ", t$value)
       return(t)
     },

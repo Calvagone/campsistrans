@@ -34,6 +34,8 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
                                 cmtNames=TRUE, validate=FALSE)
   
+  # browser()
+  
   # Conversion to Campsis
   model <- importRxode2(rxmod)
   
