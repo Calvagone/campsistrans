@@ -28,7 +28,7 @@ ComplexIfElseStatement <- function() {
 #----                                add                                    ----
 #_______________________________________________________________________________
 
-setMethod("add", signature=c("complex_if_else_statement", "if_statement"), definition=function(object, x) {
+setMethod("add", signature=c("complex_if_else_statement", "extended_if_statement"), definition=function(object, x) {
   object@list <- object@list %>% append(x)
   return(object)
 })
@@ -42,7 +42,7 @@ setClass(
   "else_if_statement",
   representation(
   ),
-  contains = "if_statement",
+  contains = "extended_if_statement",
   validity = function(object) {
     return(TRUE)
   }
@@ -52,12 +52,11 @@ setClass(
 #' Create a new ELSE-IF statement.
 #' 
 #' @param condition condition, single character string
-#' @param equation equation if condition is met
-#' @param comment comment if any, single character string
+#' @param statements embedded statements
 #' @return an ELSE-IF statement
 #' @export
-ElseIfStatement <- function(condition, equation, comment=as.character(NA)) {
-  return(new("else_if_statement", condition=condition, equation=equation, comment=comment))
+ElseIfStatement <- function(condition, statements) {
+  return(new("else_if_statement", condition=condition, statements=statements))
 }
 
 #' 
@@ -69,7 +68,7 @@ setClass(
   "else_statement",
   representation(
   ),
-  contains = "if_statement",
+  contains = "extended_if_statement",
   validity = function(object) {
     return(TRUE)
   }
@@ -78,10 +77,9 @@ setClass(
 #' 
 #' Create a new ELSE statement.
 #' 
-#' @param equation equation if condition is met
-#' @param comment comment if any, single character string
+#' @param statements embedded statements
 #' @return an ELSE statement
 #' @export
-ElseStatement <- function(equation, comment=as.character(NA)) {
-  return(new("else_statement", condition="", equation=equation, comment=comment))
+ElseStatement <- function(statements) {
+  return(new("extended_if_statement", condition="", statements=statements))
 }

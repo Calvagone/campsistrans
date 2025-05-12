@@ -4,14 +4,12 @@
 \alias{ElseIfStatement}
 \title{Create a new ELSE-IF statement.}
 \usage{
-ElseIfStatement(condition, equation, comment = as.character(NA))
+ElseIfStatement(condition, statements)
 }
 \arguments{
 \item{condition}{condition, single character string}
 
-\item{equation}{equation if condition is met}
-
-\item{comment}{comment if any, single character string}
+\item{statements}{embedded statements}
 }
 \value{
 an ELSE-IF statement

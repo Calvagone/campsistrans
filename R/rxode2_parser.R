@@ -40,22 +40,6 @@ removeBracketsAndTrim <- function(x) {
   return(x)
 }
 
-buildIfStatement <- function(condition, content, type) {
-  condition <- removeBracketsAndTrim(condition)
-  content <- removeBracketsAndTrim(content)
-  lhs <- extractLhs(content) %>% trimws()
-  rhs <- extractRhs(content) %>% trimws()
-  equation <- Equation(lhs=lhs, rhs=getExpr(rhs), comment=getComment(rhs))
-  if (type == "if") {
-    retValue <- new("if_statement", condition=condition, equation=equation, comment=as.character(NA))
-  } else if (type == "else if") {
-    retValue <- new("else_if_statement", condition=condition, equation=equation, comment=as.character(NA))
-  } else if (type == "else") {
-    retValue <- new("else_statement", condition=condition, equation=equation, comment=as.character(NA))
-  }
-  return(retValue)
-}
-
 #' Rxode2 lexer.
 #' 
 #' @export
@@ -221,3 +205,23 @@ Rxode2Parser <- R6::R6Class(
     }
   )
 )
+
+buildIfStatement <- function(condition, content, type) {
+  condition <- removeBracketsAndTrim(condition)
+  content <- removeBracketsAndTrim(content)
+  
+  lexer  <- rly::lex(Rxode2Lexer)
+  parser <- rly::yacc(Rxode2Parser)
+
+  statements <- ModelStatements()
+  statements@list <- parser$parse(content, lexer)
+  
+  if (type == "if") {
+    retValue <- new("extended_if_statement", condition=condition, statements=statements)
+  } else if (type == "else if") {
+    retValue <- new("else_if_statement", condition=condition, statements=statements)
+  } else if (type == "else") {
+    retValue <- new("else_statement", condition=condition, statements=statements)
+  }
+  return(retValue)
+}

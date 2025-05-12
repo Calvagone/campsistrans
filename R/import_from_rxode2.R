@@ -122,8 +122,8 @@ extractModelCodeFromRxode <- function(rxmod) {
     updateCompartments()
   
   # Convert complex if statements into simple ones
-  model <- model %>%
-    convertComplexIfElseStatements()
+  # model <- model %>%
+  #   convertComplexIfElseStatements()
   
   # Automatically convert time to t
   model <- model %>%

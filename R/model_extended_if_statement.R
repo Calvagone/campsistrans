@@ -1,0 +1,62 @@
+
+#_______________________________________________________________________________
+#----                       extended_if_statement class                     ----
+#_______________________________________________________________________________
+
+#' 
+#' Extended if-statement class.
+#' 
+#' @slot condition if-statement condition
+#' @slot statements list of statements
+#' @export
+setClass(
+  "extended_if_statement",
+  representation(
+    condition = "character",
+    statements = "model_statements"
+  ),
+  contains = "model_statement",
+  validity = function(object) {
+    return(campsismod:::expectOne(object, "condition"))
+  }
+)
+
+#' 
+#' Create a new IF-statement.
+#' 
+#' @param condition condition, single character string
+#' @param statements list of statements
+#' @return an extended if-statement
+#' @export
+ExtendedIfStatement <- function(condition, statements) {
+  return(new("extended_if_statement", condition=condition, statements=statements))
+}
+
+#_______________________________________________________________________________
+#----                            getName                                    ----
+#_______________________________________________________________________________
+
+#' @rdname getName
+setMethod("getName", signature = c("extended_if_statement"), definition = function(x) {
+  return(paste0("EXTENDED IF (", x@condition, ")"))
+})
+
+#_______________________________________________________________________________
+#----                             replaceAll                                ----
+#_______________________________________________________________________________
+
+#' @rdname replaceAll
+setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
+  object@condition <- object@condition %>% replaceAll(pattern=pattern, replacement=replacement, ...)
+  object@statements <- object@statements %>% replaceAll(pattern=pattern, replacement=replacement, ...)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             toString                                  ----
+#_______________________________________________________________________________
+
+#' @rdname toString
+setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
+  stop("Unsupported yet")
+})

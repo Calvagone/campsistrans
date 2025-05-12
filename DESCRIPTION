@@ -63,6 +63,7 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
     'auto_mapping.R'
+    'model_extended_if_statement.R'
     'complex_if_statement.R'
     'rxode2_parser.R'
     'import_from_rxode2.R'

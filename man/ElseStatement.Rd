@@ -4,12 +4,10 @@
 \alias{ElseStatement}
 \title{Create a new ELSE statement.}
 \usage{
-ElseStatement(equation, comment = as.character(NA))
+ElseStatement(statements)
 }
 \arguments{
-\item{equation}{equation if condition is met}
-
-\item{comment}{comment if any, single character string}
+\item{statements}{embedded statements}
 }
 \value{
 an ELSE statement
