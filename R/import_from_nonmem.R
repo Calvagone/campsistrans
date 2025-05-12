@@ -31,7 +31,8 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
     copyAndRename(file=covFile, tempDir=tempDir, newName="model.cov") # cov default in nonmem2rx
   }
   
-  rxmod <- nonmem2rx::nonmem2rx(file=ctl, validate=FALSE)
+  rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
+                                cmtNames=TRUE, validate=FALSE)
    
   return(rxmod)
 }
