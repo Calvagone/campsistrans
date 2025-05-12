@@ -138,7 +138,7 @@ Rxode2Parser <- R6::R6Class(
       }
     },
     
-    p_model_statement = function(doc='model_statement : complex_if_statement
+    p_model_statement = function(doc='model_statement : complex_if_else_statement
                          | equation 
                          | ode
                          | line_break
@@ -148,17 +148,17 @@ Rxode2Parser <- R6::R6Class(
         p$set(1, list(p$get(2)))
     },
     
-    p_complex_if_statement = function(doc='complex_if_statement : if_statement
-                         | complex_if_statement if_statement', p) {
+    p_complex_if_else_statement = function(doc='complex_if_else_statement : if_statement
+                         | complex_if_else_statement if_statement', p) {
       if (p$length() == 2) {
         ifStatement <- p$get(2)
-        complexIfStatement <- ComplexIfStatement()
-        complexIfStatement@list <- list(ifStatement)
-        p$set(1, complexIfStatement)
+        complexIfElseStatement <- ComplexIfElseStatement()
+        complexIfElseStatement@list <- list(ifStatement)
+        p$set(1, complexIfElseStatement)
       } else {
-        complexIfStatement <- p$get(2)
-        complexIfStatement@list <- append(complexIfStatement@list, list(p$get(3)))
-        p$set(1, complexIfStatement)
+        complexIfElseStatement <- p$get(2)
+        complexIfElseStatement@list <- append(complexIfElseStatement@list, list(p$get(3)))
+        p$set(1, complexIfElseStatement)
       }
     },
     

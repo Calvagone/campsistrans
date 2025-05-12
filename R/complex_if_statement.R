@@ -1,11 +1,11 @@
 
 #' 
-#' Complex if statement class.
+#' Complex if-else statement class.
 #' 
 #' @slot list list of IF statements
 #' @export
 setClass(
-  "complex_if_statement",
+  "complex_if_else_statement",
   representation(
     list = "list"
   ),
@@ -20,15 +20,15 @@ setClass(
 #' 
 #' @return an complex IF statement
 #' @export
-ComplexIfStatement <- function() {
-  return(new("complex_if_statement"))
+ComplexIfElseStatement <- function() {
+  return(new("complex_if_else_statement"))
 }
 
 #_______________________________________________________________________________
 #----                                add                                    ----
 #_______________________________________________________________________________
 
-setMethod("add", signature=c("complex_if_statement", "if_statement"), definition=function(object, x) {
+setMethod("add", signature=c("complex_if_else_statement", "if_statement"), definition=function(object, x) {
   object@list <- object@list %>% append(x)
   return(object)
 })

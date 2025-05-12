@@ -123,7 +123,7 @@ extractModelCodeFromRxode <- function(rxmod) {
   
   # Convert complex if statements into simple ones
   model <- model %>%
-    convertComplexIfStatements()
+    convertComplexIfElseStatements()
   
   # Automatically convert time to t
   model <- model %>%
@@ -137,14 +137,14 @@ extractModelCodeFromRxode <- function(rxmod) {
 #' @param model original Campsis model
 #' @return a Campsis model without complex if statements
 #' 
-convertComplexIfStatements <- function(model) {
+convertComplexIfElseStatements <- function(model) {
   # Retrieve all ODE statements
   ode <- model %>% find(OdeRecord())
   
   # Modify all complex if statements
   ode@statements@list <- ode@statements@list %>% purrr::map(.f=function(x) {
-    if (is(x, "complex_if_statement")) {
-      return(convertComplexIfStatement(x))
+    if (is(x, "complex_if_else_statement")) {
+      return(convertComplexIfElseStatement(x))
     } else {
       return(x)
     }
@@ -156,7 +156,7 @@ convertComplexIfStatements <- function(model) {
   return(model)
 }
 
-convertComplexIfStatement <- function(x) {
+convertComplexIfElseStatement <- function(x) {
   retValue <- list()
   ifStatement <- x@list %>%
     purrr::detect(.f=~is(.x, "if_statement"))

@@ -13,7 +13,7 @@ Rxode2 parser.
 \itemize{
 \item \href{#method-Parser-p_model_statements}{\code{Rxode2Parser$p_model_statements()}}
 \item \href{#method-Parser-p_model_statement}{\code{Rxode2Parser$p_model_statement()}}
-\item \href{#method-Parser-p_complex_if_statement}{\code{Rxode2Parser$p_complex_if_statement()}}
+\item \href{#method-Parser-p_complex_if_else_statement}{\code{Rxode2Parser$p_complex_if_else_statement()}}
 \item \href{#method-Parser-p_simple_if_statement}{\code{Rxode2Parser$p_simple_if_statement()}}
 \item \href{#method-Parser-p_if_statement}{\code{Rxode2Parser$p_if_statement()}}
 \item \href{#method-Parser-p_equation}{\code{Rxode2Parser$p_equation()}}
@@ -45,20 +45,20 @@ Rxode2 parser.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_model_statement(
   doc =
-    "model_statement : complex_if_statement\\n                         | equation \\n                         | ode\\n                         | line_break\\n                         | comment\\n                         | simple_if_statement\\n                         | unknown_statement",
+    "model_statement : complex_if_else_statement\\n                         | equation \\n                         | ode\\n                         | line_break\\n                         | comment\\n                         | simple_if_statement\\n                         | unknown_statement",
   p
 )}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Parser-p_complex_if_statement"></a>}}
-\if{latex}{\out{\hypertarget{method-Parser-p_complex_if_statement}{}}}
-\subsection{Method \code{p_complex_if_statement()}}{
+\if{html}{\out{<a id="method-Parser-p_complex_if_else_statement"></a>}}
+\if{latex}{\out{\hypertarget{method-Parser-p_complex_if_else_statement}{}}}
+\subsection{Method \code{p_complex_if_else_statement()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_complex_if_statement(
+\if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_complex_if_else_statement(
   doc =
-    "complex_if_statement : if_statement\\n                         | complex_if_statement if_statement",
+    "complex_if_else_statement : if_statement\\n                         | complex_if_else_statement if_statement",
   p
 )}\if{html}{\out{</div>}}
 }

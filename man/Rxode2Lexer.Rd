@@ -31,7 +31,10 @@ Rxode2 lexer.
 \if{latex}{\out{\hypertarget{method-Lexer-t_EQUATION}{}}}
 \subsection{Method \code{t_EQUATION()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_EQUATION(re = "[a-zA-Z_][a-zA-Z0-9_]*\\\\s*=\\\\s*[^\\n]+", t)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_EQUATION(
+  re = "[a-zA-Z_][a-zA-Z0-9_\\\\.]*\\\\s*=\\\\s*[^\\n]+",
+  t
+)}\if{html}{\out{</div>}}
 }
 
 }

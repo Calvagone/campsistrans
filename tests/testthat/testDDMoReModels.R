@@ -14,6 +14,10 @@ nonRegressionPharmpyPath <- function(folder) {
   return(file.path(testFolder, "non_regression", "ddmore", folder, "pharmpy"))
 }
 
+nonRegressionNonmem2rxPath <- function(folder) {
+  return(file.path(testFolder, "non_regression", "ddmore", folder, "nonmem2rx"))
+}
+
 generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppressWarnings=TRUE, unknownStatements=FALSE) {
   expr <- expression(importNONMEM(modelPath(folder, filename), mapping=mapping, estimate=FALSE, copy_dir=TRUE, rem_rate=TRUE))
   if (suppressWarnings) {
@@ -41,8 +45,9 @@ generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL, suppres
   return(model)
 }
 
-generateModel2 <- function(filename, ctlExt="mod", extExt="ext", covExt="cov") {
-  dir <- dirname(filename)
+generateModel2 <- function(filename, folder, ctlExt="mod", extExt="ext", covExt="cov", unknownStatements=FALSE) {
+  fullPath <- modelPath(folder, filename)
+  dir <- dirname(fullPath)
   
   ctl <- list.files(dir, pattern=sprintf("*\\.%s$", ctlExt), full.names=TRUE)
   ext <- list.files(dir, pattern=sprintf("*\\.%s$", extExt), full.names=TRUE)
@@ -51,8 +56,19 @@ generateModel2 <- function(filename, ctlExt="mod", extExt="ext", covExt="cov") {
   ext <- if (length(ext)==0) NULL else ext
   cov <- if (length(cov)==0) NULL else cov
   
-  rxmod <- importNONMEM2(ctlFile=ctl, extFile=ext, covFile=cov)
-  model <- importRxode2(rxmod)
+  model <- importNONMEM2(ctlFile=ctl, extFile=ext, covFile=cov)
+  
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionNonmem2rxPath(folder))
+  }
+  
+  # Generate unknown statements by writing/reading the model
+  if (unknownStatements) {
+    dir <- tempdir()
+    if (!dir.exists(dir)) dir.create(dir)
+    model %>% campsismod::write(dir)
+    model <- suppressWarnings(read.campsis(dir))
+  }
   
   return(model)
 }
@@ -110,18 +126,18 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
   # DDMODEL00000271
   # Paracetamol and metabolite PK in newborns
 
-  filename="Executable_ParacetamolInNewborns.mod"
+  filename <- "Executable_ParacetamolInNewborns.mod"
   folder <- "paracetamol"
 
   # Note: when updating Pharmpy from 0.30.1 to 0.43.0
   # I had to rename (CENTRAL,DEFDOSE) into (COMP1)
   # Otherwise, there was a bug in Pharmpy (file advan.py, line 201, lhs_sum = dadt_dose.expression)
-  model <- generateModel(filename=filename, folder=folder)
-  expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
+  model1 <- generateModel(filename=filename, folder=folder)
+  expect_equal(model1, read.campsis(nonRegressionPharmpyPath(folder)))
   
-  
-  # Same with 
-  
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder)
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(folder)))
 })
 
 test_that("Midazolam PK (in newborns) can be imported well", {
@@ -132,13 +148,18 @@ test_that("Midazolam PK (in newborns) can be imported well", {
   folder <- "midazolam"
   model <- generateModel(filename=filename, folder=folder)
   expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
+  
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder)
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(folder)))
+
 })
 
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   # DDMODEL00000077
   # Krzyzanski_2010_Filgastrim_PKPD
 
-  filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
+  filename <- "Executable_simulated_GCSF_dataset.ctl"
   folder <- "filgrastim"
 
   mapping <- mapping(theta=c(FF=1, KA1=2, FR=3, D2=4, KEL=5, VD=6, KD=7, KINT=8, KSI=9, KOFF=10, KMT=11, KBB1=12, KTT=13, NB0=14, SC1=15, SM1=16, SM2=17, SM3=18),
@@ -156,6 +177,10 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   }
   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
   expect_equal(model, read.campsis(nonRegressionPharmpyPath(folder)))
+
+  # # Same with nonmem2rx
+  # model2 <- generateModel2(filename=filename, folder=folder, ctlExt="ctl")
+  # expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(folder)))
 })
 
 test_that("Colistin Meropenem can be imported well", {
