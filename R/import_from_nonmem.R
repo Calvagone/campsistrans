@@ -33,6 +33,30 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   
   rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
                                 cmtNames=TRUE, validate=FALSE)
+  
+  # Conversion to Campsis
+  model <- importRxode2(rxmod)
+  
+  # Remove default names given by nonmem2rx importer before auto renaming
+  updatedParameters <- Parameters()
+  for (x in model@parameters@list) {
+    if (is(x, "theta")) {
+      model <- model %>%
+        replaceAll(sprintf("THETA_%s", x@name), sprintf("THETA_%s", x@index))
+      x@name <- as.character(NA)
+    } else if (is(x, "omega") && isDiag(x)) {
+      model <- model %>%
+        replaceAll(sprintf("ETA_%s", x@name), sprintf("ETA_%s", x@index))
+      x@name <- as.character(NA)
+    }
+    updatedParameters <- updatedParameters %>%
+      add(x)
+  }
+  model@parameters <- updatedParameters
+  
+  # Auto mapping based on the equation names
+  model <- model %>% 
+    autoRenameParameters()
    
-  return(rxmod)
+  return(model)
 }

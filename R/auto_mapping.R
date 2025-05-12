@@ -16,21 +16,17 @@ needsAutoRenaming <- function(parameter) {
 
 #' Auto-rename parameters based on equations.
 #' 
-#' @param model CAMPSIS model
-#' @param mapping mapping object
-#' @return CAMPSIS model with updated parameters
+#' @param model Campsis model
+#' @return Campsis model with updated parameters
 #' @importFrom dplyr group_split mutate
 #' @importFrom purrr map_df
 #' @importFrom tibble tibble
 #' 
-autoRenameParameters <- function(model, mapping) {
-  # Don't run function if auto-mapping is disabled
-  if (!mapping$auto) {
-    return(model)
-  }
-  
+autoRenameParameters <- function(model) {
+
   # Retrieve all unnamed parameters
-  unnamedParameters <- model@parameters@list %>% purrr::keep(.p=~.x %>% needsAutoRenaming())
+  unnamedParameters <- model@parameters@list %>%
+    purrr::keep(.p=~.x %>% needsAutoRenaming())
   
   # Create mapping table
   mappingTable <- unnamedParameters %>% purrr::map_df(.f=function(x) {

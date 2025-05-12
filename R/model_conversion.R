@@ -55,8 +55,11 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   retValue <- retValue %>% moveInitialConditions()
   
   # Auto-rename parameters
-  retValue <- retValue %>% autoRenameParameters(mapping=mapping)
-  
+  if (mapping$auto) {
+    retValue <- retValue %>%
+      autoRenameParameters()
+  }
+
   # Get rid of useless equations
   retValue <- retValue %>% removeUselessEquations()
   

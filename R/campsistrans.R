@@ -105,7 +105,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # Convert parameters from NONMEM to Campsis
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
   
-  
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
   
