@@ -147,7 +147,7 @@ Rxode2Parser <- R6::R6Class(
     },
     
     p_simple_if_statement = function(doc='simple_if_statement : IF CONDITION EQUATION', p) {
-      p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="if"))
+      p$set(1, buildIfStatement(condition=p$get(3), content=paste0("{", p$get(4), "}"), type="simple_if"))
     },
     
     p_if_statement = function(doc='if_statement : IF CONDITION EQUATION
@@ -209,19 +209,28 @@ Rxode2Parser <- R6::R6Class(
 buildIfStatement <- function(condition, content, type) {
   condition <- removeBracketsAndTrim(condition)
   content <- removeBracketsAndTrim(content)
-  
-  lexer  <- rly::lex(Rxode2Lexer)
-  parser <- rly::yacc(Rxode2Parser)
 
-  statements <- ModelStatements()
-  statements@list <- parser$parse(content, lexer)
-  
-  if (type == "if") {
-    retValue <- new("extended_if_statement", condition=condition, statements=statements)
-  } else if (type == "else if") {
-    retValue <- new("else_if_statement", condition=condition, statements=statements)
-  } else if (type == "else") {
-    retValue <- new("else_statement", condition=condition, statements=statements)
-  }
+  if (type == "simple_if") {
+    lhs <- extractLhs(content) %>% trimws()
+    rhs <- extractRhs(content) %>% trimws()
+    equation <- Equation(lhs=lhs, rhs=getExpr(rhs), comment=getComment(rhs))
+    retValue <- new("if_statement", condition=condition, equation=equation, comment=as.character(NA))
+  } else {
+    lexer  <- rly::lex(Rxode2Lexer)
+    parser <- rly::yacc(Rxode2Parser)
+    
+    statements <- ModelStatements()
+    statements@list <- parser$parse(content, lexer)
+    
+    if (type == "if") {
+      retValue <- new("extended_if_statement", condition=condition, statements=statements)
+    } else if (type == "else if") {
+      retValue <- new("else_if_statement", condition=condition, statements=statements)
+    } else if (type == "else") {
+      retValue <- new("else_statement", condition=condition, statements=statements)
+    } else {
+      stop("Unknown type of statement")
+    }
+  } 
   return(retValue)
 }

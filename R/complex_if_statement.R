@@ -81,5 +81,5 @@ setClass(
 #' @return an ELSE statement
 #' @export
 ElseStatement <- function(statements) {
-  return(new("extended_if_statement", condition="", statements=statements))
+  return(new("else_statement", condition="", statements=statements))
 }

@@ -10,6 +10,14 @@ nonRegressionFolderPath <- function(folder) {
   return(file.path(testFolder, "non_regression", "rxode2", folder))
 }
 
+toModelStatements <- function(x) {
+  retValue <- ModelStatements()
+  retValue@list <- list() %>%
+    append(x) %>%
+    unlist()
+  return(retValue)
+}
+
 test_that("Test the rxode2 parser", {
   basicExample <- "
   HELLO=A
@@ -40,9 +48,9 @@ test_that("Test the rxode2 parser", {
     append(Ode("A_BJH", "12")) %>%
     append(IfStatement("A==0", Equation("BASIC", "0"))) %>%
     append(ComplexIfElseStatement() %>%
-             add(IfStatement("A==0 || (A==1 && A==3)", Equation("OUTPUT", "1"))) %>%
-             add(ElseIfStatement("A==1", Equation("OUTPUT", "2"))) %>%
-             add(ElseStatement(Equation("OUTPUT", "3")))) %>%
+             add(ExtendedIfStatement("A==0 || (A==1 && A==3)", toModelStatements(Equation("OUTPUT", "1")))) %>%
+             add(ElseIfStatement("A==1", toModelStatements(Equation("OUTPUT", "2")))) %>%
+             add(ElseStatement(toModelStatements(Equation("OUTPUT", "3"))))) %>%
     append(UnknownStatement("UNKNOWN_CODE"))
 
   expect_equal(res, expected)
@@ -54,9 +62,10 @@ test_that("Test the rxode2 parser", {
   
   expected <- list() %>%
     append(ComplexIfElseStatement() %>%
-             add(IfStatement("NbCibleEH == 0", Equation("tNbCibleEH", "\"G_0\""))) %>%
-             add(ElseIfStatement("NbCibleEH == 1 || NbCibleEH == 2 || NbCibleEH == 3 || NbCibleEH == 4 || NbCibleEH == 5", Equation("tNbCibleEH", "\"G_1_2_3_4_5\""))) %>%
-             add(ElseStatement(Equation("tNbCibleEH", "\"G_0\""))))
+             add(ExtendedIfStatement("NbCibleEH == 0", toModelStatements(Equation("tNbCibleEH", "\"G_0\"")))) %>%
+             add(ElseIfStatement("NbCibleEH == 1 || NbCibleEH == 2 || NbCibleEH == 3 || NbCibleEH == 4 || NbCibleEH == 5",
+                                 toModelStatements(Equation("tNbCibleEH", "\"G_1_2_3_4_5\"")))) %>%
+             add(ElseStatement(toModelStatements(Equation("tNbCibleEH", "\"G_0\"")))))
   
   expect_equal(res, expected)
 })
