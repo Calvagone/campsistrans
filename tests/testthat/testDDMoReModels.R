@@ -4,7 +4,7 @@ library(campsismod)
 context("Test NONMEM import on a few DDMoRE models")
 
 testFolder <-  file.path(getwd(), test_path())
-overwriteNonRegressionFiles <- TRUE
+overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
   return(file.path(testFolder, "ddmore_models", folder, filename))
@@ -73,56 +73,68 @@ generateModel2 <- function(filename, folder, ctlExt="mod", extExt="ext", covExt=
   return(model)
 }
 
-# test_that("Rifampin PK can be imported well", {
-#   # DDMODEL00000280
-#   # Pharmacokinetics of rifampin in tuberculosis patients
-# 
-#   filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
-#   folder <- "rifampin"
-#   mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-#   nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
-# 
-#   # NOTE THAT ODE:
-#   # if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
-#   # IS NOT IMPORTED CORRECTLY...
-#   # As a consequence, NONMEM auto-detection is incorrect: [F] A_2=F1 (only 1 compartment is detected)
-# 
-#   # Furthemore this ODE, is read as a unknown statement by campsismod (as variable is incorrect)
-#   # For this test, we delete this 'ODE' on both sides
-#   ode <- model@model %>% getByName("ODE")
-#   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
-# 
-#   ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
-#   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
-# 
-#   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
-# })
-# 
-# test_that("Rifampin PK can be imported well (no omega mapping)", {
-#   # DDMODEL00000280
-#   # Pharmacokinetics of rifampin in tuberculosis patients
-# 
-#   filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
-#   folder <- "rifampin_no_omega_mapping"
-# 
-#   model <- suppressWarnings(generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE)))
-#   if (overwriteNonRegressionFiles) {
-#     model %>% write(nonRegressionPharmpyPath(folder))
-#   }
-#   nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
-# 
-#   ode <- model@model %>% getByName("ODE")
-#   nonreg_ode <- nonreg_model@model %>% getByName("ODE")
-# 
-#   ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
-#   nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
-# 
-#   expect_equal(model %>% campsismod::replace(ode), nonreg_model %>% campsismod::replace(nonreg_ode))
-# })
+# NOTE THAT ODE:
+# if (T >= TDOS) DADT(1)=-A_1*KA + (KTR + X)*(PD + X)*exp(-KTR*(T - TDOS) - L + NN*log(KTR*(T - TDOS) + X))
+# IS NOT IMPORTED CORRECTLY...
+# As a consequence, NONMEM auto-detection is incorrect: [F] A_2=F1 (only 1 compartment is detected)
 
-test_that("Paracetamol PK (in newborns) can be imported well", {
+discardLastRifampinODE <- function(model, nonreg_model) {
+  ode <- model@model %>% getByName("ODE")
+  nonreg_ode <- nonreg_model@model %>% getByName("ODE")
+  
+  ode@statements@list <- ode@statements@list %>% purrr::discard(~is(.x, "if_statement") && .x@condition == "t >= TDOS")
+  nonreg_ode@statements@list <- nonreg_ode@statements@list %>% purrr::discard(~is(.x, "unknown_statement"))
+  
+  return(list(ode, nonreg_ode))
+}
+
+test_that("Rifampin PK can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000280
+  # Pharmacokinetics of rifampin in tuberculosis patients
+
+  filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  folder <- "rifampin"
+  mapping <- mapping(omega=1:17) # Explicitely tell campsistrans there are 17 OMEGA's
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
+
+  expect_equal(model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[1]]),
+               nonreg_model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[2]]))
+  
+  # Same with nonmem2rx
+  model2 <- suppressWarnings(generateModel2(filename=filename, folder=folder))
+  nonreg_model2 <- suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder)))
+  
+  expect_equal(model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[1]]),
+               nonreg_model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[2]]))
+})
+
+test_that("Rifampin PK can be imported well, no omega mapping (pharmpy/nonmem2rx)", {
+  # DDMODEL00000280
+  # Pharmacokinetics of rifampin in tuberculosis patients
+
+  filename="Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  folder <- "rifampin_no_omega_mapping"
+
+  # Pharmpy
+  model <- suppressWarnings(generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE)))
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionPharmpyPath(folder))
+  }
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
+  expect_equal(model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[1]]),
+               nonreg_model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[2]]))
+  
+  # Same with nonmem2rx
+  model2 <- suppressWarnings(generateModel2(filename=filename, folder=folder))
+  nonreg_model2 <- suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder)))
+  
+  expect_equal(model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[1]]),
+               nonreg_model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[2]]))
+})
+
+test_that("Paracetamol PK in newborns can be imported well (pharmpy/nonmem2rx)", {
   # DDMODEL00000271
   # Paracetamol and metabolite PK in newborns
 
@@ -140,7 +152,7 @@ test_that("Paracetamol PK (in newborns) can be imported well", {
   expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(folder)))
 })
 
-test_that("Midazolam PK (in newborns) can be imported well", {
+test_that("Midazolam PK in newborns can be imported well (pharmpy/nonmem2rx)", {
   # DDMODEL00000250
   # Midazolam PK in obese adults and adolescents
 
@@ -155,7 +167,7 @@ test_that("Midazolam PK (in newborns) can be imported well", {
 
 })
 
-test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
+test_that("Filgrastim PK/PD model from Krzyzanski et al. can be imported well (pharmpy/nonmem2rx)", {
   # DDMODEL00000077
   # Krzyzanski_2010_Filgastrim_PKPD
 
@@ -183,7 +195,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported well", {
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
 
-test_that("Colistin Meropenem can be imported well", {
+test_that("Colistin Meropenem can be imported well (pharmpy)", {
   # DDMODEL00000173
   # Import non perfect because of unknow statements (-> DADT in conditional statements)
 
@@ -201,7 +213,7 @@ test_that("Colistin Meropenem can be imported well", {
   # model2 <- generateModel2(filename=filename, folder=folder)
 })
 
-test_that("Likert pain count can be imported well", {
+test_that("Likert pain count can be imported well (pharmpy)", {
   # DDMODEL00000194
 
   filename <- "Executable_likert_pain_count.mod"
@@ -218,7 +230,7 @@ test_that("Likert pain count can be imported well", {
   # expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
 
-test_that("Biomarker GIST can be imported well", {
+test_that("Biomarker GIST can be imported well (pharmpy/nonmem2rx)", {
   # DDMODEL00000197
 
   filename <- "Executable_Biomarker_GIST.mod"
@@ -233,105 +245,122 @@ test_that("Biomarker GIST can be imported well", {
   model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
-# 
-# test_that("TGI GIST can be imported well", {
-#   # DDMODEL00000198
-# 
-#   filename <- "Executable_TGI_GIST.mod"
-#   folder <- "tgi_gist"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("HFS model can be imported well", {
-#   # DDMODEL00000214
-# 
-#   filename <- "Executable_HFSmodel.mod"
-#   folder <- "hfs_model"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("Pimasertib can be imported well", {
-#   # DDMODEL00000215
-# 
-#   filename <- "Executable_Pimasertib_AeDropout.mod"
-#   folder <- "pimasertib"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("SLD model can be imported well", {
-#   # DDMODEL00000217
-#   # Super strange: I had to add this DUMMY_EQ=0 equation in $DES to make it work
-# 
-#   filename <- "Executable_SLD.mod"
-#   folder <- "sld_model"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("OS model can be imported well", {
-#   # DDMODEL00000218
-# 
-#   filename <- "Executable_OS.mod"
-#   folder <- "os_model"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("BDQ M2 popPK model can be imported well", {
-#   # DDMODEL00000219
-# 
-#   filename <- "Executable_BDQ_M2_PK_plus_WT_ALB_in_MDR-TB_patients.mod"
-#   folder <- "bdq_m2_poppk"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   modelfun <- function(model) {
-#     model <- model %>%
-#       add(Omega(name="BOV F SAME", index=7, index2=7, value=0)) %>%
-#       add(Omega(name="BOV MAT SAME", index=9, index2=9, value=0))
-#     model <- model %>%
-#       campsismod::sort()
-#     return(model)
-#   }
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
-# 
-# test_that("CPHPC model can be imported well", {
-#   # DDMODEL00000262
-# 
-#   filename <- "Executable_simulated_CPHPC_dataset.ctl"
-#   folder <- "cphpc_model"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
+
+test_that("TGI GIST can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000198
+
+  filename <- "Executable_TGI_GIST.mod"
+  folder <- "tgi_gist"
+
+  mapping <- mapping(auto=TRUE)
+
+  model <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("HFS model can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000214
+
+  filename <- "Executable_HFSmodel.mod"
+  folder <- "hfs_model"
+
+  mapping <- mapping(auto=TRUE)
+
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("Pimasertib can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000215
+
+  filename <- "Executable_Pimasertib_AeDropout.mod"
+  folder <- "pimasertib"
+
+  mapping <- mapping(auto=TRUE)
+
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping)
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("SLD model can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000217
+  # Super strange: I had to add this DUMMY_EQ=0 equation in $DES to make it work
+
+  filename <- "Executable_SLD.mod"
+  folder <- "sld_model"
+
+  # Pharmpy
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE))
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("OS model can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000218
+
+  filename <- "Executable_OS.mod"
+  folder <- "os_model"
+
+  # Pharmpy
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE))
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("BDQ M2 popPK model can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000219
+
+  filename <- "Executable_BDQ_M2_PK_plus_WT_ALB_in_MDR-TB_patients.mod"
+  folder <- "bdq_m2_poppk"
+
+  modelfun <- function(model) {
+    model <- model %>%
+      add(Omega(name="BOV F SAME", index=7, index2=7, value=0)) %>%
+      add(Omega(name="BOV MAT SAME", index=9, index2=9, value=0))
+    model <- model %>%
+      campsismod::sort()
+    return(model)
+  }
+
+  # Pharmpy
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE), modelfun=modelfun)
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+
+test_that("CPHPC model can be imported well (pharmpy/nonmem2rx)", {
+  # DDMODEL00000262
+
+  filename <- "Executable_simulated_CPHPC_dataset.ctl"
+  folder <- "cphpc_model"
+
+  # Pharmpy
+  model1 <- generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE))
+  expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, ctlExt="ctl", unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
 

@@ -244,8 +244,12 @@ extractCompartmentPropertiesFromRxode <- function(model) {
       lhs <- extractLhs(.x@line)
       compartmentNameWithA <- extractTextBetweenBrackets(lhs)
       rhs <- extractRhs(.x@line) %>% trimws()
-      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
-      
+      compartmentIndex <- tryCatch({
+        getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
+      }, error = function(e) {
+        warning(sprintf("Compartment %s not found in model, compartment property linked to first compartment.", compartmentNameWithA))
+        return(1L)
+      })
       if (startsWith(lhs, "f")) {
         return(Bioavailability(compartment=compartmentIndex, rhs=rhs))
       } else if (startsWith(lhs, "alag")) {

@@ -1,0 +1,46 @@
+[MAIN]
+if (FDC == 1) MTTFDC=0
+if (FDC == 0) MTTFDC=THETA_MTTFDC
+MTTCOV=(1 + MTTFDC)
+if (FDC == 1) CLLOC=0
+if (FDC == 0) CLLOC=THETA_CLLOC
+CLCOV=(1 + CLLOC)
+if (amt > 0) PD=amt
+
+[ODE]
+if (amt > 0) TDOS=t
+TAD=t - TDOS
+IOVCL=ETA_IOVCL_1
+IOVMT=ETA_IOVMT_1
+if (OCC == 2) IOVCL=ETA_IOVCL_2
+if (OCC == 2) IOVMT=ETA_IOVMT_2
+IIVCL=ETA_IIVCL
+IIVMT=ETA_IIVMT
+TVCL=CLCOV * THETA_CL
+CL=TVCL * exp(IOVCL + IIVCL)
+TVV2=THETA_V2
+V2=TVV2 * exp(ETA_V2)
+K=CL/V2
+TVKA=THETA_KA
+KA=TVKA * exp(ETA_KA)
+scale2=V2
+F_A1=0
+TVMTT=MTTCOV * (THETA_MTT)
+MTT=TVMTT * exp(IOVMT + IIVMT)
+TVNN=THETA_NN
+NN=TVNN * exp(ETA_NN)
+KTR=(NN + 1)/MTT
+L=log(2.5066) + (NN + 0.5) * log(NN) - NN + log(1 + 1/(12 * NN))
+X=1e-05
+d/dt(A_DEPOT)=exp(log(PD + X) + log(KTR + X) + NN * log(KTR * t + X) - KTR * t - L) - KA * A_DEPOT
+if (t >= TDOS) d/dt(A_DEPOT)=exp(log(PD + X) + log(KTR + X) + NN * log(KTR * (t - TDOS) + X) - KTR * (t - TDOS) - L) - KA * A_DEPOT
+d/dt(A_CENTRAL)=KA * A_DEPOT - K * A_CENTRAL
+F=A_CENTRAL/scale2
+AA1=A_DEPOT
+AA2=A_CENTRAL
+CP=A_CENTRAL/V2
+IPRED=F
+
+[F]
+A_DEPOT=F_A1
+
