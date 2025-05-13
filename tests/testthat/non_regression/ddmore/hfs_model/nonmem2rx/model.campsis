@@ -1,0 +1,47 @@
+[MAIN]
+TCLCR=THETA_TCLCR
+TVK=THETA_K
+k=TVK * exp(ETA_k)
+
+[ODE]
+if (t == 0) rxm.BCLCR=CLCR
+IIV=ETA_2 + (rxm.BCLCR - 75.5) * TCLCR
+rxm.B00=THETA_NA_1
+rxm.B10=THETA_NA_2
+rxm.B20=THETA_NA_3
+EMAX0=THETA_NA_4
+ED50=THETA_NA_5
+rxm.B01=THETA_NA_6
+rxm.B11=THETA_NA_7
+rxm.B21=THETA_NA_8
+EMAX1=THETA_NA_9
+EMAX2=THETA_NA_10
+if (t == 0) SWM1=0
+VC=1
+rxLinCmt1=linCmt()
+central=rxLinCmt1
+F=rxLinCmt1
+IPRED=F
+EMAX=EMAX0
+if (SWM1 == 1) EMAX=EMAX1
+if (SWM1 == 2) EMAX=EMAX2
+EFF=EMAX * (F * k)/((F * k) + (ED50))
+rxm.A0=0
+rxm.A1=0
+SPREC=SWM1
+if (SWM1 == 0) rxm.A0=rxm.B00
+if (SWM1 == 0) rxm.A1=rxm.A0 + rxm.B01
+rxm.A0_=rxm.A0 - EFF + IIV
+rxm.A1_=rxm.A1 - EFF + IIV
+SWM1=GHFS
+PC0=exp(rxm.A0_)/(1 + exp(rxm.A0_))
+PC1=exp(rxm.A1_)/(1 + exp(rxm.A1_))
+PC2=1
+P0=PC0
+P1=PC1 - PC0
+P2=PC2 - PC1
+Y=-1
+if (DV < 0.5) Y=P0
+if (DV >= 0.5 && DV < 1.5) Y=P1
+if (DV >= 1.5 && DV < 2.5) Y=P2
+
