@@ -122,8 +122,8 @@ extractModelCodeFromRxode <- function(rxmod) {
     updateCompartments()
   
   # Convert complex if statements into simple ones
-  # model <- model %>%
-  #   convertComplexIfElseStatements()
+  model <- model %>%
+    convertComplexIfElseStatements()
   
   # Automatically convert time to t
   model <- model %>%
@@ -159,21 +159,43 @@ convertComplexIfElseStatements <- function(model) {
 convertComplexIfElseStatement <- function(x) {
   retValue <- list()
   ifStatement <- x@list %>%
-    purrr::detect(.f=~is(.x, "if_statement"))
+    purrr::detect(.f=~is(.x, "extended_if_statement"))
   elseIfStatements <- x@list %>%
     purrr::keep(.p=~is(.x, "else_if_statement"))
   elseStatement <- x@list %>%
     purrr::detect(.f=~is(.x, "else_statement"))
   
   assertthat::assert_that(!is.null(ifStatement), msg="Complex if statement without if clause")
-  assertthat::assert_that(!is.null(elseStatement), msg="Complex if statement without else clause")
-  
+
   retValue <- retValue %>%
-    append(elseStatement@equation) %>%
-    append(ifStatement) %>%
-    append(elseIfStatements) %>%
+    append(unwrapExtentedIfStatement(elseStatement)) %>%
+    append(unwrapExtentedIfStatement(ifStatement)) %>%
+    append(elseIfStatements %>% purrr::map(~unwrapExtentedIfStatement(.x))) %>%
     unlist()
   
+  return(retValue)
+}
+
+unwrapExtentedIfStatement <- function(x) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  statements <- x@statements
+  elseClause <- is(x, "else_statement")
+  
+  # Only keep equations for now
+  statements@list <- statements@list %>%
+    purrr::keep(~is(.x, "equation"))
+  
+  # Create a list of simpled if statements
+  retValue <- statements@list %>%
+    purrr::map(.f=function(equation) {
+      if (elseClause) {
+        return(equation)
+      } else {
+        return(IfStatement(condition=x@condition, equation=equation))
+      }
+    })
   return(retValue)
 }
 

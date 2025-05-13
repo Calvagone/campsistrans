@@ -36,7 +36,6 @@ ExtendedIfStatement <- function(condition, statements) {
 #----                            getName                                    ----
 #_______________________________________________________________________________
 
-#' @rdname getName
 setMethod("getName", signature = c("extended_if_statement"), definition = function(x) {
   return(paste0("EXTENDED IF (", x@condition, ")"))
 })
@@ -45,7 +44,6 @@ setMethod("getName", signature = c("extended_if_statement"), definition = functi
 #----                             replaceAll                                ----
 #_______________________________________________________________________________
 
-#' @rdname replaceAll
 setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
   object@condition <- object@condition %>% replaceAll(pattern=pattern, replacement=replacement, ...)
   object@statements <- object@statements %>% replaceAll(pattern=pattern, replacement=replacement, ...)
@@ -56,7 +54,6 @@ setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "charact
 #----                             toString                                  ----
 #_______________________________________________________________________________
 
-#' @rdname toString
 setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
   stop("Unsupported yet")
 })

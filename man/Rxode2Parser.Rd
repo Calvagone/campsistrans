@@ -3,10 +3,67 @@
 \name{Rxode2Parser}
 \alias{Rxode2Parser}
 \title{Rxode2 parser.}
+\value{
+a parser object
+}
 \description{
-Rxode2 parser.
+Rxode2Parser class to handle the parser for RxODE2
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{tokens}}{list of tokens}
 
-Rxode2 parser.
+\item{\code{p_model_statements}}{function to handle model_statements}
+
+\item{\code{p_model_statement}}{function to handle model_statement}
+
+\item{\code{p_complex_if_else_statement}}{function to handle complex_if_else_statement}
+
+\item{\code{p_simple_if_statement}}{function to handle simple_if_statement}
+
+\item{\code{p_if_statement}}{function to handle if_statement}
+
+\item{\code{p_equation}}{function to handle equation}
+
+\item{\code{p_ode}}{function to handle ode}
+
+\item{\code{p_line_break}}{function to handle line_break}
+
+\item{\code{p_comment}}{function to handle comment}
+
+\item{\code{p_unknown_statement}}{function to handle unknown_statement}
+
+\item{\code{p_error}}{function to handle errors}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{p_model_statements}}{function to handle model_statements}
+
+\item{\code{p_model_statement}}{function to handle model_statement}
+
+\item{\code{p_complex_if_else_statement}}{function to handle complex_if_else_statement}
+
+\item{\code{p_simple_if_statement}}{function to handle simple_if_statement}
+
+\item{\code{p_if_statement}}{function to handle if_statement}
+
+\item{\code{p_equation}}{function to handle equation}
+
+\item{\code{p_ode}}{function to handle ode}
+
+\item{\code{p_line_break}}{function to handle line_break}
+
+\item{\code{p_comment}}{function to handle comment}
+
+\item{\code{p_unknown_statement}}{function to handle unknown_statement}
+
+\item{\code{p_error}}{function to handle errors}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -29,6 +86,10 @@ Rxode2 parser.
 \if{html}{\out{<a id="method-Parser-p_model_statements"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_model_statements}{}}}
 \subsection{Method \code{p_model_statements()}}{
+tokens list of tokens
+
+
+function to handle model_statements
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_model_statements(
   doc =
@@ -37,11 +98,21 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_model_statement"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_model_statement}{}}}
 \subsection{Method \code{p_model_statement()}}{
+function to handle model_statement
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_model_statement(
   doc =
@@ -50,11 +121,21 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_complex_if_else_statement"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_complex_if_else_statement}{}}}
 \subsection{Method \code{p_complex_if_else_statement()}}{
+function to handle complex_if_else_statement
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_complex_if_else_statement(
   doc =
@@ -63,11 +144,21 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_simple_if_statement"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_simple_if_statement}{}}}
 \subsection{Method \code{p_simple_if_statement()}}{
+function to handle simple_if_statement
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_simple_if_statement(
   doc = "simple_if_statement : IF CONDITION EQUATION",
@@ -75,11 +166,21 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_if_statement"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_if_statement}{}}}
 \subsection{Method \code{p_if_statement()}}{
+function to handle if_statement
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_if_statement(
   doc =
@@ -88,47 +189,97 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_equation"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_equation}{}}}
 \subsection{Method \code{p_equation()}}{
+function to handle equation
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_equation(doc = "equation : EQUATION", p)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_ode"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_ode}{}}}
 \subsection{Method \code{p_ode()}}{
+function to handle ode
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_ode(doc = "ode : ODE", p)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_line_break"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_line_break}{}}}
 \subsection{Method \code{p_line_break()}}{
+function to handle line_break
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_line_break(doc = "line_break : LINE_BREAK", p)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_comment"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_comment}{}}}
 \subsection{Method \code{p_comment()}}{
+function to handle comment
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_comment(doc = "comment : COMMENT", p)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_unknown_statement"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_unknown_statement}{}}}
 \subsection{Method \code{p_unknown_statement()}}{
+function to handle unknown_statement
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_unknown_statement(
   doc = "unknown_statement : UNKNOWN_STATEMENT",
@@ -136,15 +287,34 @@ Rxode2 parser.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-p_error"></a>}}
 \if{latex}{\out{\hypertarget{method-Parser-p_error}{}}}
 \subsection{Method \code{p_error()}}{
+function to handle errors
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Parser$p_error(p)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{p}}{parser object}
+
+\item{\code{doc}}{doc argument}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Parser-clone"></a>}}

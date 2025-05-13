@@ -3,10 +3,79 @@
 \name{Rxode2Lexer}
 \alias{Rxode2Lexer}
 \title{Rxode2 lexer.}
+\value{
+a lexer object
+}
 \description{
-Rxode2 lexer.
+Rxode2Lexer class to handle the lexer for RxODE2
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{tokens}}{list of tokens}
 
-Rxode2 lexer.
+\item{\code{debug}}{logical value to enable/disable debug messages}
+
+\item{\code{t_EQUATION}}{function to handle EQUATION token}
+
+\item{\code{t_ODE}}{function to handle ODE token}
+
+\item{\code{t_LINE_BREAK}}{function to handle LINE_BREAK token}
+
+\item{\code{t_COMMENT}}{function to handle COMMENT token}
+
+\item{\code{t_IF_SINGLE_LINE}}{function to handle IF_SINGLE_LINE token}
+
+\item{\code{t_IF}}{function to handle IF token}
+
+\item{\code{t_ELSE_IF}}{function to handle ELSE_IF token}
+
+\item{\code{t_ELSE}}{function to handle ELSE token}
+
+\item{\code{t_CONDITION}}{function to handle CONDITION token}
+
+\item{\code{t_IF_CONTENT}}{function to handle IF_CONTENT token}
+
+\item{\code{t_UNKNOWN_STATEMENT}}{function to handle UNKNOWN_STATEMENT token}
+
+\item{\code{t_ignore}}{function to ignore whitespace}
+
+\item{\code{t_newline}}{function to handle newlines}
+
+\item{\code{t_error}}{function to handle errors}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{t_EQUATION}}{function to handle EQUATION token}
+
+\item{\code{t_ODE}}{function to handle ODE token}
+
+\item{\code{t_LINE_BREAK}}{function to handle LINE_BREAK token}
+
+\item{\code{t_COMMENT}}{function to handle COMMENT token}
+
+\item{\code{t_IF_SINGLE_LINE}}{function to handle IF_SINGLE_LINE token}
+
+\item{\code{t_IF}}{function to handle IF token}
+
+\item{\code{t_ELSE_IF}}{function to handle ELSE_IF token}
+
+\item{\code{t_ELSE}}{function to handle ELSE token}
+
+\item{\code{t_CONDITION}}{function to handle CONDITION token}
+
+\item{\code{t_IF_CONTENT}}{function to handle IF_CONTENT token}
+
+\item{\code{t_UNKNOWN_STATEMENT}}{function to handle UNKNOWN_STATEMENT token}
+
+\item{\code{t_newline}}{function to handle newlines}
+
+\item{\code{t_error}}{function to handle errors}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -30,6 +99,13 @@ Rxode2 lexer.
 \if{html}{\out{<a id="method-Lexer-t_EQUATION"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_EQUATION}{}}}
 \subsection{Method \code{t_EQUATION()}}{
+tokens list of tokens
+
+
+debug logical value to enable/disable debug messages
+
+
+t_EQUATION function to handle EQUATION token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_EQUATION(
   re = "[a-zA-Z_][a-zA-Z0-9_\\\\.]*\\\\s*=\\\\s*[^\\n]+",
@@ -37,105 +113,225 @@ Rxode2 lexer.
 )}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match EQUATION token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_ODE"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_ODE}{}}}
 \subsection{Method \code{t_ODE()}}{
+t_ODE function to handle ODE token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_ODE(re = "d/dt\\\\s*\\\\(.*\\\\)\\\\s*=\\\\s*[^\\n]+", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match ODE token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_LINE_BREAK"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_LINE_BREAK}{}}}
 \subsection{Method \code{t_LINE_BREAK()}}{
+t_LINE_BREAK function to handle LINE_BREAK token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_LINE_BREAK(re = "\\n[ ]*\\n", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match LINE_BREAK token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_COMMENT"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_COMMENT}{}}}
 \subsection{Method \code{t_COMMENT()}}{
+t_COMMENT function to handle COMMENT token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_COMMENT(re = "\\\\s*#.*[^\\n]+", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match COMMENT token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_IF"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_IF}{}}}
 \subsection{Method \code{t_IF()}}{
+t_IF function to handle IF token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_IF(re = "if", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match IF token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_ELSE_IF"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_ELSE_IF}{}}}
 \subsection{Method \code{t_ELSE_IF()}}{
+t_ELSE_IF function to handle ELSE_IF token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_ELSE_IF(re = "else\\\\s+if", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match ELSE_IF token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_ELSE"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_ELSE}{}}}
 \subsection{Method \code{t_ELSE()}}{
+t_ELSE function to handle ELSE token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_ELSE(re = "else", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match ELSE token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_CONDITION"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_CONDITION}{}}}
 \subsection{Method \code{t_CONDITION()}}{
+t_CONDITION function to handle CONDITION token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_CONDITION(re = "\\\\((?>[^()]|(?R))*\\\\)", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match CONDITION token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_IF_CONTENT"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_IF_CONTENT}{}}}
 \subsection{Method \code{t_IF_CONTENT()}}{
+t_IF_CONTENT function to handle IF_CONTENT token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_IF_CONTENT(re = "\\\\{(?>[^{}]|(?R))*\\\\}", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match IF_CONTENT token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_UNKNOWN_STATEMENT"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_UNKNOWN_STATEMENT}{}}}
 \subsection{Method \code{t_UNKNOWN_STATEMENT()}}{
+t_UNKNOWN_STATEMENT function to handle UNKNOWN_STATEMENT token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_UNKNOWN_STATEMENT(re = ".*[^\\n]+", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match UNKNOWN_STATEMENT token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_newline"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_newline}{}}}
 \subsection{Method \code{t_newline()}}{
+t_ignore function to ignore whitespace
+
+
+t_newline function to handle newlines
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_newline(re = "\\\\n+", t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match newlines}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-t_error"></a>}}
 \if{latex}{\out{\hypertarget{method-Lexer-t_error}{}}}
 \subsection{Method \code{t_error()}}{
+t_error function to handle errors
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2Lexer$t_error(t)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Lexer-clone"></a>}}
