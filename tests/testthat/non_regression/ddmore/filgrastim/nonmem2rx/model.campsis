@@ -1,11 +1,8 @@
 [MAIN]
-cmt(A_c.ABS)
-cmt(A_c.FR)
-cmt(A_c.NB)
 FF=THETA_FF
 KA=THETA_KA * exp(ETA_KA)
 FR=THETA_FR
-rxdur.rxddta2.=THETA_rxdur.rxddta2.
+DUR_A2=THETA_DUR_A2
 KEL=THETA_KEL * exp(ETA_KEL)
 VD=THETA_VD * exp(ETA_VD)
 KD=THETA_KD
@@ -110,7 +107,7 @@ if (CMT == 2) IPRED=ZCP     IRES = DV - IPRED     Y = IPRED * (1 + eps2) + eps1
 A_CENT=F_A2
 
 [DURATION]
-A_CENT=rxdur.rxddta2.
+A_CENT=DUR_A2
 
 [INIT]
 A_CENT=INIT_A2

@@ -80,7 +80,7 @@ extractModelCodeFromRxode <- function(rxmod) {
   
   # Remove compartment declarations if any
   # Not sure at this stage if this is needed
-  code <- gsub(pattern="cmt\\s*\\(\\s*\\w+\\s*\\)", replacement="", x=code)
+  code <- gsub(pattern="^cmt\\s*\\(.*\\)\\s*$", replacement="", x=code)
   code <- code[code!=""]
   
   # Replace R assignments by equals
@@ -103,6 +103,9 @@ extractModelCodeFromRxode <- function(rxmod) {
     # Initial conditions
     code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxini.rxddta%s\\.", cmtIndex)),
                        replacement=sprintf("INIT_A%s", cmtIndex))
+    # Infusion durations
+    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur.rxddta%s\\.", cmtIndex)),
+                       replacement=sprintf("DUR_A%s", cmtIndex))
   }
 
   # Parse code using campsismod
