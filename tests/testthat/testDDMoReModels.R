@@ -201,11 +201,27 @@ generateModel2 <- function(filename, folder, ctlExt="mod", extExt="ext", covExt=
 #   # model2 <- generateModel2(filename=filename, folder=folder)
 # })
 #
-test_that("Likert pain count can be imported well", {
-  # DDMODEL00000194
+# test_that("Likert pain count can be imported well", {
+#   # DDMODEL00000194
+# 
+#   filename <- "Executable_likert_pain_count.mod"
+#   folder <- "likert_pain_count"
+# 
+#   mapping <- mapping(auto=TRUE)
+# 
+#   model1 <- generateModel(filename=filename, folder=folder, mapping=mapping)
+#   expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+#   
+#   # Same with nonmem2rx
+#   model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
+#   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+# })
+# 
+test_that("Biomarker GIST can be imported well", {
+  # DDMODEL00000197
 
-  filename <- "Executable_likert_pain_count.mod"
-  folder <- "likert_pain_count"
+  filename <- "Executable_Biomarker_GIST.mod"
+  folder <- "biomarker_gist"
 
   mapping <- mapping(auto=TRUE)
 
@@ -216,19 +232,6 @@ test_that("Likert pain count can be imported well", {
   model2 <- generateModel2(filename=filename, folder=folder, unknownStatements=TRUE)
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
-# 
-# test_that("Biomarker GIST can be imported well", {
-#   # DDMODEL00000197
-# 
-#   filename <- "Executable_Biomarker_GIST.mod"
-#   folder <- "biomarker_gist"
-# 
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(filename=filename, folder=folder, mapping=mapping)
-# 
-#   expect_equal(model, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
-# })
 # 
 # test_that("TGI GIST can be imported well", {
 #   # DDMODEL00000198
