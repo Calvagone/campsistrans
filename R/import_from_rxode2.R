@@ -61,6 +61,10 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
   model <- model %>%
     convertRxodeErrorModel()
   
+  # Substitute duplicate equation names
+  model <- model %>%
+    substituteDuplicateEquationNames()
+  
   # Sort everything in the model for consistency (especially in non-regression tests)
   model <- model %>%
     campsismod::sort()
