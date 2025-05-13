@@ -16,64 +16,7 @@ Rxode2Lexer class to handle the lexer for RxODE2
 
 \item{\code{debug}}{logical value to enable/disable debug messages}
 
-\item{\code{t_EQUATION}}{function to handle EQUATION token}
-
-\item{\code{t_ODE}}{function to handle ODE token}
-
-\item{\code{t_LINE_BREAK}}{function to handle LINE_BREAK token}
-
-\item{\code{t_COMMENT}}{function to handle COMMENT token}
-
-\item{\code{t_IF_SINGLE_LINE}}{function to handle IF_SINGLE_LINE token}
-
-\item{\code{t_IF}}{function to handle IF token}
-
-\item{\code{t_ELSE_IF}}{function to handle ELSE_IF token}
-
-\item{\code{t_ELSE}}{function to handle ELSE token}
-
-\item{\code{t_CONDITION}}{function to handle CONDITION token}
-
-\item{\code{t_IF_CONTENT}}{function to handle IF_CONTENT token}
-
-\item{\code{t_UNKNOWN_STATEMENT}}{function to handle UNKNOWN_STATEMENT token}
-
 \item{\code{t_ignore}}{function to ignore whitespace}
-
-\item{\code{t_newline}}{function to handle newlines}
-
-\item{\code{t_error}}{function to handle errors}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{t_EQUATION}}{function to handle EQUATION token}
-
-\item{\code{t_ODE}}{function to handle ODE token}
-
-\item{\code{t_LINE_BREAK}}{function to handle LINE_BREAK token}
-
-\item{\code{t_COMMENT}}{function to handle COMMENT token}
-
-\item{\code{t_IF_SINGLE_LINE}}{function to handle IF_SINGLE_LINE token}
-
-\item{\code{t_IF}}{function to handle IF token}
-
-\item{\code{t_ELSE_IF}}{function to handle ELSE_IF token}
-
-\item{\code{t_ELSE}}{function to handle ELSE token}
-
-\item{\code{t_CONDITION}}{function to handle CONDITION token}
-
-\item{\code{t_IF_CONTENT}}{function to handle IF_CONTENT token}
-
-\item{\code{t_UNKNOWN_STATEMENT}}{function to handle UNKNOWN_STATEMENT token}
-
-\item{\code{t_newline}}{function to handle newlines}
-
-\item{\code{t_error}}{function to handle errors}
 }
 \if{html}{\out{</div>}}
 }

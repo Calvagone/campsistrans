@@ -5,18 +5,18 @@ library(campsisqual)
 
 context("Test NONMEM import on a few DDMoRE models")
 
-testFolder <- ""
-qualFolder <- paste0(testFolder, "integration_tests/", "nonmem_qualification/")
-reportFolder <- paste0(testFolder, "integration_tests/", "qualification_reports/")
+testFolder <-  file.path(getwd(), test_path())
+qualFolder <- file.path(testFolder, "integration_tests", "nonmem_qualification")
+reportFolder <- file.path(testFolder, "integration_tests", "qualification_reports")
 reexecuteNONMEM <- FALSE
 
 modelPath <- function(folder, filename) {
-  return(normalizePath(paste0(testFolder, "ddmore_models/", folder, "/", filename)))
+  return(normalizePath(file.path(testFolder, "ddmore_models", folder, filename)))
 }
 
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
 
-  filename <- "Executable_simulated_GCSF_dataset_modified.ctl"
+  filename <- "Executable_simulated_GCSF_dataset.ctl"
   modelFolder <- "filgrastim"
 
   # Pharmpy import
@@ -50,7 +50,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZCP
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZCP, variables="ZCP",
-            outputFolder=paste0(qualFolder, modelFolder, "_zcp"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+            outputFolder=file.path(qualFolder, modelFolder, "_zcp"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
   # if (exportReport) {
   #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
@@ -59,7 +59,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZNB
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZNB, variables="ZNB",
-            outputFolder=paste0(qualFolder, modelFolder, "_znb"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+            outputFolder=file.path(qualFolder, modelFolder, "_znb"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
   # if (exportReport) {
   #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))

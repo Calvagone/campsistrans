@@ -13,55 +13,6 @@ Rxode2Parser class to handle the parser for RxODE2
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{tokens}}{list of tokens}
-
-\item{\code{p_model_statements}}{function to handle model_statements}
-
-\item{\code{p_model_statement}}{function to handle model_statement}
-
-\item{\code{p_complex_if_else_statement}}{function to handle complex_if_else_statement}
-
-\item{\code{p_simple_if_statement}}{function to handle simple_if_statement}
-
-\item{\code{p_if_statement}}{function to handle if_statement}
-
-\item{\code{p_equation}}{function to handle equation}
-
-\item{\code{p_ode}}{function to handle ode}
-
-\item{\code{p_line_break}}{function to handle line_break}
-
-\item{\code{p_comment}}{function to handle comment}
-
-\item{\code{p_unknown_statement}}{function to handle unknown_statement}
-
-\item{\code{p_error}}{function to handle errors}
-}
-\if{html}{\out{</div>}}
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{p_model_statements}}{function to handle model_statements}
-
-\item{\code{p_model_statement}}{function to handle model_statement}
-
-\item{\code{p_complex_if_else_statement}}{function to handle complex_if_else_statement}
-
-\item{\code{p_simple_if_statement}}{function to handle simple_if_statement}
-
-\item{\code{p_if_statement}}{function to handle if_statement}
-
-\item{\code{p_equation}}{function to handle equation}
-
-\item{\code{p_ode}}{function to handle ode}
-
-\item{\code{p_line_break}}{function to handle line_break}
-
-\item{\code{p_comment}}{function to handle comment}
-
-\item{\code{p_unknown_statement}}{function to handle unknown_statement}
-
-\item{\code{p_error}}{function to handle errors}
 }
 \if{html}{\out{</div>}}
 }

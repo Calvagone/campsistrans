@@ -44,20 +44,7 @@ removeBracketsAndTrim <- function(x) {
 #' 
 #' @field tokens list of tokens
 #' @field debug logical value to enable/disable debug messages
-#' @field t_EQUATION function to handle EQUATION token
-#' @field t_ODE function to handle ODE token
-#' @field t_LINE_BREAK function to handle LINE_BREAK token
-#' @field t_COMMENT function to handle COMMENT token
-#' @field t_IF_SINGLE_LINE function to handle IF_SINGLE_LINE token
-#' @field t_IF function to handle IF token
-#' @field t_ELSE_IF function to handle ELSE_IF token
-#' @field t_ELSE function to handle ELSE token
-#' @field t_CONDITION function to handle CONDITION token
-#' @field t_IF_CONTENT function to handle IF_CONTENT token
-#' @field t_UNKNOWN_STATEMENT function to handle UNKNOWN_STATEMENT token
 #' @field t_ignore function to ignore whitespace
-#' @field t_newline function to handle newlines
-#' @field t_error function to handle errors
 #' @description Rxode2Lexer class to handle the lexer for RxODE2  
 #' @return a lexer object
 #' @export
@@ -174,17 +161,6 @@ Rxode2Lexer <- R6::R6Class(
 #' Rxode2 parser.
 #' 
 #' @field tokens list of tokens
-#' @field p_model_statements function to handle model_statements
-#' @field p_model_statement function to handle model_statement
-#' @field p_complex_if_else_statement function to handle complex_if_else_statement
-#' @field p_simple_if_statement function to handle simple_if_statement
-#' @field p_if_statement function to handle if_statement
-#' @field p_equation function to handle equation
-#' @field p_ode function to handle ode
-#' @field p_line_break function to handle line_break
-#' @field p_comment function to handle comment
-#' @field p_unknown_statement function to handle unknown_statement
-#' @field p_error function to handle errors
 #' @description Rxode2Parser class to handle the parser for RxODE2
 #' @return a parser object
 #' @export

@@ -1,10 +1,10 @@
 Type: Package
 Package: campsistrans
-Title: Campsis Transformation Package (NONMEM -> Campsis)
+Title: Campsis Transformation Package (NONMEM/Monolix/rxode2 -> Campsis)
 Version: 1.3.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
-Description: Wrapper to pharmpy for NONMEM import.
+Description: Imports pharmacometric models from various sources (NONMEM/Monolix/rxode2) into Campsis.
 License: file LICENSE
 URL: https://github.com/Calvagone/campsistrans
 BugReports: https://github.com/Calvagone/campsistrans/issues
