@@ -1,0 +1,61 @@
+[MAIN]
+AUC=DOS/CL
+BM0S=SBAS
+MRTS=SMRT
+IMAX1=1
+IC50S=SEC5
+DPSLOS=SLO
+KOUTS=1/MRTS
+BM03=BAS3
+IC503=EC53
+KOUT3=1/MRT3
+
+[ODE]
+if (t == 0 && FLAG == 4) OBASE=DV
+W1=THETA_NA_4 * OBASE
+IBASE=OBASE + ETA_NA_5 * W1
+TVKG=THETA_NA_1/24/7
+KG=TVKG * exp(ETA_NA_1)
+TVKSKI=THETA_NA_2/24/7
+KSKIT=TVKSKI * exp(ETA_NA_2)
+TVLAM=THETA_NA_3/24/7
+LAMBDA=TVLAM * exp(ETA_NA_3)
+TVDRU=THETA_NA_5/24/7
+KDRUG=TVDRU * exp(ETA_NA_4)
+TVKV3=THETA_NA_6/24/7
+KVEG3=TVKV3
+rxini.A_rxddta1.=BM0S
+rxini.A_rxddta2.=BM0S
+rxini.A_rxddta3.=BM03
+rxini.A_rxddta4.=IBASE
+EFFS=IMAX1 * AUC/(IC50S + AUC)
+DPS=BM0S * (1 + DPSLOS * t)
+KINS=DPS * KOUTS
+EFF3=IMAX1 * AUC/(IC503 + AUC)
+KIN3=BM03 * KOUT3
+d/dt(A_rxddta1)=KINS * (1 - EFFS) - KOUTS * A_rxddta1
+d/dt(A_rxddta2)=KINS - KOUTS * A_rxddta2
+d/dt(A_rxddta3)=KIN3 * (1 - EFF3) - KOUT3 * A_rxddta3
+SKIT=((A_rxddta1 - A_rxddta2)/A_rxddta2) * KSKIT
+VEG3=((A_rxddta3 - BM03)/BM03) * KVEG3
+AUC1=AUC * KDRUG
+d/dt(A_rxddta4)=KG * A_rxddta4 - (AUC1 + (-SKIT) + (-VEG3)) * exp(-(LAMBDA * t)) * A_rxddta4
+F=A_rxddta1
+AA1=A_rxddta1
+AA2=A_rxddta2
+AA3=A_rxddta3
+TUM=A_rxddta4
+STRT=0
+if (PLA == 1) STRT=1
+if (FLAG == 4) IPRED=A_rxddta4
+if (FLAG == 4) W=IPRED * THETA_NA_4
+if (FLAG == 4) Y=IPRED + W * eps1
+if (FLAG == 4) IRES=DV - IPRED
+if (FLAG == 4) IWRES=IRES/W
+
+[INIT]
+A_rxddta1=rxini.A_rxddta1.
+A_rxddta2=rxini.A_rxddta2.
+A_rxddta3=rxini.A_rxddta3.
+A_rxddta4=rxini.A_rxddta4.
+
