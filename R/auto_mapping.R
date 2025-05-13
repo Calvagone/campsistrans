@@ -108,6 +108,10 @@ searchCandidateName <- function(model, parameter) {
   if (!is.null(main)) {
     list <- c(list, main@statements@list)
   }
+  ode <- model %>% find(OdeRecord())
+  if (!is.null(ode)) {
+    list <- c(list, ode@statements@list)
+  }
   error <- model %>% find(ErrorRecord())
   if (!is.null(error)) {
     list <- c(list, error@statements@list)
@@ -123,7 +127,7 @@ searchCandidateName <- function(model, parameter) {
     } else if (is(statement, "if_statement")) {
       return(statement@equation@lhs)
     } else {
-      stop("Should be either an equation or IF-statement")
+      return(NA)
     }
   }
 }
