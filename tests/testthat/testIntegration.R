@@ -50,7 +50,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZCP
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZCP, variables="ZCP",
-            outputFolder=file.path(qualFolder, modelFolder, "_zcp"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+            outputFolder=file.path(qualFolder, paste0(modelFolder, "_zcp")), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
   # if (exportReport) {
   #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
@@ -59,7 +59,7 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   # Qualify ZNB
   qual <- campsistrans %>%
     qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZNB, variables="ZNB",
-            outputFolder=file.path(qualFolder, modelFolder, "_znb"), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+            outputFolder=file.path(qualFolder, paste0(modelFolder, "_znb")), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
   expect_true(qual %>% passed())
   # if (exportReport) {
   #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))
