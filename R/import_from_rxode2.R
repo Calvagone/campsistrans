@@ -99,12 +99,6 @@ extractModelCodeFromRxode <- function(rxmod) {
   # Retrieve compartments
   cmtNames <- rxmod$stateDf[, "Compartment Name"]
 
-  # Add A_ prefix to compartment names
-  for (cmtName in cmtNames) {
-    code <- replaceAll(object=code, pattern=VariablePattern(cmtName),
-                       replacement=sprintf("A_%s", cmtName))
-  }
-
   # Possibly replace strange coding of compartment properties (especially with the dot)
   for (cmtIndex in seq_along(cmtNames)) {
     # Fractions
@@ -116,6 +110,12 @@ extractModelCodeFromRxode <- function(rxmod) {
     # Infusion durations
     code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur.rxddta%s\\.", cmtIndex)),
                        replacement=sprintf("DUR_A%s", cmtIndex))
+  }
+  
+  # Add A_ prefix to compartment names
+  for (cmtName in cmtNames) {
+    code <- replaceAll(object=code, pattern=VariablePattern(cmtName),
+                       replacement=sprintf("A_%s", cmtName))
   }
 
   # Parse code using campsismod

@@ -24,10 +24,10 @@ TVDRU=THETA_NA_5/24/7
 KDRUG=TVDRU * exp(ETA_NA_4)
 TVKV3=THETA_NA_6/24/7
 KVEG3=TVKV3
-rxini.A_rxddta1.=BM0S
-rxini.A_rxddta2.=BM0S
-rxini.A_rxddta3.=BM03
-rxini.A_rxddta4.=IBASE
+INIT_A1=BM0S
+INIT_A2=BM0S
+INIT_A3=BM03
+INIT_A4=IBASE
 EFFS=IMAX1 * AUC/(IC50S + AUC)
 DPS=BM0S * (1 + DPSLOS * t)
 KINS=DPS * KOUTS
@@ -54,8 +54,8 @@ if (FLAG == 4) IRES=DV - IPRED
 if (FLAG == 4) IWRES=IRES/W
 
 [INIT]
-A_rxddta1=rxini.A_rxddta1.
-A_rxddta2=rxini.A_rxddta2.
-A_rxddta3=rxini.A_rxddta3.
-A_rxddta4=rxini.A_rxddta4.
+A_rxddta1=INIT_A1
+A_rxddta2=INIT_A2
+A_rxddta3=INIT_A3
+A_rxddta4=INIT_A4
 
