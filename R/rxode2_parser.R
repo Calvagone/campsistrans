@@ -329,7 +329,10 @@ buildIfStatement <- function(condition, content, type) {
     parser <- rly::yacc(Rxode2Parser)
     
     statements <- ModelStatements()
-    statements@list <- parser$parse(content, lexer)
+    # 5 spaces or more = new line in nonmem2rx export
+    # E.g.: if (FLAG == 5) {     IPRED <- log(COMP1 + DEL)     W <- theta14     Y <- IPRED + W * eps1 }
+    content_ <- gsub(pattern="\\s{5,}", replacement="\n", x=content) 
+    statements@list <- parser$parse(content_, lexer)
     
     if (type == "if") {
       retValue <- new("extended_if_statement", condition=condition, statements=statements)

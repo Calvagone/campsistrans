@@ -16,6 +16,10 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
 
   # Extract initial conditions
   model <- extractInitialConditionsFromRxode(model)
+  
+  # Convert complex if statements into simple ones
+  model <- model %>%
+    convertComplexIfElseStatements()
 
   # Extract parameters
   model@parameters <- extractParametersFromRxode(rxmod,
@@ -87,6 +91,8 @@ extractModelCodeFromRxode <- function(rxmod) {
   code <- gsub(pattern="^cmt\\s*\\(.*\\)\\s*$", replacement="", x=code)
   code <- code[code!=""]
   
+  print(code)
+  
   # Replace R assignments by equals
   code <- gsub(pattern="<-", replacement="=", x=code)
   
@@ -127,10 +133,6 @@ extractModelCodeFromRxode <- function(rxmod) {
   model <- model %>%
     add(ode) %>%
     updateCompartments()
-  
-  # Convert complex if statements into simple ones
-  model <- model %>%
-    convertComplexIfElseStatements()
   
   # Automatically convert time to t
   model <- model %>%
@@ -189,9 +191,20 @@ unwrapExtentedIfStatement <- function(x) {
   }
   statements <- x@statements
   elseClause <- is(x, "else_statement")
+  fixmeIndex <- 0L
   
-  # Only keep equations for now
+  # Only keep equations for now (+ convert unknown statements to FIXME equations)
   statements@list <- statements@list %>%
+    purrr::map(.f=function(statement) {
+      if (is(statement, "equation")) {
+        return(statement)
+      } else if (is(statement, "unknown_statement")) {
+        fixmeIndex <<- fixmeIndex + 1L
+        return(Equation(lhs=sprintf("FIXME%i", fixmeIndex), rhs="0", comment=statement@line))
+      } else {
+        return(statement)
+      }
+    }) %>%
     purrr::keep(~is(.x, "equation"))
   
   # Create a list of simpled if statements

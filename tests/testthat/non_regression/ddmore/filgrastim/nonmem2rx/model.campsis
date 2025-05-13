@@ -21,9 +21,10 @@ CP0=BAS
 F_A1=FF
 f(A_c.ABS) = F_A1
 F_A2=0
-
-[ODE]
-if (ROUT == 1) F_A1=0     f(A_c.ABS) = F_A1     F_A2 = 1     f(A_CENT) = F_A2
+if (ROUT == 1) F_A1=0
+if (ROUT == 1) FIXME1=0 # f(A_c.ABS) = F_A1
+if (ROUT == 1) F_A2=1
+if (ROUT == 1) FIXME2=0 # f(A_CENT) = F_A2
 KON=KOFF/KD
 H10=1 + SM1 * CP0/(SC1 + CP0)
 H20=1 + SM2 * CP0/(SC1 + CP0)
@@ -60,6 +61,8 @@ INIT_A12=BM80
 INIT_A13=BM90
 INIT_A14=NB0
 A_c.NB(0) = INIT_A14
+
+[ODE]
 ABS=A_c.ABS
 ATOT=A_CENT
 BM1=A_B1
@@ -101,7 +104,9 @@ ZNT=A_B1 + A_B2 + A_B3 + A_B4 + A_B5 + A_B6 + A_B7 + A_B8 + A_B9 + A_c.NB
 RRTOT=KSI * ZNT
 BBB=RRTOT - A_CENT/VD + KD
 ZCP=0.5 * (-BBB + sqrt(BBB^2 + 4 * KD * A_CENT/VD))
-if (CMT == 2) IPRED=ZCP     IRES = DV - IPRED     Y = IPRED * (1 + eps2) + eps1
+if (CMT == 2) IPRED=ZCP
+if (CMT == 2) IRES=DV - IPRED
+if (CMT == 2) Y=IPRED * (1 + eps2) + eps1
 
 [F]
 A_CENT=F_A2
