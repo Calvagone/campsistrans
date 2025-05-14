@@ -1,0 +1,12 @@
+[MAIN]
+aob=THETA_aob * exp(ETA_aob)
+alpha=THETA_alpha * exp(ETA_alpha)
+beta=THETA_beta * exp(ETA_beta)
+VC=1
+rxLinCmt1=linCmt()
+central=rxLinCmt1
+F=rxLinCmt1
+rxm.CONC=F
+rxm.CONC_ERR=rxm.CONC * (1 + eps1)
+Y=rxm.CONC_ERR
+

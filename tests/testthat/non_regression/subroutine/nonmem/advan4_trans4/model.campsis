@@ -1,0 +1,15 @@
+[MAIN]
+ka=THETA_ka * exp(ETA_ka)
+cl=THETA_cl * exp(ETA_cl)
+v2=THETA_v2 * exp(ETA_v2)
+v3=THETA_v3 * exp(ETA_v3)
+q=THETA_q * exp(ETA_q)
+scale2=v2
+rxLinCmt1=linCmt()
+central=rxLinCmt1 * v2
+scale2_=scale2/v2
+F=rxLinCmt1/scale2_
+rxm.CONC=F
+rxm.CONC_ERR=rxm.CONC * (1 + eps1)
+Y=rxm.CONC_ERR
+
