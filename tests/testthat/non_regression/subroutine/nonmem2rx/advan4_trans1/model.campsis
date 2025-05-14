@@ -12,7 +12,6 @@ d/dt(A_CENTRAL)=K32*A_PERIPHERAL + KA*A_DEPOT + (-K - K23)*A_CENTRAL
 d/dt(A_PERIPHERAL)=K23*A_CENTRAL - K32*A_PERIPHERAL
 d/dt(A_OUTPUT)=K*A_CENTRAL
 rxLinCmt1=A_CENTRAL/scale2
-central=rxLinCmt1 * vc
 scale2_=scale2/vc
 F=rxLinCmt1/scale2_
 rxm.CONC=F

@@ -555,10 +555,11 @@ replaceLinCmt <- function(model, subroutineModel) {
   ode@statements@list <- ode@statements@list %>%
     append(subroutineOde@statements@list, equationIndex - 1)
   
+  # Replace linCmt equation and delete central
   equation@rhs <- sprintf("A_CENTRAL%s", scale)
-  
   ode <- ode %>%
-    replace(equation)
+    replace(equation) %>%
+    delete(Equation("central"))
   
   # Replace in original model
   model <- model %>%
