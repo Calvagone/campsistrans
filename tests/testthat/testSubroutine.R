@@ -15,7 +15,7 @@ nonRegressionPharmpyPath <- function(advan, trans) {
 }
 
 nonRegressionNonmem2rxPath <- function(advan, trans) {
-  return(file.path(testFolder, "non_regression", "subroutine", "nonmem", advanFilename(advan, trans, ext="")))
+  return(file.path(testFolder, "non_regression", "subroutine", "nonmem2rx", advanFilename(advan, trans, ext="")))
 }
 
 generateModel <- function(advan, trans, mapping=NULL) {
