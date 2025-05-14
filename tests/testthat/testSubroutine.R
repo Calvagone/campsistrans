@@ -3,14 +3,15 @@ library(campsismod)
 library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
-testFolder <- ""
+testFolder <-  file.path(getwd(), test_path())
+overwriteNonRegressionFiles <- FALSE
 
 advanFilename <- function(advan, trans, ext=".txt") {
   return(paste0("advan", advan, "_trans", trans, ext))
 }
 
 nonRegressionFolderPath <- function(advan, trans) {
-  return(paste0(testFolder, "non_regression/subroutine/", advanFilename(advan, trans, ext=""), "/"))
+  return(file.path(testFolder, "non_regression", "subroutine", "pharmpy", advanFilename(advan, trans, ext="")))
 }
 
 loadAdvanNonRegressionFile <- function(advan, trans) {
@@ -22,7 +23,10 @@ generateModel <- function(advan, trans, mapping=NULL) {
   model <- object %>%
     export(dest="campsis") %>%
     delete(Equation("Y"))
-  # model %>% write(file=nonRegressionFolderPath(advan, trans)) # TO DISABLE LATER ON
+  
+  if (overwriteNonRegressionFiles) {
+    model %>% write(file=nonRegressionFolderPath(advan, trans))
+  }
   return(model)
 }
 
