@@ -5,10 +5,12 @@
 \title{Extract model code from an rxode2 function object.
 Note that all compartment names will be prefixed with 'A_'.}
 \usage{
-extractModelCodeFromRxode(rxmod)
+extractModelCodeFromRxode(rxmod, subroutine)
 }
 \arguments{
 \item{rxmod}{the rxode2 function object}
+
+\item{subroutine}{NULL by default}
 }
 \value{
 a Campsis model with all original rxode2 statements in the ODE block and detected compartments

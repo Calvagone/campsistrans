@@ -1,5 +1,5 @@
 "name","index","index2","value","fix","type"
-"k",1,1,0.025,FALSE,"var"
+"K",1,1,0.025,FALSE,"var"
 "vc",2,2,0.025,FALSE,"var"
-"k12",3,3,0.025,FALSE,"var"
-"k21",4,4,0.025,FALSE,"var"
+"K12",3,3,0.025,FALSE,"var"
+"K21",4,4,0.025,FALSE,"var"

@@ -4,12 +4,12 @@
 #' @param rxmod the rxode2 function object
 #' @param rem_pop_suffix remove the '_pop' suffix from the population parameters. The model code is adapted accordingly.
 #' @param rem_omega_prefix remove the 'omega_' prefix from the OMEGA parameters. The model code is adapted accordingly.
+#' @param subroutine optional subroutine, integer vector of 2 values: ADVAN and TRANS.
 #' @return a functional Campsis model
 #' @export
-importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
-  # browser()
+importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, subroutine=NULL) {
   # Extract model code
-  model <- extractModelCodeFromRxode(rxmod)
+  model <- extractModelCodeFromRxode(rxmod=rxmod, subroutine=subroutine)
   
   # Extract compartment properties
   model <- extractCompartmentPropertiesFromRxode(model)
@@ -80,10 +80,11 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE) {
 #' Note that all compartment names will be prefixed with 'A_'.
 #' 
 #' @param rxmod the rxode2 function object
+#' @param subroutine NULL by default
 #' @return a Campsis model with all original rxode2 statements in the ODE block and detected compartments
 #' @importFrom rly lex yacc
 #' 
-extractModelCodeFromRxode <- function(rxmod) {
+extractModelCodeFromRxode <- function(rxmod, subroutine) {
   code <- strsplit(rxmod$funTxt, "\n")[[1]]
   
   # Remove compartment declarations if any
@@ -131,7 +132,21 @@ extractModelCodeFromRxode <- function(rxmod) {
   ode@statements@list <- list
   
   model <- model %>%
-    add(ode) %>%
+    add(ode)
+  
+  # Add subroutine if any
+  if (!is.null(subroutine)) {
+    assertthat::assert_that(length(subroutine)==2L, msg="Subroutine should be a vector of 2 integers")
+    subroutineModel <- getSubroutineModelForRxode2(advan=subroutine[1], trans=subroutine[2])
+    if (is.null(subroutineModel)) {
+      warning("ODEs are not available for the given subroutine")
+    } else {
+      model <- replaceLinCmt(model=model, subroutineModel=subroutineModel)
+    }
+  }
+  
+  # Index compartments
+  model <- model %>%
     updateCompartments()
   
   # Automatically convert time to t
@@ -480,3 +495,68 @@ isRxodeErrorEquation <- function(x) {
   }
   return(TRUE)
 }
+
+getSubroutineModelForRxode2 <- function(advan, trans) {
+  model <- campsismod::model_suite$nonmem[[paste0("advan", advan, "_trans", trans)]]
+  
+  if (advan==12 && trans==4) {
+    return(NULL)
+  }
+  
+  if (is.null(model)) {
+    return(NULL)
+  }
+
+  return(model)
+}
+
+replaceLinCmt <- function(model, subroutineModel) {
+  subroutineOde <- subroutineModel %>%
+    find(OdeRecord()) %>%
+    delete(Equation("F"))
+  
+  # All parameters to uppercase (safe)
+  linParameters <- subroutineModel@parameters@list %>%
+    purrr::keep(.p=~is(.x, "theta")) %>%
+    purrr::map_chr(.f=~.x@name)
+  
+  for (parameter in linParameters) {
+    model <- model %>%
+      replaceAll(tolower(parameter), parameter)
+  }
+  
+  # Detect where to insert the ODEs
+  ode <- model %>%
+    find(OdeRecord()) # To replace by ODE record
+
+  equationIndex <- ode@statements@list %>%
+    purrr::detect_index(.f=detectFun <- function(statement) {
+    if (is(statement, "equation")) {
+      return(grepl(pattern="linCmt\\(\\)", x=statement@rhs))
+    } else {
+      return(FALSE)
+    }
+  })
+  
+  if (equationIndex==0) {
+    return(model)
+  }
+
+  # Append ODE block
+  equation <- ode@statements@list[[equationIndex]]
+  
+  ode@statements@list <- ode@statements@list %>%
+    append(subroutineOde@statements@list, equationIndex - 1)
+  
+  equation@rhs <- "A_CENTRAL"
+  
+  ode <- ode %>%
+    replace(equation)
+  
+  # Replace in original model
+  model <- model %>%
+    replace(ode)
+  
+  return(model)
+}
+

@@ -4,7 +4,12 @@
 \alias{importRxode2}
 \title{Extract model code from an rxode2 function object.}
 \usage{
-importRxode2(rxmod, rem_pop_suffix = FALSE, rem_omega_prefix = FALSE)
+importRxode2(
+  rxmod,
+  rem_pop_suffix = FALSE,
+  rem_omega_prefix = FALSE,
+  subroutine = NULL
+)
 }
 \arguments{
 \item{rxmod}{the rxode2 function object}
@@ -12,6 +17,8 @@ importRxode2(rxmod, rem_pop_suffix = FALSE, rem_omega_prefix = FALSE)
 \item{rem_pop_suffix}{remove the '_pop' suffix from the population parameters. The model code is adapted accordingly.}
 
 \item{rem_omega_prefix}{remove the 'omega_' prefix from the OMEGA parameters. The model code is adapted accordingly.}
+
+\item{subroutine}{optional subroutine, integer vector of 2 values: ADVAN and TRANS.}
 }
 \value{
 a functional Campsis model

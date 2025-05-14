@@ -1,11 +1,17 @@
 [MAIN]
-ka=THETA_ka * exp(ETA_ka)
-k=THETA_k * exp(ETA_k)
+KA=THETA_KA * exp(ETA_KA)
+K=THETA_K * exp(ETA_K)
 vc=THETA_vc * exp(ETA_vc)
-k23=THETA_k23 * exp(ETA_k23)
-k32=THETA_k32 * exp(ETA_k32)
+K23=THETA_K23 * exp(ETA_K23)
+K32=THETA_K32 * exp(ETA_K32)
 scale2=vc
-rxLinCmt1=linCmt()
+
+[ODE]
+d/dt(A_DEPOT)=-KA*A_DEPOT
+d/dt(A_CENTRAL)=K32*A_PERIPHERAL + KA*A_DEPOT + (-K - K23)*A_CENTRAL
+d/dt(A_PERIPHERAL)=K23*A_CENTRAL - K32*A_PERIPHERAL
+d/dt(A_OUTPUT)=K*A_CENTRAL
+rxLinCmt1=A_CENTRAL
 central=rxLinCmt1 * vc
 scale2_=scale2/vc
 F=rxLinCmt1/scale2_

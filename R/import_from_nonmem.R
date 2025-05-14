@@ -4,12 +4,13 @@
 #' @param ctlFile path to control stream file
 #' @param extFile path to parameter estimates file, optional
 #' @param covFile path to variance-covariance matrix file, optional
+#' @param subroutine optional subroutine, temporary
 #' @return a functional Campsis model
 #' @export
 #' @importFrom digest sha1
 #' @importFrom nonmem2rx nonmem2rx
 #' 
-importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
+importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL, subroutine=NULL) {
  
   # Create temporary directory
   tempDir <- tempdir()
@@ -37,7 +38,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # browser()
   
   # Conversion to Campsis
-  model <- importRxode2(rxmod)
+  model <- importRxode2(rxmod=rxmod, subroutine=subroutine)
   
   # Remove default names given by nonmem2rx importer before auto renaming
   updatedParameters <- Parameters()
