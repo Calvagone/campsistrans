@@ -4,16 +4,16 @@ TVK=THETA_K
 k=TVK * exp(ETA_k)
 
 [ODE]
-if (t == 0) rxm.BCLCR=CLCR
-IIV=ETA_IIV + (rxm.BCLCR - 75.5) * TCLCR
-rxm.B00=THETA_rxm.B00
-rxm.B10=THETA_rxm.B10
-rxm.B20=THETA_rxm.B20
+if (t == 0) rxm_BCLCR=CLCR
+IIV=ETA_IIV + (rxm_BCLCR - 75.5) * TCLCR
+rxm_B00=THETA_rxm_B00
+rxm_B10=THETA_rxm_B10
+rxm_B20=THETA_rxm_B20
 EMAX0=THETA_EMAX0
 ED50=THETA_ED50
-rxm.B01=THETA_rxm.B01
-rxm.B11=THETA_rxm.B11
-rxm.B21=THETA_rxm.B21
+rxm_B01=THETA_rxm_B01
+rxm_B11=THETA_rxm_B11
+rxm_B21=THETA_rxm_B21
 EMAX1=THETA_EMAX1
 EMAX2=THETA_EMAX2
 if (t == 0) SWM1=0
@@ -26,16 +26,16 @@ EMAX=EMAX0
 if (SWM1 == 1) EMAX=EMAX1
 if (SWM1 == 2) EMAX=EMAX2
 EFF=EMAX * (F * k)/((F * k) + (ED50))
-rxm.A0=0
-rxm.A1=0
+rxm_A0=0
+rxm_A1=0
 SPREC=SWM1
 if (SWM1 == 0) rxm.A0=rxm.B00
 if (SWM1 == 0) rxm.A1=rxm.A0 + rxm.B01
-rxm.A0_=rxm.A0 - EFF + IIV
-rxm.A1_=rxm.A1 - EFF + IIV
+rxm_A0_=rxm_A0 - EFF + IIV
+rxm_A1_=rxm_A1 - EFF + IIV
 SWM1=GHFS
-PC0=exp(rxm.A0_)/(1 + exp(rxm.A0_))
-PC1=exp(rxm.A1_)/(1 + exp(rxm.A1_))
+PC0=exp(rxm_A0_)/(1 + exp(rxm_A0_))
+PC1=exp(rxm_A1_)/(1 + exp(rxm_A1_))
 PC2=1
 P0=PC0
 P1=PC1 - PC0
