@@ -4,13 +4,12 @@
 #' @param ctlFile path to control stream file
 #' @param extFile path to parameter estimates file, optional
 #' @param covFile path to variance-covariance matrix file, optional
-#' @param subroutine optional subroutine, temporary
 #' @return a functional Campsis model
 #' @export
 #' @importFrom digest sha1
 #' @importFrom nonmem2rx nonmem2rx
 #' 
-importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL, subroutine=NULL) {
+importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
  
   # Create temporary directory
   tempDir <- tempdir()
@@ -35,8 +34,9 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL, subroutine=NULL) 
   rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
                                 cmtNames=TRUE, validate=FALSE)
   
-  # browser()
-  
+  subroutine <- detectSubroutine(readLines(ctl))
+  print(subroutine)
+    
   # Conversion to Campsis
   model <- importRxode2(rxmod=rxmod, subroutine=subroutine)
   
@@ -62,4 +62,22 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL, subroutine=NULL) 
     autoRenameParameters()
    
   return(model)
+}
+
+detectSubroutine <- function(x) {
+  indexes <- grepl(pattern="^\\$(SUB|SUBR|SUBROUTINE|SUBROUTINES)\\s+.*", x=trimws(x))
+  subroutines <- x[indexes]
+  if (length(subroutines)==0) {
+    return(NULL)
+  }
+  subroutine <- subroutines[1]
+  advan <- suppressWarnings(as.numeric(gsub(pattern=".*ADVAN([0-9]+).*", "\\1", subroutine)))
+  trans <- suppressWarnings(as.numeric(gsub(pattern=".*TRANS([0-9]+).*", "\\1", subroutine)))
+  if (is.na(advan)) {
+    return(NULL)
+  }
+  if (is.na(trans)) {
+    trans <- 1
+  }
+  return(c(advan, trans))
 }

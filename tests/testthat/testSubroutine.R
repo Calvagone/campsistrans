@@ -36,7 +36,7 @@ generateModel2 <- function(advan, trans) {
   lines <- lines[lines!="$INPUT"]
   writeLines(lines, ctl)
   # print(gsub(pattern="\\\\", replacement="/", x=ctl))
-  model <- importNONMEM2(ctlFile=ctl, subroutine=c(advan, trans))
+  model <- importNONMEM2(ctlFile=ctl)
   
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionNonmem2rxPath(advan, trans))

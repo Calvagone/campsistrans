@@ -4,7 +4,7 @@
 \alias{importNONMEM2}
 \title{Extract the model from NONMEM via nonmem2rx.}
 \usage{
-importNONMEM2(ctlFile, extFile = NULL, covFile = NULL, subroutine = NULL)
+importNONMEM2(ctlFile, extFile = NULL, covFile = NULL)
 }
 \arguments{
 \item{ctlFile}{path to control stream file}
@@ -12,8 +12,6 @@ importNONMEM2(ctlFile, extFile = NULL, covFile = NULL, subroutine = NULL)
 \item{extFile}{path to parameter estimates file, optional}
 
 \item{covFile}{path to variance-covariance matrix file, optional}
-
-\item{subroutine}{optional subroutine, temporary}
 }
 \value{
 a functional Campsis model
