@@ -68,4 +68,21 @@ test_that("Test the rxode2 parser", {
              add(ElseStatement(toModelStatements(Equation("tNbCibleEH", "\"G_0\"")))))
   
   expect_equal(res, expected)
+  
+  # complexIf <- ComplexIfElseStatement() %>%
+  #   add(ExtendedIfStatement("A==0 || (A==1 && A==3)", toModelStatements(Equation("OUTPUT", "1")))) %>%
+  #   add(ElseIfStatement("A==1", toModelStatements(Equation("OUTPUT", "2")))) %>%
+  #   add(ElseStatement(toModelStatements(Equation("OUTPUT", "3"))))
+  # 
+  # complexIf %>% getName()
+  # 
+  # complexIf <- ComplexIfElseStatement() %>%
+  #   add(ExtendedIfStatement("NbCibleEH == 0", toModelStatements(Equation("tNbCibleEH", "\"G_0\"")))) %>%
+  #   add(ElseIfStatement("NbCibleEH == 1 || NbCibleEH == 2 || NbCibleEH == 3 || NbCibleEH == 4 || NbCibleEH == 5",
+  #                       toModelStatements(Equation("tNbCibleEH", "\"G_1_2_3_4_5\"")))) %>%
+  #   add(ElseStatement(toModelStatements(Equation("tNbCibleEH", "\"G_0\""))))
+  # 
+  # complexIf %>% getName()
 })
+
+

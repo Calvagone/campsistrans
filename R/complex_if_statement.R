@@ -25,6 +25,16 @@ ComplexIfElseStatement <- function() {
 }
 
 #_______________________________________________________________________________
+#----                            getName                                    ----
+#_______________________________________________________________________________
+
+setMethod("getName", signature = c("complex_if_else_statement"), definition = function(x) {
+  return(sprintf("COMPLEX IF STATEMENT: %s", x@list %>% purrr::map_chr(.f=function(statement) {
+    return(statement %>% getName())
+  }) %>% paste0(collapse=" / ")))
+})
+
+#_______________________________________________________________________________
 #----                                add                                    ----
 #_______________________________________________________________________________
 

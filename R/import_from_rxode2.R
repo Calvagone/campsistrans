@@ -520,9 +520,9 @@ replaceLinCmt <- function(model, subroutineModel) {
     delete(Equation("F"))
   
   scale <- ""
-  if (subroutineModel %>% campsismod::contains(Equation("S1"))) {
+  if (model %>% campsismod::contains(Equation("scale1"))) {
     scale <- "/scale1"
-  } else if (subroutineModel %>% campsismod::contains(Equation("S2"))) {
+  } else if (model %>% campsismod::contains(Equation("scale2"))) {
     scale <- "/scale2"
   }
   
@@ -558,7 +558,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   ode@statements@list <- ode@statements@list %>%
     append(subroutineOde@statements@list, equationIndex - 1)
-  
+
   # Replace linCmt equation and delete central
   equation@rhs <- sprintf("A_CENTRAL%s", scale)
   ode <- ode %>%

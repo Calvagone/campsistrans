@@ -101,11 +101,11 @@ test_that("Rifampin PK can be imported well (pharmpy/nonmem2rx)", {
 
   expect_equal(model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[1]]),
                nonreg_model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[2]]))
-  
+
   # Same with nonmem2rx
   model2 <- suppressWarnings(generateModel2(filename=filename, folder=folder))
   nonreg_model2 <- suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder)))
-  
+
   expect_equal(model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[1]]),
                nonreg_model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[2]]))
 })
@@ -125,11 +125,11 @@ test_that("Rifampin PK can be imported well, no omega mapping (pharmpy/nonmem2rx
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
   expect_equal(model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[1]]),
                nonreg_model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[2]]))
-  
+
   # Same with nonmem2rx
   model2 <- suppressWarnings(generateModel2(filename=filename, folder=folder))
   nonreg_model2 <- suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder)))
-  
+
   expect_equal(model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[1]]),
                nonreg_model2 %>% campsismod::replace(discardLastRifampinODE(model2, nonreg_model2)[[2]]))
 })

@@ -1,7 +1,7 @@
 [MAIN]
 TCLCR=THETA_TCLCR
 TVK=THETA_K
-k=TVK * exp(ETA_k)
+K=TVK * exp(ETA_K)
 
 [ODE]
 if (t == 0) rxm_BCLCR=CLCR
@@ -18,14 +18,15 @@ EMAX1=THETA_EMAX1
 EMAX2=THETA_EMAX2
 if (t == 0) SWM1=0
 VC=1
-rxLinCmt1=linCmt()
-central=rxLinCmt1
+d/dt(A_CENTRAL)=-K*A_CENTRAL
+d/dt(A_OUTPUT)=K*A_CENTRAL
+rxLinCmt1=A_CENTRAL
 F=rxLinCmt1
 IPRED=F
 EMAX=EMAX0
 if (SWM1 == 1) EMAX=EMAX1
 if (SWM1 == 2) EMAX=EMAX2
-EFF=EMAX * (F * k)/((F * k) + (ED50))
+EFF=EMAX * (F * K)/((F * K) + (ED50))
 rxm_A0=0
 rxm_A1=0
 SPREC=SWM1

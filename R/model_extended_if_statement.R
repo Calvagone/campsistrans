@@ -37,7 +37,9 @@ ExtendedIfStatement <- function(condition, statements) {
 #_______________________________________________________________________________
 
 setMethod("getName", signature = c("extended_if_statement"), definition = function(x) {
-  return(paste0("EXTENDED IF (", x@condition, ")"))
+  return(sprintf("EXTENDED IF (%s): %s", x@condition, x@statements@list %>% purrr::map_chr(.f=function(statement) {
+    return(statement %>% getName())
+  }) %>% paste(collapse=", ")))
 })
 
 #_______________________________________________________________________________

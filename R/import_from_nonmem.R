@@ -34,7 +34,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
                                 cmtNames=TRUE, validate=FALSE)
   
-  subroutine <- detectSubroutine(readLines(ctl))
+  subroutine <- detectSubroutine(suppressWarnings(readLines(ctl)))
   print(subroutine)
     
   # Conversion to Campsis
@@ -74,6 +74,9 @@ detectSubroutine <- function(x) {
   advan <- suppressWarnings(as.numeric(gsub(pattern=".*ADVAN([0-9]+).*", "\\1", subroutine)))
   trans <- suppressWarnings(as.numeric(gsub(pattern=".*TRANS([0-9]+).*", "\\1", subroutine)))
   if (is.na(advan)) {
+    return(NULL)
+  }
+  if (!(advan %in% c(1, 2, 3, 4, 11, 12))) {
     return(NULL)
   }
   if (is.na(trans)) {
