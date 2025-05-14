@@ -515,6 +515,13 @@ replaceLinCmt <- function(model, subroutineModel) {
     find(OdeRecord()) %>%
     delete(Equation("F"))
   
+  scale <- ""
+  if (subroutineModel %>% campsismod::contains(Equation("S1"))) {
+    scale <- "/scale1"
+  } else if (subroutineModel %>% campsismod::contains(Equation("S2"))) {
+    scale <- "/scale2"
+  }
+  
   # All parameters to uppercase (safe)
   linParameters <- subroutineModel@parameters@list %>%
     purrr::keep(.p=~is(.x, "theta")) %>%
@@ -548,7 +555,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   ode@statements@list <- ode@statements@list %>%
     append(subroutineOde@statements@list, equationIndex - 1)
   
-  equation@rhs <- "A_CENTRAL"
+  equation@rhs <- sprintf("A_CENTRAL%s", scale)
   
   ode <- ode %>%
     replace(equation)
