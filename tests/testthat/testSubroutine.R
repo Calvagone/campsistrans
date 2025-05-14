@@ -42,14 +42,6 @@ generateModel2 <- function(advan, trans) {
     model %>% write(nonRegressionNonmem2rxPath(advan, trans))
   }
   
-  # Generate unknown statements by writing/reading the model
-  unknownStatements <- TRUE
-  if (unknownStatements) {
-    dir <- tempdir()
-    if (!dir.exists(dir)) dir.create(dir)
-    model %>% campsismod::write(dir)
-    model <- suppressWarnings(read.campsis(dir))
-  }
   return(model)
 }
 

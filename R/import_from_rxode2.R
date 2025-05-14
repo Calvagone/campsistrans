@@ -131,6 +131,10 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   ode <- OdeRecord()
   ode@statements@list <- list
   
+  # Replace all equations with dots in the name
+  ode <- replaceDotsInVariableNames(ode)
+  
+  # Add ODE record to model
   model <- model %>%
     add(ode)
   
@@ -567,4 +571,31 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   return(model)
 }
+
+replaceDotsInVariableNames <- function(ode) {
+  variablesWithDots <- ode@statements@list %>%
+    purrr::map_chr(.f=function(statement) {
+      if (is(statement, "equation")) {
+        lhs <- statement@lhs
+        lhsSub <- gsub(pattern="\\.", replacement="_", x=lhs)
+        return(ifelse(lhs==lhsSub, "", lhs))
+      } else if (is(statement, "if_statement")) {
+        lhs <- statement@equation@lhs
+        lhsSub <- gsub(pattern="\\.", replacement="_", x=lhs)
+        return(ifelse(lhs==lhsSub, "", lhs))
+      }
+      return("")
+    })
+  
+  variablesWithDots <- variablesWithDots[variablesWithDots!=""]
+  
+  for (variable in variablesWithDots) {
+    ode <- ode %>%
+      replaceAll(VariablePattern(variable), gsub(pattern="\\.", replacement="_", x=variable))
+  }
+  
+  return(ode)
+}
+
+
 

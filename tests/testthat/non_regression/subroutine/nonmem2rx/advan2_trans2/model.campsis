@@ -11,7 +11,7 @@ d/dt(A_OUTPUT)=CL*A_CENTRAL/V
 rxLinCmt1=A_CENTRAL/scale2
 scale2_=scale2/V
 F=rxLinCmt1/scale2_
-rxm.CONC=F
-rxm.CONC_ERR=rxm.CONC * (1 + eps1)
-Y=rxm.CONC_ERR
+rxm_CONC=F
+rxm_CONC_ERR=rxm_CONC * (1 + eps1)
+Y=rxm_CONC_ERR
 

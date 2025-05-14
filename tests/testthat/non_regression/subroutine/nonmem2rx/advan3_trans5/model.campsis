@@ -10,7 +10,7 @@ d/dt(A_PERIPHERAL)=-(ALPHA + AOB*BETA)*A_PERIPHERAL/(AOB + 1) + (ALPHA + BETA - 
 d/dt(A_OUTPUT)=ALPHA*BETA*A_CENTRAL/K21
 rxLinCmt1=A_CENTRAL
 F=rxLinCmt1
-rxm.CONC=F
-rxm.CONC_ERR=rxm.CONC * (1 + eps1)
-Y=rxm.CONC_ERR
+rxm_CONC=F
+rxm_CONC_ERR=rxm_CONC * (1 + eps1)
+Y=rxm_CONC_ERR
 
