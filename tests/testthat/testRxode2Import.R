@@ -1,14 +1,16 @@
 library(testthat)
 library(campsis)
+library(rxode2)
 
 context("Test the rxode2 import on a few models")
 
 testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
-nonRegressionFolderPath <- function(folder) {
+nonRegressionRxode2Path <- function(folder) {
   return(file.path(testFolder, "non_regression", "rxode2", folder))
 }
+
 
 toModelStatements <- function(x) {
   retValue <- ModelStatements()
@@ -85,4 +87,72 @@ test_that("Test the rxode2 parser", {
   # complexIf %>% getName()
 })
 
+generateModel <- function(rxmod, folder) {
+  model <- importRxode2(rxmod())
+  
+  if (overwriteNonRegressionFiles) {
+    model %>% write(file=nonRegressionRxode2Path(folder))
+  }
+  return(model)
+}
 
+test_that("Import a simple model from rxode2 (single subject)", {
+  folder <- "simple_model_single_subject"
+  rxmod <- function() {
+    ini({
+      # central 
+      KA=2.94E-01
+      CL=1.86E+01
+      V2=4.02E+01
+      # peripheral
+      Q=1.05E+01
+      V3=2.97E+02
+      # effects
+      Kin=1
+      Kout=1
+      EC50=200 
+    })
+    model({
+      C2 <- centr/V2
+      C3 <- peri/V3
+      d/dt(depot) <- -KA*depot
+      d/dt(centr) <- KA*depot - CL*C2 - Q*C2 + Q*C3
+      d/dt(peri)  <- Q*C2 - Q*C3
+      eff(0) <- 1
+      d/dt(eff)   <- Kin - Kout*(1-C2/(EC50+C2))*eff
+    })
+  }
+  model <- generateModel(rxmod, folder)
+  expect_equal(model, read.campsis(nonRegressionRxode2Path(folder)))
+})
+
+
+test_that("Import a simple model from rxode2 (population simulation)", {
+  folder <- "simple_model_population_simulation"
+  rxmod <- function() {
+    ini({
+      KA <- 2.94E-01
+      TCl <- 1.86E+01
+      # between subject variability
+      eta.Cl ~ 0.4^2
+      V2 <- 4.02E+01
+      Q <- 1.05E+01
+      V3 <- 2.97E+02
+      Kin <- 1
+      Kout <- 1
+      EC50 <- 200
+    })
+    model({
+      C2 <- centr/V2
+      C3 <- peri/V3
+      CL <-  TCl*exp(eta.Cl) ## This is coded as a variable in the model
+      d/dt(depot) <- -KA*depot
+      d/dt(centr) <- KA*depot - CL*C2 - Q*C2 + Q*C3
+      d/dt(peri)  <-                    Q*C2 - Q*C3
+      d/dt(eff)   <- Kin - Kout*(1-C2/(EC50+C2))*eff
+      eff(0) <- 1
+    })
+  }
+  model <- generateModel(rxmod, folder)
+  expect_equal(model, read.campsis(nonRegressionRxode2Path(folder)))
+})
