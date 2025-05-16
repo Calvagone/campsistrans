@@ -1,7 +1,7 @@
 [ODE]
 C2=A_centr/THETA_V2
 C3=A_peri/THETA_V3
-CL=THETA_TCl * exp(ETA_eta.Cl)
+CL=THETA_TCl * exp(ETA_eta_Cl)
 d/dt(A_depot)=-THETA_KA * A_depot
 d/dt(A_centr)=THETA_KA * A_depot - CL * C2 - THETA_Q * C2 + THETA_Q * C3
 d/dt(A_peri)=THETA_Q * C2 - THETA_Q * C3

@@ -36,7 +36,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
     }
     # Replace in model code
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), sprintf("THETA_%s", parameter@name))
+      replaceAll(VariablePattern(oldNameInCode), sprintf("THETA_%s", replaceDotsInString(parameter@name)))
   }
   
   # Rename ETAs in model code
@@ -54,8 +54,12 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
     
     # Replace in model code
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), sprintf("ETA_%s", parameter@name))
+      replaceAll(VariablePattern(oldNameInCode), sprintf("ETA_%s", replaceDotsInString(parameter@name)))
   }
+  
+  # Replace dots in parameter names all at once
+  model@parameters@list <- model@parameters@list %>%
+    purrr::map(.f=~replaceDotsInParameterName(.x))
   
   # Heuristic move to MAIN block
   model <- model %>%
@@ -577,11 +581,11 @@ replaceDotsInVariableNames <- function(ode) {
     purrr::map_chr(.f=function(statement) {
       if (is(statement, "equation")) {
         lhs <- statement@lhs
-        lhsSub <- gsub(pattern="\\.", replacement="_", x=lhs)
+        lhsSub <- replaceDotsInString(lhs)
         return(ifelse(lhs==lhsSub, "", lhs))
       } else if (is(statement, "if_statement")) {
         lhs <- statement@equation@lhs
-        lhsSub <- gsub(pattern="\\.", replacement="_", x=lhs)
+        lhsSub <- replaceDotsInString(lhs)
         return(ifelse(lhs==lhsSub, "", lhs))
       }
       return("")
@@ -591,10 +595,23 @@ replaceDotsInVariableNames <- function(ode) {
   
   for (variable in variablesWithDots) {
     ode <- ode %>%
-      replaceAll(VariablePattern(variable), gsub(pattern="\\.", replacement="_", x=variable))
+      replaceAll(VariablePattern(variable), replaceDotsInString(variable))
   }
   
   return(ode)
+}
+
+replaceDotsInParameterName <- function(parameter) {
+  if (is.na(parameter@name)) {
+    return(parameter)
+  } else {
+    parameter@name <- replaceDotsInString(parameter@name)
+    return(parameter)
+  }
+}
+
+replaceDotsInString <- function(x) {
+  return(gsub(pattern="\\.", replacement="_", x=x))
 }
 
 
