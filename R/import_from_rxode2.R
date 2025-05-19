@@ -103,7 +103,16 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   code <- gsub(pattern="^cmt\\s*\\(.*\\)\\s*$", replacement="", x=code)
   code <- code[code!=""]
   
-  print(code)
+  # Prepare subroutine model if any
+  if (!is.null(subroutine)) {
+    assertthat::assert_that(length(subroutine)==2L, msg="Subroutine should be a vector of 2 integers")
+    subroutineModel <- getSubroutineModelForRxode2(advan=subroutine[1], trans=subroutine[2])
+    if (is.null(subroutineModel)) {
+      warning("ODEs are not available for the given subroutine")
+    }
+  } else {
+    subroutineModel <- NULL
+  }
   
   # Replace R assignments by equals
   code <- gsub(pattern="<-", replacement="=", x=code)
@@ -111,23 +120,22 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   # Retrieve compartments
   cmtNames <- rxmod$stateDf[, "Compartment Name"]
 
+  # Compartment indexes
+  cmtIndexes <- seq_along(cmtNames)
+
   # Possibly replace strange coding of compartment properties (especially with the dot)
-  for (cmtIndex in seq_along(cmtNames)) {
-    # Fractions
-    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxf.rxddta%s\\.", cmtIndex)),
-                       replacement=sprintf("F_A%s", cmtIndex))
-    # Initial conditions
-    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxini.rxddta%s\\.", cmtIndex)),
-                       replacement=sprintf("INIT_A%s", cmtIndex))
-    # Infusion durations
-    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur.rxddta%s\\.", cmtIndex)),
-                       replacement=sprintf("DUR_A%s", cmtIndex))
-    # Infusion rates
-    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxrate.rxddta%s\\.", cmtIndex)),
-                       replacement=sprintf("RATE_A%s", cmtIndex))
-    # Lag times
-    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxalag.rxddta%s\\.", cmtIndex)),
-                       replacement=sprintf("LAG_A%s", cmtIndex))
+  for (cmtIndex in cmtIndexes) {
+    code <- renameCompartmentProperties(code=code, occurrence=sprintf("rxddta%s", cmtIndex),
+                                        replacement=as.character(cmtIndex), prefix="A")
+  }
+  
+  # In case a subroutine is used, cmtNames is empty
+  # depot, central names are used instead
+  if (!is.null(subroutineModel)) {
+    for (cmtName in c("depot", "central")) {
+      code <- renameCompartmentProperties(code=code, occurrence=cmtName,
+                                          replacement=toupper(cmtName), prefix="")
+    }
   }
   
   # Add A_ prefix to compartment names
@@ -156,14 +164,8 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
     add(ode)
   
   # Add subroutine if any
-  if (!is.null(subroutine)) {
-    assertthat::assert_that(length(subroutine)==2L, msg="Subroutine should be a vector of 2 integers")
-    subroutineModel <- getSubroutineModelForRxode2(advan=subroutine[1], trans=subroutine[2])
-    if (is.null(subroutineModel)) {
-      warning("ODEs are not available for the given subroutine")
-    } else {
-      model <- replaceLinCmt(model=model, subroutineModel=subroutineModel)
-    }
+  if (!is.null(subroutineModel)) {
+    model <- replaceLinCmt(model=model, subroutineModel=subroutineModel)
   }
   
   # Index compartments
@@ -627,5 +629,24 @@ replaceDotsInString <- function(x) {
   return(gsub(pattern="\\.", replacement="_", x=x))
 }
 
+renameCompartmentProperties <- function(code, occurrence, replacement, prefix) {
+  # Fractions
+  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxf\\.%s\\.", occurrence)),
+                     replacement=sprintf("F_%s%s", prefix, replacement))
+  # Initial conditions
+  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxini\\.%s\\.", occurrence)),
+                     replacement=sprintf("INIT_%s%s", prefix, replacement))
+  # Infusion durations
+  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur\\.%s\\.", occurrence)),
+                     replacement=sprintf("DUR_%s%s", prefix, replacement))
+  # Infusion rates
+  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxrate\\.%s\\.", occurrence)),
+                     replacement=sprintf("RATE_%s%s", prefix, replacement))
+  # Lag times
+  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxalag\\.%s\\.", occurrence)),
+                     replacement=sprintf("LAG_%s%s", prefix, replacement))
+  
+  return(code)
+}
 
 
