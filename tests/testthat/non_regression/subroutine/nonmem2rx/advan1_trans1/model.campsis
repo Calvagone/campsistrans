@@ -9,7 +9,7 @@ d/dt(A_OUTPUT)=K*A_CENTRAL
 rxLinCmt1=A_CENTRAL/scale1
 scale1_=scale1/V
 F=rxLinCmt1/scale1_
-rxm_CONC=F
-rxm_CONC_ERR=rxm_CONC * (1 + eps1)
-Y=rxm_CONC_ERR
+CONC=F
+CONC_ERR=CONC * (1 + eps1)
+Y=CONC_ERR
 

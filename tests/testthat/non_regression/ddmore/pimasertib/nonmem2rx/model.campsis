@@ -71,7 +71,6 @@ if (nmdvid == 2 && DV == 0) Y=P0
 if (nmdvid == 2 && DV == 1 || DV == 2) Y=P1
 if (nmdvid == 2 && DV >= 3) Y=P2
 CUMHAZ=A_c_CUMHAZ
-CHLAST=CHLAST
 if (nmdvid == 5) Y=exp(-CUMHAZ)
 if (nmdvid == 5) CHLAST=CUMHAZ
 

@@ -35,7 +35,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
                                 cmtNames=TRUE, validate=FALSE)
   
   subroutine <- detectSubroutine(suppressWarnings(readLines(ctl)))
-  print(subroutine)
+  # print(subroutine)
     
   # Conversion to Campsis
   model <- importRxode2(rxmod=rxmod, subroutine=subroutine)
