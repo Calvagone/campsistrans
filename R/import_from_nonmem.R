@@ -60,6 +60,10 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Auto mapping based on the equation names
   model <- model %>% 
     autoRenameParameters()
+  
+  # Remove useless equations like ETA_CL=ETA_CL (in NONMEM ETA_CL=ETA(1))
+  model <- model %>%
+    removeUselessEquations()
    
   return(model)
 }

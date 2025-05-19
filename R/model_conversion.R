@@ -261,6 +261,10 @@ removeUselessEquations <- function(model) {
   if (!is.null(main)) {
     model <- model %>% campsismod::replace(discardUselessEquations(main))
   }
+  ode <- model %>% find(OdeRecord())
+  if (!is.null(ode)) {
+    model <- model %>% campsismod::replace(discardUselessEquations(ode))
+  }
   error <- model %>% find(ErrorRecord())
   if (!is.null(error)) {
     model <- model %>% campsismod::replace(discardUselessEquations(error))
