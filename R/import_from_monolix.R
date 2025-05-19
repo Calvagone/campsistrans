@@ -105,7 +105,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
       parts <- strsplit(preEquation, split="<-")[[1]]
       if (length(parts) > 1) {
         variable <- trimws(parts[1])
-        if (model %>% contains(Equation(variable))) {
+        if (model %>% campsismod::contains(Equation(variable))) {
           model <- model %>%
             campsismod::move(x=Equation(variable), to=campsismod::Position(MainRecord()))
         }
