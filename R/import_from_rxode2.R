@@ -8,6 +8,7 @@
 #' @return a functional Campsis model
 #' @export
 importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, subroutine=NULL) {
+  
   # Extract model code
   model <- extractModelCodeFromRxode(rxmod=rxmod, subroutine=subroutine)
   
@@ -91,6 +92,12 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
 extractModelCodeFromRxode <- function(rxmod, subroutine) {
   code <- strsplit(rxmod$funTxt, "\n")[[1]]
   
+  # Remove all 'rxm.' occurrences when subroutine is used
+  # Matt adds this prefix when subroutines are used, I don't know the exact reason
+  if (!is.null(subroutine)) {
+    code <- gsub(pattern="\\brxm\\.", replacement="", x=code)
+  }
+  
   # Remove compartment declarations if any
   # Not sure at this stage if this is needed
   code <- gsub(pattern="^cmt\\s*\\(.*\\)\\s*$", replacement="", x=code)
@@ -115,6 +122,12 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
     # Infusion durations
     code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur.rxddta%s\\.", cmtIndex)),
                        replacement=sprintf("DUR_A%s", cmtIndex))
+    # Infusion rates
+    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxrate.rxddta%s\\.", cmtIndex)),
+                       replacement=sprintf("RATE_A%s", cmtIndex))
+    # Lag times
+    code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxalag.rxddta%s\\.", cmtIndex)),
+                       replacement=sprintf("LAG_A%s", cmtIndex))
   }
   
   # Add A_ prefix to compartment names
