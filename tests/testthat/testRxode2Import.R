@@ -87,6 +87,19 @@ test_that("Test the rxode2 parser", {
   # complexIf %>% getName()
 })
 
+test_that("Test the rxode2 error model parser", {
+  lexer  <- rly::lex(Rxode2ErrorModelLexer)
+  parser <- rly::yacc(Rxode2ErrorModelParser)
+  
+  line <- "add(add.sd) + prop(prop.sd)  + combined1()"
+  
+  res <- parser$parse(line, lexer)
+  
+  expected <- Rxode2ErrorModel(add="add.sd", prop="prop.sd", combined1=TRUE)
+  
+  expect_equal(res, expected)
+})
+
 generateModel <- function(rxmod, folder) {
   model <- importRxode2(rxmod())
   

@@ -68,7 +68,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
   
   # Process error model
   model <- model %>%
-    convertRxodeErrorModel()
+    convertRxodeErrorModel(rxmod=rxmod)
   
   # Substitute duplicate equation names
   model <- model %>%
@@ -471,7 +471,8 @@ heuristicMoveToMain <- function(model) {
   return(model)
 }
 
-convertRxodeErrorModel <- function(model) {
+convertRxodeErrorModel <- function(model, rxmod) {
+  browser()
   ode <- model %>%
     find(OdeRecord())
   

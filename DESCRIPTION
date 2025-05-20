@@ -65,6 +65,8 @@ Collate:
     'auto_mapping.R'
     'model_extended_if_statement.R'
     'complex_if_statement.R'
+    'error_model_rxode2.R'
+    'error_model_rxode2_parser.R'
     'rxode2_parser.R'
     'import_from_rxode2.R'
     'import_from_monolix.R'
