@@ -1,0 +1,17 @@
+"name","index","value","fix","comment"
+"Cl",1,-2.01726856624061,FALSE,"Population parameter"
+"Tlag",2,-0.185654384499318,FALSE,"Population parameter"
+"V",3,2.0604014235996,FALSE,"Population parameter"
+"ka",4,0.268805016682092,FALSE,"Population parameter"
+"IC50",5,0.267476657468981,FALSE,"Population parameter"
+"Imax",6,3.15216788901273,FALSE,"Population parameter"
+"R0",7,4.60517018598809,FALSE,"Population parameter"
+"gamma",8,0.331585108467037,FALSE,"Population parameter"
+"kout",9,-2.95691342800097,FALSE,"Population parameter"
+"beta_Cl_logtAGE",10,0.333755,FALSE,NA
+"beta_Cl_logtWT",11,0.6447013,FALSE,NA
+"beta_V_logtWT",12,0.9069627,FALSE,NA
+"a",13,0.300970301743054,FALSE,NA
+"b",14,0.0717306256739449,FALSE,NA
+"a2",15,3.26709463582062,FALSE,NA
+"b2",16,2.22044604925031e-16,FALSE,NA

@@ -1,0 +1,92 @@
+<DATAFILE>
+
+[FILEINFO]
+file='warfarin_data.csv'
+delimiter = comma
+header = {ID, TIME, AMT, DV, DVID, WT, SEX, AGE}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+AMT = {use=amount}
+DV = {use=observation, name={y1, y2}, yname={'1', '2'}, type={continuous, continuous}}
+DVID = {use=observationtype}
+WT = {use=covariate, type=continuous}
+SEX = {use=covariate, type=categorical}
+AGE = {use=covariate, type=continuous}
+
+<MODEL>
+
+[COVARIATE]
+input = {AGE, WT}
+
+EQUATION:
+logtAGE = log(AGE/30.4353)
+logtWT = log(WT/68.1178)
+
+[INDIVIDUAL]
+input = {Cl_pop, omega_Cl, Tlag_pop, omega_Tlag, V_pop, omega_V, ka_pop, omega_ka, logtAGE, beta_Cl_logtAGE, logtWT, beta_V_logtWT, beta_Cl_logtWT, IC50_pop, omega_IC50, Imax_pop, omega_Imax, R0_pop, gamma_pop, omega_gamma, kout_pop, omega_kout}
+
+DEFINITION:
+Cl = {distribution=logNormal, typical=Cl_pop, covariate={logtAGE, logtWT}, coefficient={beta_Cl_logtAGE, beta_Cl_logtWT}, sd=omega_Cl}
+Tlag = {distribution=logNormal, typical=Tlag_pop, sd=omega_Tlag}
+V = {distribution=logNormal, typical=V_pop, covariate=logtWT, coefficient=beta_V_logtWT, sd=omega_V}
+ka = {distribution=logNormal, typical=ka_pop, sd=omega_ka}
+IC50 = {distribution=logNormal, typical=IC50_pop, sd=omega_IC50}
+Imax = {distribution=logitNormal, typical=Imax_pop, sd=omega_Imax}
+R0 = {distribution=logNormal, typical=R0_pop, no-variability}
+gamma = {distribution=logNormal, typical=gamma_pop, sd=omega_gamma}
+kout = {distribution=logNormal, typical=kout_pop, sd=omega_kout}
+
+[LONGITUDINAL]
+input = {a, b, a2, b2}
+
+file = 'PKPD_model.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=Cc, errorModel=combined2(a, b)}
+y2 = {distribution=normal, prediction=R, errorModel=combined1(a2, b2)}
+
+<FIT>
+data = {y1, y2}
+model = {y1, y2}
+
+<PARAMETER>
+Cl_pop = {value=0.1330183, method=FIXED}
+IC50_pop = {value=5, method=MLE}
+Imax_pop = {value=0.9, method=MLE}
+R0_pop = {value=100, method=FIXED}
+Tlag_pop = {value=0.8305606, method=FIXED}
+V_pop = {value=7.84912, method=FIXED}
+a = {value=0.3009703017430544, method=FIXED}
+a2 = {value=1, method=MLE}
+b = {value=0.0717306256739449, method=FIXED}
+b2 = {value=0.3, method=MLE}
+beta_Cl_logtAGE = {value=0.333755, method=FIXED}
+beta_Cl_logtWT = {value=0.6447013, method=FIXED}
+beta_V_logtWT = {value=0.9069627, method=FIXED}
+gamma_pop = {value=3, method=MLE}
+ka_pop = {value=1.3084, method=FIXED}
+kout_pop = {value=0.05, method=MLE}
+omega_Cl = {value=0.2478001511570352, method=FIXED}
+omega_IC50 = {value=1, method=MLE}
+omega_Imax = {value=1, method=MLE}
+omega_Tlag = {value=0.560980855925179, method=FIXED}
+omega_V = {value=0.132711458532394, method=FIXED}
+omega_gamma = {value=1, method=MLE}
+omega_ka = {value=0.7844798063471151, method=FIXED}
+omega_kout = {value=1, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, residualsscatter, residualsdistribution, randomeffects, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'warfarin_PKPD_productionInhibition'
+

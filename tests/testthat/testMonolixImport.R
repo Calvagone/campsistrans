@@ -10,13 +10,15 @@ nonRegressionFolderPath <- function(folder) {
   return(file.path(testFolder, "non_regression", "monolix", folder))
 }
 
-generateModel <- function(folder) {
+generateModel <- function(folder, modelFun=function(x) {x}) {
   # Adding full path
   mlxtranFile <- file.path(testFolder, "monolix_models", folder, "project.mlxtran")
   modelFile <- file.path(testFolder, "monolix_models", folder, "model.txt")
   parametersFile <- file.path(testFolder, "monolix_models", folder, "populationParameters.txt")
   
-  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile)
+  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile) %>%
+    modelFun()
+  
   
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(folder))
@@ -50,13 +52,13 @@ fixRxODEBug <- function(campsis, model, dataset, dest) {
   return(campsis)
 }
 
-validateModelImplementation <- function(folder, model, dataset, output) {
+validateModelImplementation <- function(folder, model, dataset, output, tolerance=1e-4) {
   predictions <- read.csv(file.path(testFolder, "monolix_models", folder, "predictions.txt"))
   dataset <- dataset %>%
     add(Observations(times=predictions$time))
   results <- simulate(model=model %>% disable("IIV"), dataset=dataset, dest="rxode2", outvars=output)
   results <- fixRxODEBug(campsis=results, model=model, dataset=dataset, dest="rxode2")
-  expect_equal(predictions$popPred, results[[output]], tolerance=1e-4)
+  expect_equal(predictions$popPred, results[[output]], tolerance=tolerance)
 }
 
 test_that("PK_01 can be imported successfully", {
@@ -255,10 +257,28 @@ getWarfarinDataset <- function() {
 
 test_that("Warfarin PK can be imported successfully", {
   folder <- "warfarin_PK"
-  
+
   model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+
+  expect_equal(model, nonreg_model)
+  validateModelImplementation(folder=folder, model=model, dataset=getWarfarinDataset(), output="Cc")
+})
+
+test_that("Warfarin PKPD IRM can be imported successfully", {
+  folder <- "warfarin_PKPD_IRM"
+  
+  # Slight issue, k is not in the right place.
+  # It should be before the PK ODEs. Issue in monolix2rx -> won't solve
+  modelFun <- function(model) {
+    model <- model %>%
+      campsismod::move(x=Equation("k"), to=campsismod::Position(OdeRecord(), after=FALSE))
+    return(model)
+  }
+  
+  model <- generateModel(folder=folder, modelFun)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
   
   expect_equal(model, nonreg_model)
-  validateModelImplementation(folder=folder, model=model, dataset=getWarfarinDataset(), output="Cc")
+  validateModelImplementation(folder=folder, model=model, dataset=getWarfarinDataset(), output="A_R", tolerance=0.005)
 })
