@@ -1,0 +1,15 @@
+[MAIN]
+Cl=exp(THETA_Cl + THETA_beta_Cl_logtAGE * log(AGE/30.4353) + THETA_beta_Cl_logtWT * log(WT/68.1178) + ETA_Cl)
+Tlag=exp(THETA_Tlag + ETA_Tlag)
+V=exp(THETA_V + THETA_beta_V_logtWT * log(WT/68.1178) + ETA_V)
+ka=exp(THETA_ka + ETA_ka)
+
+[ODE]
+d/dt(A_depot)=-ka * A_depot
+d/dt(A_central)=+ka * A_depot - Cl/V * A_central
+Cc=A_central/V
+y1=Cc
+
+[LAG]
+A_depot=Tlag
+

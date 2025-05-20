@@ -34,12 +34,29 @@ getRemifentanilDataset <- function() {
   return(dataset)
 }
 
-validateRemifentanilPK <- function(folder, model) {
+fixRxODEBug <- function(campsis, model, dataset, dest) {
+  if (dest %in% c("RxODE", "rxode2")) {
+    if (is(dataset, "dataset")) {
+      times <- dataset %>% getTimes()
+      
+      # If LAG is found in model & time 0 does not exists in observations
+      # We remove time 0 from the output
+      properties <- model@compartments@properties
+      if (!is.null(properties %>% find(LagTime(1))) && !(0 %in% times)) {
+        campsis <- campsis %>% dplyr::filter(TIME!=0)
+      }
+    }
+  }
+  return(campsis)
+}
+
+validateModelImplementation <- function(folder, model, dataset, output) {
   predictions <- read.csv(file.path(testFolder, "monolix_models", folder, "predictions.txt"))
-  dataset <- getRemifentanilDataset() %>%
+  dataset <- dataset %>%
     add(Observations(times=predictions$time))
-  results <- simulate(model=model %>% disable("IIV"), dataset=dataset, dest="rxode2")
-  expect_equal(predictions$popPred, results$DV, tolerance=1e-4)
+  results <- simulate(model=model %>% disable("IIV"), dataset=dataset, dest="rxode2", outvars=output)
+  results <- fixRxODEBug(campsis=results, model=model, dataset=dataset, dest="rxode2")
+  expect_equal(predictions$popPred, results[[output]], tolerance=1e-4)
 }
 
 test_that("PK_01 can be imported successfully", {
@@ -50,7 +67,7 @@ test_that("PK_01 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_02 can be imported successfully", {
@@ -61,7 +78,7 @@ test_that("PK_02 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_03 can be imported successfully", {
@@ -72,7 +89,7 @@ test_that("PK_03 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_04 can be imported successfully", {
@@ -83,7 +100,7 @@ test_that("PK_04 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_05 can be imported successfully", {
@@ -94,7 +111,7 @@ test_that("PK_05 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_06 can be imported successfully", {
@@ -105,7 +122,7 @@ test_that("PK_06 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_07 can be imported successfully", {
@@ -116,7 +133,7 @@ test_that("PK_07 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_08 can be imported successfully", {
@@ -127,7 +144,7 @@ test_that("PK_08 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_09 can be imported successfully", {
@@ -138,7 +155,7 @@ test_that("PK_09 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_10 can be imported successfully", {
@@ -149,7 +166,7 @@ test_that("PK_10 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_11 can be imported successfully", {
@@ -160,7 +177,7 @@ test_that("PK_11 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_12 can be imported successfully", {
@@ -171,7 +188,7 @@ test_that("PK_12 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_13 can be imported successfully", {
@@ -182,7 +199,7 @@ test_that("PK_13 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_14 can be imported successfully", {
@@ -193,7 +210,7 @@ test_that("PK_14 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_15 can be imported successfully", {
@@ -204,7 +221,7 @@ test_that("PK_15 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("PK_16 can be imported successfully", {
@@ -215,7 +232,7 @@ test_that("PK_16 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
-  validateRemifentanilPK(folder=folder, model=model)
+  validateModelImplementation(folder=folder, model=model, dataset=getRemifentanilDataset(), output="DV")
 })
 
 test_that("Test model 1 can be imported successfully", {
@@ -225,4 +242,23 @@ test_that("Test model 1 can be imported successfully", {
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
+})
+
+getWarfarinDataset <- function() {
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=100)) %>%
+    add(Covariate("WT", 66.7)) %>%
+    add(Covariate("SEX", 1)) %>%
+    add(Covariate("AGE", 50))
+  return(dataset)
+}
+
+test_that("Warfarin PK can be imported successfully", {
+  folder <- "warfarin_PK"
+  
+  model <- generateModel(folder=folder)
+  nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
+  
+  expect_equal(model, nonreg_model)
+  validateModelImplementation(folder=folder, model=model, dataset=getWarfarinDataset(), output="Cc")
 })
