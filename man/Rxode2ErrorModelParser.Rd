@@ -21,6 +21,7 @@ Rxode2ErrorModelParser class to handle the parser for Rxode2 error model
 \itemize{
 \item \href{#method-Parser-p_merged_error_model}{\code{Rxode2ErrorModelParser$p_merged_error_model()}}
 \item \href{#method-Parser-p_error_model}{\code{Rxode2ErrorModelParser$p_error_model()}}
+\item \href{#method-Parser-p_endpoint}{\code{Rxode2ErrorModelParser$p_endpoint()}}
 \item \href{#method-Parser-p_add}{\code{Rxode2ErrorModelParser$p_add()}}
 \item \href{#method-Parser-p_prop}{\code{Rxode2ErrorModelParser$p_prop()}}
 \item \href{#method-Parser-p_combined1}{\code{Rxode2ErrorModelParser$p_combined1()}}
@@ -63,9 +64,28 @@ function to handle error model
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2ErrorModelParser$p_error_model(
   doc =
-    "error_model : add\\n                         | prop\\n                         | combined1\\n                         | combined2",
+    "error_model : endpoint\\n                         | add\\n                         | prop\\n                         | combined1\\n                         | combined2",
   p
 )}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{doc}}{doc argument}
+
+\item{\code{p}}{parser object}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Parser-p_endpoint"></a>}}
+\if{latex}{\out{\hypertarget{method-Parser-p_endpoint}{}}}
+\subsection{Method \code{p_endpoint()}}{
+function to handle endpoint
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Rxode2ErrorModelParser$p_endpoint(doc = "endpoint : ENDPOINT", p)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{

@@ -11,7 +11,6 @@ nonRegressionRxode2Path <- function(folder) {
   return(file.path(testFolder, "non_regression", "rxode2", folder))
 }
 
-
 toModelStatements <- function(x) {
   retValue <- ModelStatements()
   retValue@list <- list() %>%
@@ -91,11 +90,11 @@ test_that("Test the rxode2 error model parser", {
   lexer  <- rly::lex(Rxode2ErrorModelLexer)
   parser <- rly::yacc(Rxode2ErrorModelParser)
   
-  line <- "add(add.sd) + prop(prop.sd)  + combined1()"
+  line <- "y1 ~ add(add.sd) + prop(prop.sd)  + combined1()"
   
   res <- parser$parse(line, lexer)
   
-  expected <- Rxode2ErrorModel(add="add.sd", prop="prop.sd", combined1=TRUE)
+  expected <- Rxode2ErrorModel(add="add.sd", prop="prop.sd", combined1=TRUE, endpoint="y1")
   
   expect_equal(res, expected)
 })

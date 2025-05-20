@@ -23,6 +23,7 @@ Rxode2ErrorModelLexer class to handle the lexer for Rxode2 error model
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-Lexer-t_ENDPOINT}{\code{Rxode2ErrorModelLexer$t_ENDPOINT()}}
 \item \href{#method-Lexer-t_ADD}{\code{Rxode2ErrorModelLexer$t_ADD()}}
 \item \href{#method-Lexer-t_PROP}{\code{Rxode2ErrorModelLexer$t_PROP()}}
 \item \href{#method-Lexer-t_COMBINED1}{\code{Rxode2ErrorModelLexer$t_COMBINED1()}}
@@ -33,15 +34,37 @@ Rxode2ErrorModelLexer class to handle the lexer for Rxode2 error model
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Lexer-t_ADD"></a>}}
-\if{latex}{\out{\hypertarget{method-Lexer-t_ADD}{}}}
-\subsection{Method \code{t_ADD()}}{
+\if{html}{\out{<a id="method-Lexer-t_ENDPOINT"></a>}}
+\if{latex}{\out{\hypertarget{method-Lexer-t_ENDPOINT}{}}}
+\subsection{Method \code{t_ENDPOINT()}}{
 tokens list of tokens
 
 
 debug logical value to enable/disable debug messages
 
 
+t_ENDPOINT function to handle ENDPOINT token
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Rxode2ErrorModelLexer$t_ENDPOINT(
+  re = "[a-zA-Z_][a-zA-Z0-9_\\\\.]*\\\\s*~\\\\s*",
+  t
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{re}}{regular expression to match ENDPOINT token}
+
+\item{\code{t}}{token object}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Lexer-t_ADD"></a>}}
+\if{latex}{\out{\hypertarget{method-Lexer-t_ADD}{}}}
+\subsection{Method \code{t_ADD()}}{
 t_ADD function to handle ADD token
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Rxode2ErrorModelLexer$t_ADD(re = "add\\\\s*\\\\([^\\\\)]*\\\\)", t)}\if{html}{\out{</div>}}

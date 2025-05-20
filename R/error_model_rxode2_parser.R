@@ -6,7 +6,8 @@ getErrorModelTokens <- function() {
     'ADD',
     'PROP',
     'COMBINED1',
-    'COMBINED2'
+    'COMBINED2',
+    'ENDPOINT'
   )
   return(retValue)
 }
@@ -27,6 +28,14 @@ Rxode2ErrorModelLexer <- R6::R6Class(
     
     #' @description debug logical value to enable/disable debug messages
     debug = TRUE,
+    
+    #' @description t_ENDPOINT function to handle ENDPOINT token
+    #' @param re regular expression to match ENDPOINT token
+    #' @param t token object
+    t_ENDPOINT = function(re='[a-zA-Z_][a-zA-Z0-9_\\.]*\\s*~\\s*', t) {
+      if (self$debug) message("Found endpoint: ", t$value)
+      return(t)
+    },
     
     #' @description t_ADD function to handle ADD token
     #' @param re regular expression to match ADD token
@@ -98,16 +107,19 @@ Rxode2ErrorModelParser <- R6::R6Class(
     p_merged_error_model = function(doc='merged_error_model : error_model
                          | merged_error_model error_model', p) {
       if (p$length() == 2) {
-        p$set(1, p$get(2))
+        errorModel <- p$get(2)
+        if (length(errorModel@endpoint) != 1) {
+          stop("Error model should always start with the endpoint")
+        }
+        p$set(1, errorModel)
       } else {
         errorModel1 <- p$get(2)
         errorModel2 <- p$get(3)
-        retValue <- Rxode2ErrorModel()
+        retValue <- Rxode2ErrorModel(endpoint=errorModel1@endpoint)
         retValue@add <- c(errorModel1@add, errorModel2@add)
         retValue@prop <- c(errorModel1@prop, errorModel2@prop)
         retValue@combined1 <- any(c(errorModel1@combined1, errorModel2@combined1))
         retValue@combined2 <- any(c(errorModel1@combined2, errorModel2@combined2))
-        retValue@endpoint <- c(errorModel1@endpoint, errorModel2@endpoint)
         p$set(1, retValue)
       }
     },
@@ -115,11 +127,21 @@ Rxode2ErrorModelParser <- R6::R6Class(
     #' @description function to handle error model
     #' @param doc doc argument
     #' @param p parser object
-    p_error_model = function(doc='error_model : add
+    p_error_model = function(doc='error_model : endpoint
+                         | add
                          | prop
                          | combined1
                          | combined2', p) {
       p$set(1, p$get(2))
+    },
+    
+    #' @description function to handle endpoint
+    #' @param doc doc argument
+    #' @param p parser object
+    p_endpoint = function(doc='endpoint : ENDPOINT', p) {
+      endpoint <- strsplit(x=p$get(2), split='~')[[1]][1]
+      errorModel <- Rxode2ErrorModel(endpoint=trimws(endpoint))
+      p$set(1, errorModel)
     },
     
     #' @description function to handle add
