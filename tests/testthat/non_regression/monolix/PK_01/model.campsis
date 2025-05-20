@@ -13,3 +13,6 @@ Cc=A_central/V
 d/dt(A_cmt2)=+k12 * A_central - k21 * A_cmt2
 DV=Cc
 
+[ERROR]
+DV_err=DV + (THETA_a + THETA_b*DV)*EPS_FIX1
+

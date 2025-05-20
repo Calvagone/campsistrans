@@ -26,3 +26,7 @@ A_depot=Tlag
 [INIT]
 A_R=R_0
 
+[ERROR]
+y1_err=y1 + sqrt(THETA_a^2 + (THETA_b^2)*(y1^2))*EPS_FIX1
+y2_err=y2 + (THETA_a2 + THETA_b2*y2)*EPS_FIX2
+

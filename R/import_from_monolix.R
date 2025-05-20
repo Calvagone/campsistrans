@@ -112,7 +112,6 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
       }
     }
   }
-  
-  
+
   return(model)
 }

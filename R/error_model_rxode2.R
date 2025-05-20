@@ -44,3 +44,41 @@ Rxode2ErrorModel <- function(add=NULL, prop=NULL, combined1=FALSE, combined2=FAL
   }
   return(new("rxode2_error_model", add=add, prop=prop, combined1=combined1, combined2=combined2, endpoint=endpoint))
 }
+
+errorModelToCampsis <- function(x, shift) {
+  assertthat::assert_that(length(x@add) <= 1, msg="Slot 'add' should be length <= 1")
+  assertthat::assert_that(length(x@prop)<= 1, msg="Slot 'prop' should be length <= 1")
+  
+  endpoint<- x@endpoint
+  endpointErr <- sprintf("%s_err", endpoint)
+  
+  if (x@combined1 || x@combined2) {
+    assertthat::assert_that(length(x@add)==1, msg="Slot 'add' should be length 1")
+    assertthat::assert_that(length(x@prop)==1, msg="Slot 'prop' should be length 1")
+
+    if (x@combined1) {
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + (%s + %s*%s)*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift))
+      return(list(equation=eq, eps=c(1)+shift))
+    } else {
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + sqrt(%s^2 + (%s^2)*(%s^2))*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift))
+      return(list(equation=eq, eps=c(1)+shift))
+    }
+  } else {
+    if (length(x@add)==1 && length(x@prop)==0) {
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + %s*EPS_FIX%i", endpoint, x@add, 1L+shift))
+      return(list(equation=eq, eps=c(1)+shift))
+      
+    } else if(length(x@add)==0 && length(x@prop)==1) {
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + %s*%s*EPS_FIX%i", endpoint, x@prop, endpoint, 1L+shift))
+      return(list(equation=eq, eps=c(1)+shift))
+      
+    } else if(length(x@add)==1 && length(x@prop)==1) {
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + %s*EPS_FIX%i + %s*%s*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift, 2L+shift))
+      return(list(equation=eq, eps=c(1, 2)+shift))
+    }
+  }
+  
+  # If no error model is defined, return the endpoint
+  eq <- Equation(lhs=endpointErr, rhs=sprintf("%s"))
+  return(list(equation=eq, eps=NULL))
+}

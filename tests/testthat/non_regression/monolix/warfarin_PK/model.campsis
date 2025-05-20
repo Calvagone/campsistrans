@@ -13,3 +13,6 @@ y1=Cc
 [LAG]
 A_depot=Tlag
 
+[ERROR]
+y1_err=y1 + sqrt(THETA_a^2 + (THETA_b^2)*(y1^2))*EPS_FIX1
+

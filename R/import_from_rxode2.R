@@ -472,12 +472,11 @@ heuristicMoveToMain <- function(model) {
 }
 
 convertRxodeErrorModel <- function(model, rxmod) {
-  browser()
   ode <- model %>%
     find(OdeRecord())
   
-  ode@statements@list <- ode@statements@list %>%
-    purrr::discard(.p=function(statement) {
+  errorEquationLgl <- ode@statements@list %>%
+    purrr::map_lgl(.f=function(statement) {
       if (is(statement, "unknown_statement") && isRxodeErrorEquation(statement@line)) {
         return(TRUE)
       } else {
@@ -485,9 +484,40 @@ convertRxodeErrorModel <- function(model, rxmod) {
       }
     })
   
+  # Collect error equations
+  errorEquations <- ode@statements@list[errorEquationLgl]
+  
+  # Remove them from the ODE record
+  ode@statements@list <- ode@statements@list[!errorEquationLgl]
+  
   # Update ODE record in model
   model <- model %>%
     replace(ode)
+  
+  # Prepare error record
+  errorRecord <- ErrorRecord()
+  lexer  <- rly::lex(Rxode2ErrorModelLexer)
+  parser <- rly::yacc(Rxode2ErrorModelParser)
+
+  shift <- 0L
+  for (errorEquation in errorEquations) {
+    errorModel <- parser$parse(errorEquation@line, lexer)
+    tmp <- errorModelToCampsis(errorModel, shift=shift)
+    equation <- tmp$equation
+    epsilons <- tmp$eps
+    errorRecord <- errorRecord %>%
+      add(equation)
+    shift <- shift + length(epsilons)
+    for (epsilon in epsilons) {
+      model <- model %>%
+        add(Sigma(name=sprintf("FIX%i", epsilon), value=1, type="var", fix=TRUE))
+    }
+  }
+  
+  # Add error record to model
+  model <- model %>%
+    add(errorRecord)
+  
   return(model)
 }
 
