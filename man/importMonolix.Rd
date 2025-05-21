@@ -4,7 +4,12 @@
 \alias{importMonolix}
 \title{Extract the model from Monolix.}
 \usage{
-importMonolix(mlxtranFile, modelFile = NULL, parametersFile = NULL)
+importMonolix(
+  mlxtranFile,
+  modelFile = NULL,
+  parametersFile = NULL,
+  digits = NULL
+)
 }
 \arguments{
 \item{mlxtranFile}{to mlxtran file}
@@ -12,6 +17,8 @@ importMonolix(mlxtranFile, modelFile = NULL, parametersFile = NULL)
 \item{modelFile}{path to model file, optional}
 
 \item{parametersFile}{path to estimated parameters file, optional}
+
+\item{digits}{number of significant digits, integer or NULL to disable rounding}
 }
 \value{
 a functional Campsis model

@@ -17,12 +17,13 @@ copyAndRename <- function(file, tempDir, newName) {
 #' @param mlxtranFile to mlxtran file
 #' @param modelFile path to model file, optional
 #' @param parametersFile path to estimated parameters file, optional
+#' @param digits number of significant digits, integer or NULL to disable rounding
 #' @return a functional Campsis model
 #' @export
 #' @importFrom digest sha1
 #' @importFrom monolix2rx mlxtran monolix2rx
 #' 
-importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
+importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, digits=NULL) {
   # browser()
   
   # Create temporary directory
@@ -111,6 +112,15 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL) {
         }
       }
     }
+  }
+  
+  # Round digits
+  if (!is.null(digits)) {
+    model@parameters@list <- model@parameters@list %>%
+      purrr::map(.f=function(x) {
+        x@value <- signif(x@value, digits=digits)
+        return(x)
+      })
   }
 
   return(model)

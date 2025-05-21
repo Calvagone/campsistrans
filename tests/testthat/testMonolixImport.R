@@ -10,13 +10,13 @@ nonRegressionFolderPath <- function(folder) {
   return(file.path(testFolder, "non_regression", "monolix", folder))
 }
 
-generateModel <- function(folder, modelFun=function(x) {x}) {
+generateModel <- function(folder, modelFun=function(x) {x}, digits=NULL) {
   # Adding full path
   mlxtranFile <- file.path(testFolder, "monolix_models", folder, "project.mlxtran")
   modelFile <- file.path(testFolder, "monolix_models", folder, "model.txt")
   parametersFile <- file.path(testFolder, "monolix_models", folder, "populationParameters.txt")
   
-  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile) %>%
+  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile, digits=digits) %>%
     modelFun()
   
   
@@ -258,7 +258,7 @@ getWarfarinDataset <- function() {
 test_that("Warfarin PK can be imported successfully", {
   folder <- "warfarin_PK"
 
-  model <- generateModel(folder=folder)
+  model <- generateModel(folder=folder, digits=6)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
 
   expect_equal(model, nonreg_model)
@@ -276,7 +276,7 @@ test_that("Warfarin PKPD IRM can be imported successfully", {
     return(model)
   }
   
-  model <- generateModel(folder=folder, modelFun)
+  model <- generateModel(folder=folder, modelFun, digits=6)
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
   
   expect_equal(model, nonreg_model)

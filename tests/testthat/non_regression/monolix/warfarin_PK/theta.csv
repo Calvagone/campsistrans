@@ -1,10 +1,10 @@
 "name","index","value","fix","comment"
-"Cl",1,-2.01829170163338,FALSE,"Population parameter"
-"Tlag",2,-0.171888019201211,FALSE,"Population parameter"
-"V",3,2.06026390639737,FALSE,"Population parameter"
-"ka",4,0.321812129091816,FALSE,"Population parameter"
-"beta_Cl_logtAGE",5,0.338204486151462,FALSE,NA
-"beta_Cl_logtWT",6,0.645718603330012,FALSE,NA
-"beta_V_logtWT",7,0.917505734062465,FALSE,NA
-"a",8,0.291776854477768,FALSE,NA
-"b",9,0.0719446080618757,FALSE,NA
+"Cl",1,-2.01829,FALSE,"Population parameter"
+"Tlag",2,-0.171888,FALSE,"Population parameter"
+"V",3,2.06026,FALSE,"Population parameter"
+"ka",4,0.321812,FALSE,"Population parameter"
+"beta_Cl_logtAGE",5,0.338204,FALSE,NA
+"beta_Cl_logtWT",6,0.645719,FALSE,NA
+"beta_V_logtWT",7,0.917506,FALSE,NA
+"a",8,0.291777,FALSE,NA
+"b",9,0.0719446,FALSE,NA
