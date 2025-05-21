@@ -26,11 +26,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   if (!is.null(extFile) && file.exists(extFile)) {
     copyAndRename(file=extFile, tempDir=tempDir, newName="model.ext") # ext default in nonmem2rx
   }
-  # Copy parameters file to export directory if provided
-  if (!is.null(covFile) && file.exists(covFile)) {
-    copyAndRename(file=covFile, tempDir=tempDir, newName="model.cov") # cov default in nonmem2rx
-  }
-  
+
   rxmod <- nonmem2rx::nonmem2rx(file=ctl, tolowerLhs=FALSE, thetaNames=FALSE, etaNames=FALSE,
                                 cmtNames=TRUE, validate=FALSE)
   
@@ -68,7 +64,13 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   
   # Heuristic move to error
   model <- heuristicMoveToError(model)
-
+  
+  # Import variance-covariance matrix
+  if (!is.null(covFile) && file.exists(covFile)) {
+    varcov <- read.nonmemcov(file=covFile)
+    model@parameters@varcov <- varcov %>% convertVarcov(model@parameters)
+  }
+  
   return(model)
 }
 
