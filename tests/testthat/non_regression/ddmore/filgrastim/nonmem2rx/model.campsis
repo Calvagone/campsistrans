@@ -74,7 +74,7 @@ NB=A_c_NB
 NT=BM1 + BM2 + BM3 + BM4 + BM5 + BM6 + BM7 + BM8 + BM9 + NB
 RTOT=KSI * NT
 BB=RTOT - A_CENT/VD + KD
-CP=0.5 * (-BB + sqrt(BB^2 + 4 * KD * A_CENT/VD))
+CP=0.5 * (-BB + sqrt(pow(BB, 2) + 4 * KD * A_CENT/VD))
 AC=CP * VD
 ADR=RTOT * AC/(KD + CP)
 H1=1 + SM1 * CP/(SC1 + CP)
@@ -124,7 +124,7 @@ ZNB=A_c_NB
 ZNT=A_B1 + A_B2 + A_B3 + A_B4 + A_B5 + A_B6 + A_B7 + A_B8 + A_B9 + A_c_NB
 RRTOT=KSI * ZNT
 BBB=RRTOT - A_CENT/VD + KD
-ZCP=0.5 * (-BBB + sqrt(BBB^2 + 4 * KD * A_CENT/VD))
+ZCP=0.5 * (-BBB + sqrt(pow(BBB, 2) + 4 * KD * A_CENT/VD))
 if (CMT == 2) IPRED=ZCP
 if (CMT == 2) IRES=DV - IPRED
 if (CMT == 2) Y=IPRED * (1 + EPS_RUV2) + EPS_RUV1

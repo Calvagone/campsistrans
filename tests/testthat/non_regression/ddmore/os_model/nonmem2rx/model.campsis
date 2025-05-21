@@ -27,7 +27,7 @@ TSR=(TUM - MMBAS)/MMBAS
 if (t == 0) WTS=0
 if (t == 0) TM12=0
 DEL=1e-06
-d/dt(A_HDEATH)=LAM * SHP * (LAM * (t + DEL))^(SHP - 1) * exp(BSLD0 * NSLD0 + BTSR * WTS + BNWLS * INWLS + BECOG * IECOG)
+d/dt(A_HDEATH)=LAM * SHP * pow((LAM * (t + DEL)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * WTS + BNWLS * INWLS + BECOG * IECOG)
 F=A_TUMOUR
 
 [INIT]
@@ -41,7 +41,7 @@ if (t == 0) XWTS=0
 if (t == 0) XTM12=0
 CHZ=A_HDEATH
 SUR=exp(-CHZ)
-HAZN=LAM * SHP * (LAM * (t + DELX))^(SHP - 1) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
+HAZN=LAM * SHP * pow((LAM * (t + DELX)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) IPRED=SUR
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) Y=IPRED
 

@@ -45,5 +45,5 @@ AA1=A_DEPOT
 AA2=A_CENTRAL
 CP=A_CENTRAL/V2
 IPRED=F
-F_err=F + sqrt(THETA_F_err_1^2 + (THETA_F_err_2^2)*(F^2))*EPS_FIX1
+F_err=F + sqrt(pow(THETA_F_err_1, 2) + pow(THETA_F_err_2, 2) * pow(F, 2)) * EPS_FIX1
 
