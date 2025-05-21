@@ -63,16 +63,17 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
     purrr::map(.f=~replaceDotsInParameterName(.x))
   
   # Heuristic move to MAIN block
-  model <- model %>%
-    heuristicMoveToMain()
-  
+  model <- heuristicMoveToMain(model)
+
   # Process error model
   model <- model %>%
     convertRxodeErrorModel(rxmod=rxmod)
   
   # Substitute duplicate equation names
-  model <- model %>%
-    substituteDuplicateEquationNames()
+  model <- substituteDuplicateEquationNames(model)
+
+  # Replace the caret operator by pow
+  model <- caretToPow(model)
   
   # Sort everything in the model for consistency (especially in non-regression tests)
   model <- model %>%

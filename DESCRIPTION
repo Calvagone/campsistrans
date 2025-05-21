@@ -23,6 +23,7 @@ Imports:
     purrr,
     reticulate,
     rly,
+    symengine,
     tibble,
     tidyr
 Suggests: 
@@ -51,6 +52,7 @@ Collate:
     'data.R'
     'model_library.R'
     'utilities.R'
+    'caret_to_pow.R'
     'auto_extract_parameters.R'
     'nonmem_table_parser.R'
     'nonmem_dataset_parser.R'
