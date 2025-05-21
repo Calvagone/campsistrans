@@ -37,6 +37,8 @@ d/dt(A_COMP4)=K24 * A_COMP2
 d/dt(A_COMP5)=K15 * A_COMP1
 d/dt(A_COMP6)=K36 * A_COMP3
 F=A_COMP1/scale1
+
+[ERROR]
 COM1=0
 if (CMT == 1) COM1=1
 COM4=0

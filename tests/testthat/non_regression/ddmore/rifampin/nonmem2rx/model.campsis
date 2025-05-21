@@ -36,14 +36,14 @@ d/dt(A_DEPOT)=exp(log(PD + X) + log(KTR + X) + NN * log(KTR * t + X) - KTR * t -
 if (t >= TDOS) d/dt(A_DEPOT)=exp(log(PD + X) + log(KTR + X) + NN * log(KTR * (t - TDOS) + X) - KTR * (t - TDOS) - L) - KA * A_DEPOT
 d/dt(A_CENTRAL)=KA * A_DEPOT - K * A_CENTRAL
 F=A_CENTRAL/scale2
-AA1=A_DEPOT
-AA2=A_CENTRAL
-CP=A_CENTRAL/V2
-IPRED=F
 
 [F]
 A_DEPOT=F_A1
 
 [ERROR]
+AA1=A_DEPOT
+AA2=A_CENTRAL
+CP=A_CENTRAL/V2
+IPRED=F
 F_err=F + sqrt(THETA_F_err_1^2 + (THETA_F_err_2^2)*(F^2))*EPS_FIX1
 

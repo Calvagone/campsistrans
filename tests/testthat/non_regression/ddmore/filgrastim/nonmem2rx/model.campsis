@@ -95,14 +95,6 @@ d/dt(A_B8)=KTT * H2 * BM7 - KBB1 * H3 * BM8 - KTT * H2 * BM8
 d/dt(A_B9)=KTT * H2 * BM8 - KBB1 * H3 * BM9 - KTT * H2 * BM9
 d/dt(A_c_NB)=KTT * H2 * BM9 + KBB1 * H3 * (BM1 + BM2 + BM3 + BM4 + BM5 + BM6 + BM7 + BM8 + BM9) - KMT * NB
 F=A_c_ABS
-ZNB=A_c_NB
-ZNT=A_B1 + A_B2 + A_B3 + A_B4 + A_B5 + A_B6 + A_B7 + A_B8 + A_B9 + A_c_NB
-RRTOT=KSI * ZNT
-BBB=RRTOT - A_CENT/VD + KD
-ZCP=0.5 * (-BBB + sqrt(BBB^2 + 4 * KD * A_CENT/VD))
-if (CMT == 2) IPRED=ZCP
-if (CMT == 2) IRES=DV - IPRED
-if (CMT == 2) Y=IPRED * (1 + EPS_RUV2) + EPS_RUV1
 
 [F]
 A_c_ABS=F_A1
@@ -126,4 +118,14 @@ A_B7=INIT_A11
 A_B8=INIT_A12
 A_B9=INIT_A13
 A_c_NB=INIT_A14
+
+[ERROR]
+ZNB=A_c_NB
+ZNT=A_B1 + A_B2 + A_B3 + A_B4 + A_B5 + A_B6 + A_B7 + A_B8 + A_B9 + A_c_NB
+RRTOT=KSI * ZNT
+BBB=RRTOT - A_CENT/VD + KD
+ZCP=0.5 * (-BBB + sqrt(BBB^2 + 4 * KD * A_CENT/VD))
+if (CMT == 2) IPRED=ZCP
+if (CMT == 2) IRES=DV - IPRED
+if (CMT == 2) Y=IPRED * (1 + EPS_RUV2) + EPS_RUV1
 

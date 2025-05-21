@@ -29,6 +29,11 @@ if (t == 0) TM12=0
 DEL=1e-06
 d/dt(A_HDEATH)=LAM * SHP * (LAM * (t + DEL))^(SHP - 1) * exp(BSLD0 * NSLD0 + BTSR * WTS + BNWLS * INWLS + BECOG * IECOG)
 F=A_TUMOUR
+
+[INIT]
+A_TUMOUR=INIT_A1
+
+[ERROR]
 DELX=1e-06
 XTUM=A_TUMOUR
 XTSR=(XTUM - MMBAS)/MMBAS
@@ -39,7 +44,4 @@ SUR=exp(-CHZ)
 HAZN=LAM * SHP * (LAM * (t + DELX))^(SHP - 1) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) IPRED=SUR
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) Y=IPRED
-
-[INIT]
-A_TUMOUR=INIT_A1
 

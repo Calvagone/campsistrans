@@ -66,6 +66,53 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Include SIGMAs (only diagonal is supported)
   model <- includeSigmas(rxmod=rxmod, model=model)
   
+  # Heuristic move to error
+  model <- heuristicMoveToError(model)
+
+  return(model)
+}
+
+#' Heuristic move from the ODE record to the Error record.
+#' 
+#' @param model model with all statements in the ODE block
+#' @return updated model with an error block similar to NONMEM
+#' 
+heuristicMoveToError <- function(model) {
+  ode <- model %>%
+    find(OdeRecord())
+
+  dvIndex <- ode@statements@list %>%
+    purrr::detect_index(.f=function(x) {
+        if (is(x, "equation")) {
+          return(x@lhs=="F")
+        }
+        return(FALSE)
+      })
+  
+  odeLength <- length(ode@statements@list)
+  if (dvIndex==0 || dvIndex==odeLength) {
+    return(model)
+  }
+  
+  error <- model %>% 
+    find(ErrorRecord())
+  
+  if (is.null(error)) {
+    error <- ErrorRecord()
+    model <- model %>%
+      add(error)
+  }
+  
+  # Move statements to the error record
+  statementsToMove <- ode@statements@list[seq(dvIndex + 1, odeLength)]
+  ode@statements@list <- ode@statements@list[seq_len(dvIndex)]
+  error@statements@list <- c(statementsToMove, error@statements@list)
+  
+  # Update the model
+  model <- model %>%
+    replace(ode) %>%
+    replace(error)
+  
   return(model)
 }
 

@@ -41,6 +41,14 @@ VEG3=((A_rxddta3 - BM03)/BM03) * KVEG3
 AUC1=AUC * KDRUG
 d/dt(A_rxddta4)=KG * A_rxddta4 - (AUC1 + (-SKIT) + (-VEG3)) * exp(-(LAMBDA * t)) * A_rxddta4
 F=A_rxddta1
+
+[INIT]
+A_rxddta1=INIT_A1
+A_rxddta2=INIT_A2
+A_rxddta3=INIT_A3
+A_rxddta4=INIT_A4
+
+[ERROR]
 AA1=A_rxddta1
 AA2=A_rxddta2
 AA3=A_rxddta3
@@ -52,10 +60,4 @@ if (FLAG == 4) W=IPRED * THETA_W1
 if (FLAG == 4) Y=IPRED + W * EPS_RUV1
 if (FLAG == 4) IRES=DV - IPRED
 if (FLAG == 4) IWRES=IRES/W
-
-[INIT]
-A_rxddta1=INIT_A1
-A_rxddta2=INIT_A2
-A_rxddta3=INIT_A3
-A_rxddta4=INIT_A4
 
