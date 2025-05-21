@@ -14,6 +14,6 @@ centralLin=rxLinCmt1 * V2
 scale2_=scale2/V2
 F=rxLinCmt1/scale2_
 CONC=F
-CONC_ERR=CONC * (1 + eps1)
+CONC_ERR=CONC * (1 + EPS_RUV1)
 Y=CONC_ERR
 
