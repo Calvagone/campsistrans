@@ -23,7 +23,6 @@ Imports:
     purrr,
     reticulate,
     rly,
-    symengine,
     tibble,
     tidyr
 Suggests: 
