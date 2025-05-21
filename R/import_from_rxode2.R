@@ -501,7 +501,15 @@ convertRxodeErrorModel <- function(model, rxmod) {
 
   shift <- 0L
   for (errorEquation in errorEquations) {
-    errorModel <- parser$parse(errorEquation@line, lexer)
+    errorModel <- tryCatch({
+      parser$parse(errorEquation@line, lexer)
+    }, error = function(e) {
+      warning(e$message)
+      return(NULL)
+    })
+    if (is.null(errorModel)) {
+      next
+    }
     tmp <- errorModelToCampsis(errorModel, shift=shift)
     equation <- tmp$equation
     epsilons <- tmp$eps

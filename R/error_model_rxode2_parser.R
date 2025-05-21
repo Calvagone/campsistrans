@@ -84,7 +84,7 @@ Rxode2ErrorModelLexer <- R6::R6Class(
     #' @param t token object
     t_error = function(t) {
       t$lexer$skip(1)
-      return(t)
+      stop("Syntax error in error model code. Error model ignored.")
     }
   )
 )

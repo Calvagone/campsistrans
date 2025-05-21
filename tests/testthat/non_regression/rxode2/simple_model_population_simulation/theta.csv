@@ -7,3 +7,4 @@
 "Kin",6,1,FALSE
 "Kout",7,1,FALSE
 "EC50",8,200,FALSE
+"add_sd",9,10,FALSE

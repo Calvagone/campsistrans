@@ -10,3 +10,6 @@ d/dt(A_eff)=THETA_Kin - THETA_Kout * (1 - C2/(THETA_EC50 + C2)) * A_eff
 [INIT]
 A_eff=1
 
+[ERROR]
+C2_err=C2 + THETA_add_sd*EPS_FIX1
+

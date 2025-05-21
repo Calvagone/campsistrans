@@ -153,6 +153,8 @@ test_that("Import a simple model from rxode2 (population simulation)", {
       Kin <- 1
       Kout <- 1
       EC50 <- 200
+      # RUV
+      add.sd <- 10
     })
     model({
       C2 <- centr/V2
@@ -163,8 +165,43 @@ test_that("Import a simple model from rxode2 (population simulation)", {
       d/dt(peri)  <-                    Q*C2 - Q*C3
       d/dt(eff)   <- Kin - Kout*(1-C2/(EC50+C2))*eff
       eff(0) <- 1
+      C2 ~ add(add.sd)
     })
   }
   model <- generateModel(rxmod, folder)
   expect_equal(model, read.campsis(nonRegressionRxode2Path(folder)))
+})
+
+test_that("Unsupported error models are ignored (warning raised)", {
+  rxmod <- function() {
+    ini({
+      KA <- 2.94E-01
+      TCl <- 1.86E+01
+      # between subject variability
+      eta.Cl ~ 0.4^2
+      V2 <- 4.02E+01
+      Q <- 1.05E+01
+      V3 <- 2.97E+02
+      Kin <- 1
+      Kout <- 1
+      EC50 <- 200
+      # RUV
+      add.sd <- 10
+    })
+    model({
+      C2 <- centr/V2
+      C3 <- peri/V3
+      CL <-  TCl*exp(eta.Cl) ## This is coded as a variable in the model
+      d/dt(depot) <- -KA*depot
+      d/dt(centr) <- KA*depot - CL*C2 - Q*C2 + Q*C3
+      d/dt(peri)  <-                    Q*C2 - Q*C3
+      d/dt(eff)   <- Kin - Kout*(1-C2/(EC50+C2))*eff
+      eff(0) <- 1
+      C2 ~ add(add.sd) + dcauchy()
+    })
+  }
+  
+  model <- expect_warning(importRxode2(rxmod()), regexp="Syntax error in error model code. Error model ignored.")
+  error <- model %>% find(ErrorRecord())
+  expect_true(is.null(error)) # No error model
 })
