@@ -16,7 +16,7 @@ d/dt(A_central)=+ka * A_depot - k * A_central
 Cc=A_central/V
 R_0=R0
 kin=R0 * kout
-d/dt(A_R)=kin * (1 - Imax * max(Cc, 0)^gamma/(max(Cc, 0)^gamma + IC50^gamma)) - kout * A_R
+d/dt(A_R)=kin * (1 - Imax * pow(max(Cc, 0), gamma)/(pow(max(Cc, 0), gamma) + pow(IC50, gamma))) - kout * A_R
 y1=Cc
 y2=A_R
 
@@ -27,6 +27,6 @@ A_depot=Tlag
 A_R=R_0
 
 [ERROR]
-y1_err=y1 + sqrt(THETA_a^2 + (THETA_b^2)*(y1^2))*EPS_FIX1
+y1_err=y1 + sqrt(pow(THETA_a, 2) + pow(THETA_b, 2) * pow(y1, 2)) * EPS_FIX1
 y2_err=y2 + (THETA_a2 + THETA_b2*y2)*EPS_FIX2
 

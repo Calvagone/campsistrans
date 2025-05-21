@@ -1,32 +1,28 @@
 #' 
 #' Convert the caret operator into the pow function.
 #'
-#'@param expr expression to transform
+#'@param x string to transform
 #'@return transformed expression 
-#'@importFrom symengine get_args get_type 
 #'
-caretToPowCore <- function(expr) {
-  # Power detected
-  if (class(expr) == "Basic" && symengine::get_type(expr) == "Pow") {
-    base <- caretToPowCore(symengine::get_args(expr)[[1]])
-    exponent <- caretToPowCore(symengine::get_args(expr)[[2]])
-    return(sprintf("pow(%s, %s)", base, exponent))
+caretToPowCore <- function(x) {
+  # See https://stackoverflow.com/questions/40606723/substitute-the-power-symbol-with-cs-pow-syntax-in-mathematical-expression
+  e <- parse(text=x)
+  
+  # a recursive function
+  fun <- function(e) {    
+    # check if you are at the end of the tree's branch
+    if (is.name(e) || is.atomic(e)) { 
+      # replace ^
+      if (e == quote(`^`)) return(quote(pow))
+      return(e)
+    }
+    # follow the tree with recursion
+    for (i in seq_along(e)) e[[i]] <- fun(e[[i]])
+    return(e)    
   }
-  # Addition, multiplication, subtraction, division, detected, etc
-  if (class(expr) == "Basic" && length(symengine::get_args(expr)) > 0) {
-    args <- lapply(symengine::get_args(expr), caretToPowCore)
-    op <- symengine::get_type(expr)
-    op_str <- switch(op,
-                     "Add" = " + ",
-                     "Mul" = " * ",
-                     "Sub" = " - ",
-                     "Div" = " / ",
-                     "" # fallback
-    )
-    return(paste(args, collapse = op_str))
-  }
-  # Variable or number
-  return(as.character(expr))
+  
+  # deparse to get a character string    
+  return(deparse1(fun(e)[[1]]))
 }
 
 #_______________________________________________________________________________
@@ -50,13 +46,12 @@ setMethod("caretToPow", signature=c("model_statement"), definition=function(x) {
   return(x)
 })
 
-#'@importFrom symengine S
 setMethod("caretToPow", signature=c("character"), definition=function(x) {
   assertthat::assert_that(length(x)==1, msg="x should be length 1")
   containsCaret <- grepl(pattern="\\^", x=x)
   if (containsCaret) {
     x <- tryCatch({
-      caretToPowCore(symengine::S(x))
+      caretToPowCore(x)
     }, error = function(e) {
       warning("Problem detected when converting caret to pow, aborted.")
       return(x)

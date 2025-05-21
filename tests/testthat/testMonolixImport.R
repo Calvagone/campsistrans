@@ -4,7 +4,7 @@ library(campsis)
 context("Test the Monolix import on a few models")
 
 testFolder <-  file.path(getwd(), test_path())
-overwriteNonRegressionFiles <- TRUE
+overwriteNonRegressionFiles <- FALSE
 
 nonRegressionFolderPath <- function(folder) {
   return(file.path(testFolder, "non_regression", "monolix", folder))

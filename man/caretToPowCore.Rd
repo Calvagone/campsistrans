@@ -4,10 +4,10 @@
 \alias{caretToPowCore}
 \title{Convert the caret operator into the pow function.}
 \usage{
-caretToPowCore(expr)
+caretToPowCore(x)
 }
 \arguments{
-\item{expr}{expression to transform}
+\item{x}{string to transform}
 }
 \value{
 transformed expression

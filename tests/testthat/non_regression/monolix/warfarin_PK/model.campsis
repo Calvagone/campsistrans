@@ -14,5 +14,5 @@ y1=Cc
 A_depot=Tlag
 
 [ERROR]
-y1_err=y1 + sqrt(THETA_a^2 + (THETA_b^2)*(y1^2))*EPS_FIX1
+y1_err=y1 + sqrt(pow(THETA_a, 2) + pow(THETA_b, 2) * pow(y1, 2)) * EPS_FIX1
 

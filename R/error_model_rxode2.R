@@ -60,7 +60,7 @@ errorModelToCampsis <- function(x, shift) {
       eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + (%s + %s*%s)*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift))
       return(list(equation=eq, eps=c(1)+shift))
     } else {
-      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + sqrt(%s^2 + (%s^2)*(%s^2))*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift))
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + sqrt(%s^2 + %s^2*%s^2)*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift))
       return(list(equation=eq, eps=c(1)+shift))
     }
   } else {
