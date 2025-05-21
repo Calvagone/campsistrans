@@ -14,6 +14,8 @@ d/dt(A_OUTPUT)=K*A_CENTRAL
 rxLinCmt1=A_CENTRAL/scale2
 scale2_=scale2/vc
 F=rxLinCmt1/scale2_
+
+[ERROR]
 CONC=F
 CONC_ERR=CONC * (1 + EPS_RUV1)
 Y=CONC_ERR
