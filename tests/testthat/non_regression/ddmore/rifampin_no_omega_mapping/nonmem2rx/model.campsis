@@ -44,3 +44,6 @@ IPRED=F
 [F]
 A_DEPOT=F_A1
 
+[ERROR]
+F_err=F + sqrt(THETA_F_err_1^2 + (THETA_F_err_2^2)*(F^2))*EPS_FIX1
+

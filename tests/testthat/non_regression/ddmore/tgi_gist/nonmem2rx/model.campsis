@@ -49,7 +49,7 @@ STRT=0
 if (PLA == 1) STRT=1
 if (FLAG == 4) IPRED=A_rxddta4
 if (FLAG == 4) W=IPRED * THETA_W1
-if (FLAG == 4) Y=IPRED + W * eps1
+if (FLAG == 4) Y=IPRED + W * EPS_RUV1
 if (FLAG == 4) IRES=DV - IPRED
 if (FLAG == 4) IWRES=IRES/W
 

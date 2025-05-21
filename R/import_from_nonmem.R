@@ -58,14 +58,65 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   model@parameters <- updatedParameters
   
   # Auto mapping based on the equation names
-  model <- model %>% 
-    autoRenameParameters()
+  model <- autoRenameParameters(model)
   
   # Remove useless equations like ETA_CL=ETA_CL (in NONMEM ETA_CL=ETA(1))
-  model <- model %>%
-    removeUselessEquations()
-   
+  model <- removeUselessEquations(model)
+  
+  # Include SIGMAs (only diagonal is supported)
+  model <- includeSigmas(rxmod=rxmod, model=model)
+  
   return(model)
+}
+
+includeSigmas <- function(rxmod, model) {
+  # In some cases, monolix2rx understand the NONMEM error model code
+  # And it provides the error model equation in rxode2 (using the ~ operator) and adds SIGMAs
+  # In that case, we do not do anything
+  sigmas <- model@parameters %>%
+    campsismod::select("sigma")
+  if (length(sigmas@list) > 0) {
+    return(model)
+  }
+  
+  sigmaMatrix <- rxmod$sigma
+  diag <- diag(sigmaMatrix)
+  
+  for (index1 in seq_along(diag)) {
+    for (index2 in seq_along(diag)) {
+      if (index2 > index1) {
+        next
+      }
+      onDiag <- index1==index2
+      omegaValue <- sigmaMatrix[index1, index2]
+
+      if (onDiag) {
+        epsName <- names(diag)[index1]
+        sigma <- Sigma(name=replaceEpsInSigma(epsName), index=index1, index2=index2, value=omegaValue, fix=omegaValue==1, type="var")
+      } else {
+        epsName <- sprintf("eps_%i_%i", index1, index2)
+        sigma <- Sigma(name=replaceEpsInSigma(epsName), index=index1, index2=index2, value=omegaValue, fix=FALSE, type="covar")
+      }
+      # Do not add SIGMA if off-diagonal and value is 0
+      if (!onDiag && omegaValue==0) {
+        next
+      }
+      # Add sigma
+      model <- model %>%
+        add(sigma)
+      
+      # Replace occurrences in model
+      if (onDiag) {
+        model <- model %>%
+          replaceAll(epsName, sprintf("EPS_%s", replaceEpsInSigma(epsName)))
+      }
+    }
+  }
+  return(model)
+}
+
+replaceEpsInSigma <- function(x) {
+  return(gsub(pattern="eps", replacement="RUV", x=x))
 }
 
 detectSubroutine <- function(x) {

@@ -102,7 +102,7 @@ BBB=RRTOT - A_CENT/VD + KD
 ZCP=0.5 * (-BBB + sqrt(BBB^2 + 4 * KD * A_CENT/VD))
 if (CMT == 2) IPRED=ZCP
 if (CMT == 2) IRES=DV - IPRED
-if (CMT == 2) Y=IPRED * (1 + eps2) + eps1
+if (CMT == 2) Y=IPRED * (1 + EPS_RUV2) + EPS_RUV1
 
 [F]
 A_c_ABS=F_A1

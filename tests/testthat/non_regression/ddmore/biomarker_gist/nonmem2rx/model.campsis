@@ -61,7 +61,7 @@ if (A_COMP3 == 0) DEL=1
 if (A_COMP4 == 0) DEL=1
 if (FLAG == 5) IPRED=log(A_COMP1 + DEL)
 if (FLAG == 5) W=THETA_W
-if (FLAG == 5) Y=IPRED + W * eps1
+if (FLAG == 5) Y=IPRED + W * EPS_RUV1
 IRES=DV - IPRED
 IWRES=IRES/W
 

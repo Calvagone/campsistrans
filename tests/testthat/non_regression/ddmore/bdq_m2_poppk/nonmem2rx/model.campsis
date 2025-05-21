@@ -114,10 +114,10 @@ if (FLAG == 4) W=IPRED
 if (W == 0) W=1
 IRES=DV - IPRED
 IWRES=IRES/W
-Y=IPRED + W * eps3
-if (FLAG == 2) Y=IPRED + W * eps4
-if (FLAG == 3) Y=IPRED + W * eps1
-if (FLAG == 4) Y=IPRED + W * eps2
+Y=IPRED + W * EPS_RUV3
+if (FLAG == 2) Y=IPRED + W * EPS_RUV4
+if (FLAG == 3) Y=IPRED + W * EPS_RUV1
+if (FLAG == 4) Y=IPRED + W * EPS_RUV2
 
 [F]
 A_DEPOT=F_A1

@@ -46,9 +46,9 @@ if (CMT == 5) COM5=1
 COM6=0
 if (CMT == 6) COM6=1
 IPRE=F
-Y1=F * (1 + eps1) + eps5
-Y4=F * (1 + eps2)
-Y5=F * (1 + eps3)
-Y6=F * (1 + eps4)
+Y1=F * (1 + EPS_RUV1) + EPS_RUV5
+Y4=F * (1 + EPS_RUV2)
+Y5=F * (1 + EPS_RUV3)
+Y6=F * (1 + EPS_RUV4)
 Y=COM1 * Y1 + COM4 * Y4 + COM5 * Y5 + COM6 * Y6
 
