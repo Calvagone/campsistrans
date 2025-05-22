@@ -8,6 +8,7 @@ importMonolix(
   mlxtranFile,
   modelFile = NULL,
   parametersFile = NULL,
+  covFile = NULL,
   digits = NULL
 )
 }
@@ -17,6 +18,8 @@ importMonolix(
 \item{modelFile}{path to model file, optional}
 
 \item{parametersFile}{path to estimated parameters file, optional}
+
+\item{covFile}{path to covariance estimates file, optional}
 
 \item{digits}{number of significant digits, integer or NULL to disable rounding}
 }
