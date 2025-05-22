@@ -97,10 +97,16 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
   }
 
   # Convert the mlxtran object to rxode2 model
+  mlxtranObj <- monolix2rx::mlxtran(file=mlxtran) # Second time with everything!
+  
+  # Strange: if we pass mlxtranObj -> variance-covariance not imported
+  # Workaround is to pass the file name
   rxmod <- monolix2rx::monolix2rx(mlxtran, envir=new.env(), thetaMatType="sa")
 
   # Convert the rxode2 model to a functional Campsis model
-  model <- importRxode2(rxmod, rem_pop_suffix=TRUE, rem_omega_prefix=TRUE)
+  pop_parameter_regex <- "_pop$"
+  omega_parameter_regex <- "^omega_"
+  model <- importRxode2(rxmod, pop_parameter_regex=pop_parameter_regex, omega_parameter_regex=omega_parameter_regex)
   
   # Move pre-equations at right place (end of MAIN, instead of end of ODE)
   preEquations <- mlxtranObj$MODEL$LONGITUDINAL$PK$preEq
@@ -126,10 +132,27 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
         return(x)
       })
   }
-  
+
   # Add variance-covariance matrix
   if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
-    model@parameters@varcov <- rxmod$thetaMat
+    varcov <- rxmod$thetaMat
+    varcovNames <- colnames(varcov)
+    from <- model@parameters@list %>%
+      purrr::map_chr(.f=function(x) {
+        if (is(x, "theta") && !is.na(x@comment) && x@comment=="Population parameter") {
+          return(restorePrefixSuffix(x=x@name, regex=pop_parameter_regex))
+        } else if (is(x, "omega")) {
+          return(restorePrefixSuffix(x=x@name, regex=omega_parameter_regex))
+        } else {
+          return(x@name)
+        }
+      })
+    to <- model@parameters@list %>%
+      purrr::map_chr(~.x %>% getName())
+    updatedVarcovNames <- to[match(varcovNames, from)]
+    row.names(varcov) <- updatedVarcovNames
+    colnames(varcov) <- updatedVarcovNames
+    model@parameters@varcov <- varcov
   }
 
   return(model)

@@ -6,17 +6,17 @@
 \usage{
 importRxode2(
   rxmod,
-  rem_pop_suffix = FALSE,
-  rem_omega_prefix = FALSE,
+  pop_parameter_regex = NULL,
+  omega_parameter_regex = NULL,
   subroutine = NULL
 )
 }
 \arguments{
 \item{rxmod}{the rxode2 function object}
 
-\item{rem_pop_suffix}{remove the '_pop' suffix from the population parameters. The model code is adapted accordingly.}
+\item{pop_parameter_regex}{regular expression to identify the population parameters}
 
-\item{rem_omega_prefix}{remove the 'omega_' prefix from the OMEGA parameters. The model code is adapted accordingly.}
+\item{omega_parameter_regex}{regular expression to identify the OMEGA parameters}
 
 \item{subroutine}{optional subroutine, integer vector of 2 values: ADVAN and TRANS.}
 }

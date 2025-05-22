@@ -4,14 +4,14 @@
 \alias{extractParametersFromRxode}
 \title{Extract all parameters from an rxode2 function object.}
 \usage{
-extractParametersFromRxode(rxmod, rem_pop_suffix, rem_omega_prefix)
+extractParametersFromRxode(rxmod, pop_parameter_regex, omega_parameter_regex)
 }
 \arguments{
 \item{rxmod}{the rxode2 function object}
 
-\item{rem_pop_suffix}{remove the '_pop' suffix from the population parameters.}
+\item{pop_parameter_regex}{regular expression to identify the population parameters}
 
-\item{rem_omega_prefix}{remove the 'omega_' prefix from the OMEGA parameters.}
+\item{omega_parameter_regex}{regular expression to identify the OMEGA parameters}
 }
 \value{
 a functional Campsis model

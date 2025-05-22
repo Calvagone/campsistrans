@@ -15,8 +15,12 @@ generateModel <- function(folder, modelFun=function(x) {x}, digits=NULL) {
   mlxtranFile <- file.path(testFolder, "monolix_models", folder, "project.mlxtran")
   modelFile <- file.path(testFolder, "monolix_models", folder, "model.txt")
   parametersFile <- file.path(testFolder, "monolix_models", folder, "populationParameters.txt")
+  covFile <- file.path(testFolder, "monolix_models", folder, "covarianceEstimatesSA.txt")
+  if (!file.exists(covFile)) {
+    covFile <- NULL
+  }
   
-  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile, digits=digits) %>%
+  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile, covFile=covFile, digits=digits) %>%
     modelFun()
   
   
@@ -267,7 +271,7 @@ test_that("Warfarin PK can be imported successfully", {
 
 test_that("Warfarin PKPD IRM can be imported successfully", {
   folder <- "warfarin_PKPD_IRM"
-  
+
   # Slight issue, k is not in the right place.
   # It should be before the PK ODEs. Issue in monolix2rx -> won't solve
   modelFun <- function(model) {
@@ -275,10 +279,10 @@ test_that("Warfarin PKPD IRM can be imported successfully", {
       campsismod::move(x=Equation("k"), to=campsismod::Position(OdeRecord(), after=FALSE))
     return(model)
   }
-  
-  model <- generateModel(folder=folder, modelFun, digits=6)
+
+  model <- expect_warning(generateModel(folder=folder, modelFun, digits=6), regexp="The following parameters are missing from the thetaMat covariance matrix because they were")
   nonreg_model <- suppressWarnings(read.campsis(nonRegressionFolderPath(folder)))
-  
+
   expect_equal(model, nonreg_model)
   validateModelImplementation(folder=folder, model=model, dataset=getWarfarinDataset(), output="A_R", tolerance=0.005)
 })
