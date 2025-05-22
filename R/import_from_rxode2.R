@@ -26,7 +26,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
   model@parameters <- extractParametersFromRxode(rxmod,
                                                  rem_pop_suffix=rem_pop_suffix,
                                                  rem_omega_prefix=rem_omega_prefix)
-  
+
   # Rename THETAs in model code
   for (parameter in model@parameters@list %>% purrr::keep(~is(.x, "theta"))) {
     oldNameInCode <- parameter@name
@@ -78,7 +78,7 @@ importRxode2 <- function(rxmod, rem_pop_suffix=FALSE, rem_omega_prefix=FALSE, su
   # Sort everything in the model for consistency (especially in non-regression tests)
   model <- model %>%
     campsismod::sort()
-
+  
   return(model)
 }
 

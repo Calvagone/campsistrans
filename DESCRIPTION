@@ -69,6 +69,7 @@ Collate:
     'error_model_rxode2.R'
     'error_model_rxode2_parser.R'
     'rxode2_parser.R'
+    'rxode2_varcov_conversion.R'
     'import_from_rxode2.R'
     'import_from_monolix.R'
     'import_from_nonmem.R'
