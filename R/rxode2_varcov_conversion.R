@@ -13,6 +13,12 @@ rxode2ParameterToCampsisParameter <- function(x) {
     indexes <- gsub(pattern="omega\\.", replacement="", x=x)
     indexes <- strsplit(x=indexes, split="\\.")
     return(Omega(index=indexes[[1]][1], index2=indexes[[1]][2], type="covar"))
+  } else if (grepl(pattern="^sigma\\.[0-9]+\\.[0-9]+$", x=x)) {
+    indexes <- gsub(pattern="sigma\\.", replacement="", x=x)
+    indexes <- strsplit(x=indexes, split="\\.")
+    return(Sigma(index=indexes[[1]][1], index2=indexes[[1]][2], type="covar"))
+  } else {
+    stop(sprintf("Non standard parameter name '%s' detected in variance-covariance matrix", x))
   }
 }
 
