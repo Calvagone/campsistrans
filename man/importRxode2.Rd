@@ -8,7 +8,8 @@ importRxode2(
   rxmod,
   pop_parameter_regex = NULL,
   omega_parameter_regex = NULL,
-  subroutine = NULL
+  subroutine = NULL,
+  cov = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ importRxode2(
 \item{omega_parameter_regex}{regular expression to identify the OMEGA parameters}
 
 \item{subroutine}{optional subroutine, integer vector of 2 values: ADVAN and TRANS.}
+
+\item{cov}{import variance-covariance matrix if present, TRUE by default}
 }
 \value{
 a functional Campsis model

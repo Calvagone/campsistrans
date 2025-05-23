@@ -5,9 +5,17 @@
 #' @param pop_parameter_regex regular expression to identify the population parameters
 #' @param omega_parameter_regex regular expression to identify the OMEGA parameters
 #' @param subroutine optional subroutine, integer vector of 2 values: ADVAN and TRANS.
+#' @param cov import variance-covariance matrix if present, TRUE by default
 #' @return a functional Campsis model
 #' @export
-importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=NULL, subroutine=NULL) {
+importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=NULL, subroutine=NULL, cov=TRUE) {
+  
+  # Process variance-covariance matrix
+  if (cov && !is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
+    varcov <- rxmod$thetaMat
+  } else {
+    varcov <- NULL
+  }
   
   # Extract model code
   model <- extractModelCodeFromRxode(rxmod=rxmod, subroutine=subroutine)
@@ -36,8 +44,12 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
       oldNameInCode <- restorePrefixSuffix(x=oldNameInCode, regex=pop_parameter_regex)
     }
     # Replace in model code
+    updatedThetaName <- sprintf("THETA_%s", replaceDotsInString(parameter@name))
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), sprintf("THETA_%s", replaceDotsInString(parameter@name)))
+      replaceAll(VariablePattern(oldNameInCode), updatedThetaName)
+    
+    # Adapt varcov
+    varcov <- adaptVarcovName(varcov=varcov, before=oldNameInCode, after=updatedThetaName)
   }
   
   # Rename ETAs in model code
@@ -54,13 +66,22 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
     }
     
     # Replace in model code
+    updatedEtaName <- sprintf("ETA_%s", replaceDotsInString(parameter@name))
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), sprintf("ETA_%s", replaceDotsInString(parameter@name)))
+      replaceAll(VariablePattern(oldNameInCode), updatedEtaName)
+    
+    # Adapt varcov
+    updatedOmegaName <- sprintf("OMEGA_%s", replaceDotsInString(parameter@name))
+    varcov <- adaptVarcovName(varcov=varcov, before=oldNameInCode, after=updatedOmegaName)
   }
   
   # Replace dots in parameter names all at once
   model@parameters@list <- model@parameters@list %>%
     purrr::map(.f=~replaceDotsInParameterName(.x))
+  if (!is.null(varcov)) {
+    row.names(varcov) <- replaceDotsInString(row.names(varcov))
+    colnames(varcov) <- replaceDotsInString(colnames(varcov))
+  }
   
   # Heuristic move to MAIN block
   model <- heuristicMoveToMain(model)
@@ -74,6 +95,11 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
 
   # Replace the caret operator by pow
   model <- caretToPow(model)
+  
+  # Add variance-covariance matrix
+  if (!is.null(varcov)) {
+    model@parameters@varcov <- varcov
+  }
   
   # Sort everything in the model for consistency (especially in non-regression tests)
   model <- model %>%
@@ -709,6 +735,16 @@ renameCompartmentProperties <- function(code, occurrence, replacement, prefix) {
                      replacement=sprintf("LAG_%s%s", prefix, replacement))
   
   return(code)
+}
+
+adaptVarcovName <- function(varcov, before, after) {
+  if (is.null(varcov)) {
+    return(varcov)
+  }
+  regex <- sprintf("^%s$", gsub(pattern="\\.", replacement="\\\\.", x=before))
+  row.names(varcov) <- gsub(pattern=regex, replacement=after, x=row.names(varcov))
+  colnames(varcov) <- gsub(pattern=regex, replacement=after, x=colnames(varcov))
+  return(varcov)
 }
 
 

@@ -33,7 +33,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
     dir.create(tempDir)
   }
   
-  print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
+  # print(gsub(pattern="\\\\", replacement="/", x=normalizePath(tempDir)))
   
   # Is there a external model?
   noExternalModel <- is.null(modelFile) || !file.exists(modelFile)
@@ -106,7 +106,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
   # Convert the rxode2 model to a functional Campsis model
   pop_parameter_regex <- "_pop$"
   omega_parameter_regex <- "^omega_"
-  model <- importRxode2(rxmod, pop_parameter_regex=pop_parameter_regex, omega_parameter_regex=omega_parameter_regex)
+  model <- importRxode2(rxmod, pop_parameter_regex=pop_parameter_regex, omega_parameter_regex=omega_parameter_regex, cov=TRUE)
   
   # Move pre-equations at right place (end of MAIN, instead of end of ODE)
   preEquations <- mlxtranObj$MODEL$LONGITUDINAL$PK$preEq
@@ -131,28 +131,6 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
         x@value <- signif(x@value, digits=digits)
         return(x)
       })
-  }
-
-  # Add variance-covariance matrix
-  if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
-    varcov <- rxmod$thetaMat
-    varcovNames <- colnames(varcov)
-    from <- model@parameters@list %>%
-      purrr::map_chr(.f=function(x) {
-        if (is(x, "theta") && !is.na(x@comment) && x@comment=="Population parameter") {
-          return(restorePrefixSuffix(x=x@name, regex=pop_parameter_regex))
-        } else if (is(x, "omega")) {
-          return(restorePrefixSuffix(x=x@name, regex=omega_parameter_regex))
-        } else {
-          return(x@name)
-        }
-      })
-    to <- model@parameters@list %>%
-      purrr::map_chr(~.x %>% getName())
-    updatedVarcovNames <- to[match(varcovNames, from)]
-    row.names(varcov) <- updatedVarcovNames
-    colnames(varcov) <- updatedVarcovNames
-    model@parameters@varcov <- varcov
   }
 
   return(model)

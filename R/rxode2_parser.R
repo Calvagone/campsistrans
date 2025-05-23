@@ -55,7 +55,7 @@ Rxode2Lexer <- R6::R6Class(
     tokens = getParserTokens(),
     
     #' @description debug logical value to enable/disable debug messages
-    debug = TRUE,
+    debug = FALSE,
     
     #' @description t_EQUATION function to handle EQUATION token
     #' @param re regular expression to match EQUATION token

@@ -39,7 +39,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # print(subroutine)
     
   # Conversion to Campsis
-  model <- importRxode2(rxmod=rxmod, subroutine=subroutine)
+  model <- importRxode2(rxmod=rxmod, subroutine=subroutine, cov=FALSE)
   
   # Remove default names given by nonmem2rx importer before auto renaming
   updatedParameters <- Parameters()
@@ -71,7 +71,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   model <- heuristicMoveToError(model)
   
   # Add variance-covariance matrix
-  if (nrow(rxmod$thetaMat) > 0) {
+  if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
     model <- processRxode2Varcov(model=model, varcov=rxmod$thetaMat)
   }
   

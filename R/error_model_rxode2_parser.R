@@ -27,7 +27,7 @@ Rxode2ErrorModelLexer <- R6::R6Class(
     tokens = getErrorModelTokens(),
     
     #' @description debug logical value to enable/disable debug messages
-    debug = TRUE,
+    debug = FALSE,
     
     #' @description t_ENDPOINT function to handle ENDPOINT token
     #' @param re regular expression to match ENDPOINT token
