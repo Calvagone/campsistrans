@@ -15,8 +15,14 @@ generateModel <- function(folder, modelFun=function(x) {x}, digits=NULL) {
   mlxtranFile <- file.path(testFolder, "monolix_models", folder, "project.mlxtran")
   modelFile <- file.path(testFolder, "monolix_models", folder, "model.txt")
   parametersFile <- file.path(testFolder, "monolix_models", folder, "populationParameters.txt")
-  covFile <- file.path(testFolder, "monolix_models", folder, "covarianceEstimatesSA.txt")
-  if (!file.exists(covFile)) {
+  covFile1 <- file.path(testFolder, "monolix_models", folder, "covarianceEstimatesSA.txt")
+  covFile2 <- file.path(testFolder, "monolix_models", folder, "covarianceEstimatesLin.txt")
+  
+  if (file.exists(covFile1)) {
+    covFile <- covFile1
+  } else if (file.exists(covFile2)) {
+    covFile <- covFile2
+  } else {
     covFile <- NULL
   }
   

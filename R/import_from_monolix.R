@@ -101,7 +101,7 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
   
   # Strange: if we pass mlxtranObj -> variance-covariance not imported
   # Workaround is to pass the file name
-  rxmod <- monolix2rx::monolix2rx(mlxtran, envir=new.env(), thetaMatType="sa")
+  rxmod <- monolix2rx::monolix2rx(mlxtran, envir=new.env())
 
   # Convert the rxode2 model to a functional Campsis model
   pop_parameter_regex <- "_pop$"

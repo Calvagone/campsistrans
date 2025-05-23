@@ -55,6 +55,8 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
   # Rename ETAs in model code
   for (parameter in model@parameters@list %>% purrr::keep(~is(.x, "omega"))) {
     if (!parameter %>% campsismod::isDiag()) {
+      # corr_ appears in variance-covariance after monolix import
+      # to do later, see issue
       next
     }
     
