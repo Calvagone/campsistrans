@@ -23,7 +23,8 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   ctl <- copyAndRename(file=ctlFile, tempDir=tempDir, newName="model.mod") # mod default in nonmem2rx
   
   # Copy ext file to temporary directory if provided
-  if (!is.null(extFile) && file.exists(extFile)) {
+  estimate <- !is.null(extFile) && file.exists(extFile)
+  if (estimate) {
     copyAndRename(file=extFile, tempDir=tempDir, newName="model.ext") # ext default in nonmem2rx
   }
   
@@ -75,7 +76,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
     model <- processRxode2Varcov(model=model, varcov=rxmod$thetaMat)
   }
   
-  return(model)
+  return(new("campsistrans", model=list(rxmod), campsis=model, estimate=estimate))
 }
 
 #' Heuristic move from the ODE record to the Error record.

@@ -6,7 +6,7 @@
 setClass(
   "campsistrans",
   representation(
-    model = "list", # Workaround to store Pharmpy model
+    model = "list", # TODO, should be any in the future
     estimate = "logical",
     mapping = "ANY",
     dirname = "character",

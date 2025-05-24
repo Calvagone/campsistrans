@@ -56,7 +56,8 @@ generateModel2 <- function(filename, folder, ctlExt="mod", extExt="ext", covExt=
   ext <- if (length(ext)==0) NULL else ext
   cov <- if (length(cov)==0) NULL else cov
   
-  model <- importNONMEM2(ctlFile=ctl, extFile=ext, covFile=cov)
+  object <- importNONMEM2(ctlFile=ctl, extFile=ext, covFile=cov)
+  model <- object@campsis
   
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionNonmem2rxPath(folder))

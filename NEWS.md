@@ -1,3 +1,27 @@
+# campsistrans 1.3.0
+
+* Test monolix importer based on the monolix tutorial #67
+* Translate initial conditions from rxode2 to Campsis #68
+* Parse complex if statement stuctures from rxode2 model code #69
+* Monolix importer bug: duplicate compartment properties when same model is imported twice #70
+* Monolix importer: automatically convert time into t #71
+* Rxode2 importer: parse error model #72
+* Monolix importer: import variance-covariance matrix #74
+* NONMEM importer using nonmem2rx: implementation #75
+* Support several equations in an if/else if/else statement #76
+* NONMEM importer using monolix2rx: testing #77
+* NONMEM importer using nonmem2rx: identify subroutines #78
+* NONMEM importer using nonmem2rx: many dots in variable names #79
+* NONMEM importer using nonmem2rx: detect subroutine #80
+* Monolix importer: reduce number of decimals? #82
+* Rxode2 import: get rid of dots in parameter names #83
+* Monolix importer: add non regression tests #84
+* Rxode2 importer: convert power symbol to pow #85
+* NONMEM importer using nonmem2rx: import SIGMA matrix #86
+* NONMEM importer using nonmem2rx: import cov file #87
+* Rxode2 importer: import variance-covariance from thetaMat #88
+* Return rxode model as well in addition to the Campsis model #90
+
 # campsistrans 1.2.3
 
 * Do not skip tests anymore #63

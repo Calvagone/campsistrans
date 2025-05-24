@@ -82,7 +82,8 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
   }
   
   # Copy parameters file to export directory if provided
-  if (!is.null(parametersFile) && file.exists(parametersFile)) {
+  estimate <- !is.null(parametersFile) && file.exists(parametersFile)
+  if (estimate) {
     copyAndRename(file=parametersFile, tempDir=exportDir, newName="populationParameters.txt")
   }
   
@@ -133,5 +134,5 @@ importMonolix <- function(mlxtranFile, modelFile=NULL, parametersFile=NULL, covF
       })
   }
 
-  return(model)
+  return(new("campsistrans", model=list(rxmod), campsis=model, estimate=estimate))
 }

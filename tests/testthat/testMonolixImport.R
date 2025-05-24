@@ -26,10 +26,9 @@ generateModel <- function(folder, modelFun=function(x) {x}, digits=NULL) {
     covFile <- NULL
   }
   
-  model <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile, covFile=covFile, digits=digits) %>%
-    modelFun()
-  
-  
+  object <- importMonolix(mlxtranFile=mlxtranFile, modelFile=modelFile, parametersFile=parametersFile, covFile=covFile, digits=digits)
+  model <- modelFun(object@campsis)
+
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(folder))
   }
