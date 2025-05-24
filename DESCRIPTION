@@ -17,14 +17,14 @@ Imports:
     config,
     digest,
     dplyr,
+    methods,
     monolix2rx,
     nonmem2rx,
-    plyr,
     purrr,
     reticulate,
     rly,
     tibble,
-    tidyr
+    utils
 Suggests: 
     bookdown,
     campsis,
@@ -46,6 +46,7 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.3.2
 Collate:
+    'global.R'
     'requirements.R'
     'python_configuration.R'
     'data.R'

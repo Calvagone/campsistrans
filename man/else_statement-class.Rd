@@ -7,9 +7,3 @@
 \description{
 Else statement class.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{list}}{list of IF statements}
-}}
-

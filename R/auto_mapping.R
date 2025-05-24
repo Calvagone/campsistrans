@@ -104,15 +104,15 @@ searchCandidateName <- function(model, parameter) {
   
   # Retrieve statements from MAIN and ERROR
   list <- list()
-  main <- model %>% find(MainRecord())
+  main <- model %>% campsismod::find(MainRecord())
   if (!is.null(main)) {
     list <- c(list, main@statements@list)
   }
-  ode <- model %>% find(OdeRecord())
+  ode <- model %>% campsismod::find(OdeRecord())
   if (!is.null(ode)) {
     list <- c(list, ode@statements@list)
   }
-  error <- model %>% find(ErrorRecord())
+  error <- model %>% campsismod::find(ErrorRecord())
   if (!is.null(error)) {
     list <- c(list, error@statements@list)
   }

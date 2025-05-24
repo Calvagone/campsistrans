@@ -46,7 +46,6 @@ setMethod("add", signature=c("complex_if_else_statement", "extended_if_statement
 #' 
 #' Else-if statement class.
 #' 
-#' @slot list list of IF statements
 #' @export
 setClass(
   "else_if_statement",
@@ -72,7 +71,6 @@ ElseIfStatement <- function(condition, statements) {
 #' 
 #' Else statement class.
 #' 
-#' @slot list list of IF statements
 #' @export
 setClass(
   "else_statement",

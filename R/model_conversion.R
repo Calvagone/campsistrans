@@ -223,7 +223,7 @@ moveInitialConditions <- function(model) {
   for (compartment in model@compartments@list) {
     index <- compartment@index
     initialValueNM <- Equation(paste0("A_0(", index, ")"))
-    equation <- model %>% find(initialValueNM)
+    equation <- model %>% campsismod::find(initialValueNM)
     if (!is.null(equation)) {
       model <- model %>%
         add(InitialCondition(compartment=index, rhs=equation@rhs)) %>%
@@ -242,7 +242,7 @@ moveInitialConditions <- function(model) {
 removePiecewiseStatements <- function(model) {
   compartments <- model@compartments
   for (compartment in compartments@list) {
-    ode <- model %>% find(Ode(paste0("A_", compartment@name)))
+    ode <- model %>% campsismod::find(Ode(paste0("A_", compartment@name)))
     ode@rhs <- gsub(pattern=" \\+ Piecewise\\(.*", replacement="", ode@rhs)
     model <- model %>% campsismod::replace(ode)
   }
@@ -257,15 +257,15 @@ removePiecewiseStatements <- function(model) {
 #' @importFrom campsismod replace
 #' @export
 removeUselessEquations <- function(model) {
-  main <- model %>% find(MainRecord())
+  main <- model %>% campsismod::find(MainRecord())
   if (!is.null(main)) {
     model <- model %>% campsismod::replace(discardUselessEquations(main))
   }
-  ode <- model %>% find(OdeRecord())
+  ode <- model %>% campsismod::find(OdeRecord())
   if (!is.null(ode)) {
     model <- model %>% campsismod::replace(discardUselessEquations(ode))
   }
-  error <- model %>% find(ErrorRecord())
+  error <- model %>% campsismod::find(ErrorRecord())
   if (!is.null(error)) {
     model <- model %>% campsismod::replace(discardUselessEquations(error))
   }

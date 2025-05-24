@@ -86,7 +86,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
 #' 
 heuristicMoveToError <- function(model) {
   ode <- model %>%
-    find(OdeRecord())
+    campsismod::find(OdeRecord())
 
   dvIndex <- ode@statements@list %>%
     purrr::detect_index(.f=function(x) {
@@ -102,7 +102,7 @@ heuristicMoveToError <- function(model) {
   }
   
   error <- model %>% 
-    find(ErrorRecord())
+    campsismod::find(ErrorRecord())
   
   if (is.null(error)) {
     error <- ErrorRecord()

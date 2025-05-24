@@ -215,7 +215,7 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
 #' 
 convertComplexIfElseStatements <- function(model) {
   # Retrieve all ODE statements
-  ode <- model %>% find(OdeRecord())
+  ode <- model %>% campsismod::find(OdeRecord())
   
   # Modify all complex if statements
   ode@statements@list <- ode@statements@list %>% purrr::map(.f=function(x) {
@@ -293,7 +293,7 @@ unwrapExtentedIfStatement <- function(x) {
 #' 
 extractCompartmentPropertiesFromRxode <- function(model) {
   ode <- model %>%
-    find(OdeRecord())
+    campsismod::find(OdeRecord())
   
   # Compartment properties indexes
   indexes <- ode@statements@list %>%
@@ -356,7 +356,7 @@ extractCompartmentPropertiesFromRxode <- function(model) {
 #' 
 extractInitialConditionsFromRxode <- function(model) {
   ode <- model %>%
-    find(OdeRecord())
+    campsismod::find(OdeRecord())
   
   # Compartment properties indexes
   indexes <- ode@statements@list %>%
@@ -488,7 +488,7 @@ heuristicMoveToMain <- function(model) {
     append("t") # Simulation time
   
   oldOde <- model %>%
-    find(OdeRecord())
+    campsismod::find(OdeRecord())
   
   # Replace all continuous variables by empty string
   oldOdeTmp <- oldOde
@@ -524,7 +524,7 @@ heuristicMoveToMain <- function(model) {
 
 convertRxodeErrorModel <- function(model, rxmod) {
   ode <- model %>%
-    find(OdeRecord())
+    campsismod::find(OdeRecord())
   
   errorEquationLgl <- ode@statements@list %>%
     purrr::map_lgl(.f=function(statement) {
@@ -625,7 +625,7 @@ getSubroutineModelForRxode2 <- function(advan, trans) {
 
 replaceLinCmt <- function(model, subroutineModel) {
   subroutineOde <- subroutineModel %>%
-    find(OdeRecord()) %>%
+    campsismod::find(OdeRecord()) %>%
     delete(Equation("F"))
   
   scale <- ""
@@ -647,7 +647,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   # Detect where to insert the ODEs
   ode <- model %>%
-    find(OdeRecord()) # To replace by ODE record
+    campsismod::find(OdeRecord()) # To replace by ODE record
 
   equationIndex <- ode@statements@list %>%
     purrr::detect_index(.f=detectFun <- function(statement) {

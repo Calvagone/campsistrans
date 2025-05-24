@@ -38,14 +38,17 @@ caretToPow <- function(x) {
   stop("No default function is provided")
 }
 
+#' @rdname caretToPow
 setGeneric("caretToPow", function(x) {
   standardGeneric("caretToPow")
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("model_statement"), definition=function(x) {
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("character"), definition=function(x) {
   assertthat::assert_that(length(x)==1, msg="x should be length 1")
   containsCaret <- grepl(pattern="\\^", x=x)
@@ -60,34 +63,40 @@ setMethod("caretToPow", signature=c("character"), definition=function(x) {
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("equation"), definition=function(x) {
   x@rhs <- caretToPow(x@rhs)
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("if_statement"), definition=function(x) {
   x@condition <- caretToPow(x@condition)
   x@equation <- caretToPow(x@equation)
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("code_record"), definition=function(x) {
   x@statements@list <- x@statements@list %>%
     purrr::map(~caretToPow(.x))
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("code_records"), definition=function(x) {
   x@list <- x@list %>%
     purrr::map(~caretToPow(.x))
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("compartment_property"), definition=function(x) {
   x@rhs <- caretToPow(x@rhs)
   return(x)
 })
 
+#' @rdname caretToPow
 setMethod("caretToPow", signature=c("campsis_model"), definition=function(x) {
   x@model@list <- x@model@list %>%
     purrr::map(~caretToPow(.x))
