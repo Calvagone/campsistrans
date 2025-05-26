@@ -1,0 +1,5 @@
+"name","index","index2","value","fix","type"
+"omega_Cl",1,1,0.0627688213988444,FALSE,"var"
+"omega_Tlag",2,2,0.239824233260291,FALSE,"var"
+"omega_V",3,3,0.0199182346397427,FALSE,"var"
+"omega_ka",4,4,0.731546596683407,FALSE,"var"

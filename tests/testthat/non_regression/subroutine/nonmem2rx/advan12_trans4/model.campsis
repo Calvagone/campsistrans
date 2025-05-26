@@ -1,0 +1,21 @@
+[ODE]
+d/dt(A_depot)=0
+d/dt(A_central)=0
+KA=THETA_KA * exp(ETA_KA)
+CL=THETA_CL * exp(ETA_CL)
+V2=THETA_V2 * exp(ETA_V2)
+V3=THETA_V3 * exp(ETA_V3)
+V4=THETA_V4 * exp(ETA_V4)
+Q3=THETA_Q3 * exp(ETA_Q3)
+Q4=THETA_Q4 * exp(ETA_Q4)
+scale2=V2
+rxLinCmt1=linCmtFun
+centralLin=rxLinCmt1 * V2
+scale2_=scale2/V2
+F=rxLinCmt1/scale2_
+
+[ERROR]
+CONC=F
+CONC_ERR=CONC * (1 + EPS_RUV1)
+Y=CONC_ERR
+

@@ -41,7 +41,7 @@ standardiseNMDataset <- function(dataset) {
 #' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 #' preserved in column 'ORIGINAL_ID'.
 #' @return a data frame
-#' @importFrom campsismod getNameInModel
+#' @importFrom campsismod getNameInModel isDiag
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
@@ -107,7 +107,9 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=F
     # If etas_zero, all ETAs are added to dataset and set to 0
     if (etas_zero) {
       for (omega in campsistrans@campsis@parameters %>% campsismod::select("omega") %>% .@list) {
-        dataset[omega %>% campsismod::getNameInModel()] <- 0
+        if (campsismod::isDiag(omega)) {
+          dataset[omega %>% campsismod::getNameInModel()] <- 0
+        }
       }
     }
   }

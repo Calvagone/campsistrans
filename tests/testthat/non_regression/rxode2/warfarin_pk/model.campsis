@@ -1,0 +1,18 @@
+[MAIN]
+Cl=exp(THETA_Cl_pop + THETA_beta_Cl_logtAGE * log(AGE/30.4353) + THETA_beta_Cl_logtWT * log(WT/68.1178) + ETA_omega_Cl)
+Tlag=exp(THETA_Tlag_pop + ETA_omega_Tlag)
+V=exp(THETA_V_pop + THETA_beta_V_logtWT * log(WT/68.1178) + ETA_omega_V)
+ka=exp(THETA_ka_pop + ETA_omega_ka)
+
+[ODE]
+d/dt(A_depot)=-ka * A_depot
+d/dt(A_central)=+ka * A_depot - Cl/V * A_central
+Cc=A_central/V
+y1=Cc
+
+[LAG]
+A_depot=Tlag
+
+[ERROR]
+y1_err=y1 + sqrt(pow(THETA_a, 2) + pow(THETA_b, 2) * pow(y1, 2)) * EPS_FIX1
+

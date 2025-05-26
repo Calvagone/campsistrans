@@ -1,0 +1,13 @@
+"name","index","value","fix","comment"
+"Cl",1,0.945737886031082,FALSE,"Population parameter"
+"V1",2,1.53154224967934,FALSE,"Population parameter"
+"V2",3,1.6517534948689,FALSE,"Population parameter"
+"Q2",4,-2.37772482329777,FALSE,"Population parameter"
+"Q3",5,0.714622538038238,FALSE,"Population parameter"
+"V3",6,2.22743734498893,FALSE,"Population parameter"
+"beta_Cl_logtAGE",7,-0.343517628851222,FALSE,NA
+"beta_V1_logtLBM",8,1.32144904131776,FALSE,NA
+"beta_Q3_logtAGE",9,-0.840390210268532,FALSE,NA
+"beta_V3_logtAGE",10,-0.525788483372743,FALSE,NA
+"a",11,0.00189306807072628,FALSE,NA
+"b",12,0.109799909025627,FALSE,NA

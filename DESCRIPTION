@@ -1,10 +1,10 @@
 Type: Package
 Package: campsistrans
-Title: Campsis Transformation Package (NONMEM -> Campsis)
-Version: 1.2.3
+Title: Campsis Transformation Package (NONMEM/Monolix/rxode2 -> Campsis)
+Version: 1.3.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
-Description: Wrapper to pharmpy for NONMEM import.
+Description: Imports pharmacometric models from various sources (NONMEM/Monolix/rxode2) into Campsis.
 License: file LICENSE
 URL: https://github.com/Calvagone/campsistrans
 BugReports: https://github.com/Calvagone/campsistrans/issues
@@ -15,12 +15,16 @@ Imports:
     assertthat,
     callr,
     config,
+    digest,
     dplyr,
-    plyr,
+    methods,
+    monolix2rx,
+    nonmem2rx,
     purrr,
     reticulate,
+    rly,
     tibble,
-    tidyr
+    utils
 Suggests: 
     bookdown,
     campsis,
@@ -42,11 +46,13 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.3.2
 Collate:
+    'global.R'
     'requirements.R'
     'python_configuration.R'
     'data.R'
     'model_library.R'
     'utilities.R'
+    'caret_to_pow.R'
     'auto_extract_parameters.R'
     'nonmem_table_parser.R'
     'nonmem_dataset_parser.R'
@@ -59,4 +65,13 @@ Collate:
     'parameters_conversion.R'
     'varcov_conversion.R'
     'auto_mapping.R'
+    'model_extended_if_statement.R'
+    'complex_if_statement.R'
+    'error_model_rxode2.R'
+    'error_model_rxode2_parser.R'
+    'rxode2_parser.R'
+    'rxode2_varcov_conversion.R'
+    'import_from_rxode2.R'
+    'import_from_monolix.R'
+    'import_from_nonmem.R'
 Remotes: github::Calvagone/campsismod

@@ -1,0 +1,75 @@
+<DATAFILE>
+
+[FILEINFO]
+file='warfarin_data.csv'
+delimiter = comma
+header = {ID, TIME, AMT, DV, DVID, WT, SEX, AGE}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+AMT = {use=amount}
+DV = {use=observation, name={y1, y2}, yname={'1', '2'}, type={continuous, continuous}}
+DVID = {use=observationtype}
+WT = {use=covariate, type=continuous}
+SEX = {use=covariate, type=categorical}
+AGE = {use=covariate, type=continuous}
+
+<MODEL>
+
+[COVARIATE]
+input = {AGE, WT}
+
+EQUATION:
+logtAGE = log(AGE/30.4353)
+logtWT = log(WT/68.1178)
+
+[INDIVIDUAL]
+input = {Cl_pop, omega_Cl, Tlag_pop, omega_Tlag, V_pop, omega_V, ka_pop, omega_ka, logtAGE, beta_Cl_logtAGE, logtWT, beta_V_logtWT, beta_Cl_logtWT}
+
+DEFINITION:
+Cl = {distribution=logNormal, typical=Cl_pop, covariate={logtAGE, logtWT}, coefficient={beta_Cl_logtAGE, beta_Cl_logtWT}, sd=omega_Cl}
+Tlag = {distribution=logNormal, typical=Tlag_pop, sd=omega_Tlag}
+V = {distribution=logNormal, typical=V_pop, covariate=logtWT, coefficient=beta_V_logtWT, sd=omega_V}
+ka = {distribution=logNormal, typical=ka_pop, sd=omega_ka}
+
+[LONGITUDINAL]
+input = {a, b}
+
+file = 'lib:oral1_1cpt_TlagkaVCl.txt'
+
+DEFINITION:
+y1 = {distribution=normal, prediction=Cc, errorModel=combined2(a, b)}
+
+<FIT>
+data = y1
+model = y1
+
+<PARAMETER>
+Cl_pop = {value=0.1329581195840724, method=MLE}
+Tlag_pop = {value=0.8456051077685499, method=MLE}
+V_pop = {value=7.859594200104116, method=MLE}
+a = {value=0.300473195929165, method=MLE}
+b = {value=0.0722811992770204, method=MLE}
+beta_Cl_logtAGE = {value=0.337715458661714, method=MLE}
+beta_Cl_logtWT = {value=0.6570503967105326, method=MLE}
+beta_V_logtWT = {value=0.9045996738680111, method=MLE}
+ka_pop = {value=1.369938014111701, method=MLE}
+omega_Cl = {value=0.2489292716439208, method=MLE}
+omega_Tlag = {value=0.5636103889264023, method=MLE}
+omega_V = {value=0.1355873868551609, method=MLE}
+omega_ka = {value=0.7918105911552827, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = StochasticApproximation)
+logLikelihood(method = ImportanceSampling)
+plotResult(method = {indfits, parameterdistribution, covariancemodeldiagnosis, covariatemodeldiagnosis, obspred, vpc, residualsscatter, residualsdistribution, randomeffects, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'warfarin_PK'
+

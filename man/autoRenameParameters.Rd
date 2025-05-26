@@ -4,15 +4,13 @@
 \alias{autoRenameParameters}
 \title{Auto-rename parameters based on equations.}
 \usage{
-autoRenameParameters(model, mapping)
+autoRenameParameters(model)
 }
 \arguments{
-\item{model}{CAMPSIS model}
-
-\item{mapping}{mapping object}
+\item{model}{Campsis model}
 }
 \value{
-CAMPSIS model with updated parameters
+Campsis model with updated parameters
 }
 \description{
 Auto-rename parameters based on equations.

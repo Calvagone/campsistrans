@@ -1,0 +1,4 @@
+"name","index","index2","value","fix","type"
+"K",1,1,0.468,FALSE,"var"
+"eta1_eta2",1,2,0.402,FALSE,"covar"
+"IIV",2,2,0.8,FALSE,"var"

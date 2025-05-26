@@ -1,0 +1,32 @@
+[MAIN]
+Cl=exp(THETA_Cl + THETA_beta_Cl_logtAGE * log(AGE/30.4353) + THETA_beta_Cl_logtWT * log(WT/68.1178) + ETA_Cl)
+Tlag=exp(THETA_Tlag + ETA_Tlag)
+V=exp(THETA_V + THETA_beta_V_logtWT * log(WT/68.1178) + ETA_V)
+ka=exp(THETA_ka + ETA_ka)
+IC50=exp(THETA_IC50 + ETA_IC50)
+Imax=expit(THETA_Imax + ETA_Imax, 0, 1)
+R0=exp(THETA_R0)
+gamma=exp(THETA_gamma + ETA_gamma)
+kout=exp(THETA_kout + ETA_kout)
+
+[ODE]
+k=Cl/V
+d/dt(A_depot)=-ka * A_depot
+d/dt(A_central)=+ka * A_depot - k * A_central
+Cc=A_central/V
+R_0=R0
+kin=R0 * kout
+d/dt(A_R)=kin * (1 - Imax * pow(max(Cc, 0), gamma)/(pow(max(Cc, 0), gamma) + pow(IC50, gamma))) - kout * A_R
+y1=Cc
+y2=A_R
+
+[LAG]
+A_depot=Tlag
+
+[INIT]
+A_R=R_0
+
+[ERROR]
+y1_err=y1 + sqrt(pow(THETA_a, 2) + pow(THETA_b, 2) * pow(y1, 2)) * EPS_FIX1
+y2_err=y2 + (THETA_a2 + THETA_b2*y2)*EPS_FIX2
+

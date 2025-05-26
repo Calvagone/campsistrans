@@ -16,21 +16,17 @@ needsAutoRenaming <- function(parameter) {
 
 #' Auto-rename parameters based on equations.
 #' 
-#' @param model CAMPSIS model
-#' @param mapping mapping object
-#' @return CAMPSIS model with updated parameters
+#' @param model Campsis model
+#' @return Campsis model with updated parameters
 #' @importFrom dplyr group_split mutate
 #' @importFrom purrr map_df
 #' @importFrom tibble tibble
 #' 
-autoRenameParameters <- function(model, mapping) {
-  # Don't run function if auto-mapping is disabled
-  if (!mapping$auto) {
-    return(model)
-  }
-  
+autoRenameParameters <- function(model) {
+
   # Retrieve all unnamed parameters
-  unnamedParameters <- model@parameters@list %>% purrr::keep(.p=~.x %>% needsAutoRenaming())
+  unnamedParameters <- model@parameters@list %>%
+    purrr::keep(.p=~.x %>% needsAutoRenaming())
   
   # Create mapping table
   mappingTable <- unnamedParameters %>% purrr::map_df(.f=function(x) {
@@ -108,11 +104,15 @@ searchCandidateName <- function(model, parameter) {
   
   # Retrieve statements from MAIN and ERROR
   list <- list()
-  main <- model %>% find(MainRecord())
+  main <- model %>% campsismod::find(MainRecord())
   if (!is.null(main)) {
     list <- c(list, main@statements@list)
   }
-  error <- model %>% find(ErrorRecord())
+  ode <- model %>% campsismod::find(OdeRecord())
+  if (!is.null(ode)) {
+    list <- c(list, ode@statements@list)
+  }
+  error <- model %>% campsismod::find(ErrorRecord())
   if (!is.null(error)) {
     list <- c(list, error@statements@list)
   }
@@ -127,7 +127,7 @@ searchCandidateName <- function(model, parameter) {
     } else if (is(statement, "if_statement")) {
       return(statement@equation@lhs)
     } else {
-      stop("Should be either an equation or IF-statement")
+      return(NA)
     }
   }
 }

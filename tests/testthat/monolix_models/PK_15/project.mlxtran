@@ -1,0 +1,98 @@
+<DATAFILE>
+
+[FILEINFO]
+file = 'PK_reminfentanil.csv'
+delimiter = comma
+header = {ID, TIME, AMT, RATE, DV, AGE, SEX, LBM, TINFCAT}
+
+[CONTENT]
+ID = {use=identifier}
+TIME = {use=time}
+AMT = {use=amount}
+RATE = {use=rate}
+DV = {use=observation, name=DV, type=continuous}
+AGE = {use=covariate, type=continuous}
+SEX = {use=covariate, type=categorical}
+LBM = {use=covariate, type=continuous}
+TINFCAT = {use=covariate, type=categorical}
+
+<MODEL>
+
+[COVARIATE]
+input = {AGE, LBM, SEX}
+
+SEX = {type=categorical, categories={0, 1}}
+
+EQUATION:
+logtAGE = log(AGE/36.6299)
+logtLBM = log(LBM/55.1554)
+
+[INDIVIDUAL]
+input = {Cl_pop, omega_Cl, V1_pop, omega_V1, V2_pop, omega_V2, Q2_pop, omega_Q2, Q3_pop, omega_Q3, V3_pop, omega_V3, logtAGE, beta_Cl_logtAGE, logtLBM, beta_V1_logtLBM, beta_Q3_logtAGE, beta_V3_logtAGE, beta_Cl_logtLBM, beta_Q2_logtAGE, SEX, beta_V3_SEX_1, corr_V3_Q3, corr_Q3_Cl, corr_V3_Cl, corr_V2_Q2}
+
+SEX = {type=categorical, categories={0, 1}}
+
+DEFINITION:
+Cl = {distribution=logNormal, typical=Cl_pop, covariate={logtAGE, logtLBM}, coefficient={beta_Cl_logtAGE, beta_Cl_logtLBM}, sd=omega_Cl}
+V1 = {distribution=logNormal, typical=V1_pop, covariate=logtLBM, coefficient=beta_V1_logtLBM, sd=omega_V1}
+V2 = {distribution=logNormal, typical=V2_pop, sd=omega_V2}
+Q2 = {distribution=logNormal, typical=Q2_pop, covariate=logtAGE, coefficient=beta_Q2_logtAGE, sd=omega_Q2}
+Q3 = {distribution=logNormal, typical=Q3_pop, covariate=logtAGE, coefficient=beta_Q3_logtAGE, sd=omega_Q3}
+V3 = {distribution=logNormal, typical=V3_pop, covariate={logtAGE, SEX}, coefficient={beta_V3_logtAGE, {0, beta_V3_SEX_1}}, sd=omega_V3}
+correlation = {level=id, r(Q3, Cl)=corr_Q3_Cl, r(V2, Q2)=corr_V2_Q2, r(V3, Cl)=corr_V3_Cl, r(V3, Q3)=corr_V3_Q3}
+
+[LONGITUDINAL]
+input = {a, b}
+
+file = 'lib:infusion_3cpt_ClV1Q2V2Q3V3.txt'
+
+DEFINITION:
+DV = {distribution=normal, prediction=Cc, errorModel=combined1(a, b)}
+
+<FIT>
+data = DV
+model = DV
+
+<PARAMETER>
+Cl_pop = {value=2.572668884269782, method=MLE}
+Q2_pop = {value=0.0875600090158417, method=MLE}
+Q3_pop = {value=1.941117326978349, method=MLE}
+V1_pop = {value=4.833417399167791, method=MLE}
+V2_pop = {value=7.302916088796532, method=MLE}
+V3_pop = {value=8.125697586711476, method=MLE}
+a = {value=0.001499916060022, method=MLE}
+b = {value=0.1113492867202122, method=MLE}
+beta_Cl_logtAGE = {value=-0.3232265534782631, method=MLE}
+beta_Cl_logtLBM = {value=0.3970143196233674, method=MLE}
+beta_Q2_logtAGE = {value=-1.053687949923331, method=MLE}
+beta_Q3_logtAGE = {value=-0.9018586185318388, method=MLE}
+beta_V1_logtLBM = {value=1.306252011978436, method=MLE}
+beta_V3_SEX_1 = {value=0.2437535867818506, method=MLE}
+beta_V3_logtAGE = {value=-0.4490961375337204, method=MLE}
+corr_Q3_Cl = {value=0.7248134201096026, method=MLE}
+corr_V2_Q2 = {value=0, method=MLE}
+corr_V3_Cl = {value=0.7030128814517531, method=MLE}
+corr_V3_Q3 = {value=0.8633300966568557, method=MLE}
+omega_Cl = {value=0.1440199664180132, method=MLE}
+omega_Q2 = {value=0.4458397529822892, method=MLE}
+omega_Q3 = {value=0.3959420383119029, method=MLE}
+omega_V1 = {value=0.2415414007083468, method=MLE}
+omega_V2 = {value=0.6808996140761892, method=MLE}
+omega_V3 = {value=0.3181698199120134, method=MLE}
+
+<MONOLIX>
+
+[TASKS]
+populationParameters()
+individualParameters(method = {conditionalMean, conditionalMode })
+fim(method = Linearization)
+logLikelihood(method = Linearization)
+plotResult(method = {outputplot, indfits, obspred, residualsscatter, residualsdistribution, parameterdistribution, covariatemodeldiagnosis, randomeffects, covariancemodeldiagnosis, saemresults })
+
+[SETTINGS]
+GLOBAL:
+exportpath = 'PK_15'
+
+[COMMENTS]
+; Final correlation model
+

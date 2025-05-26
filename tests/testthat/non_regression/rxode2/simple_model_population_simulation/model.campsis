@@ -1,0 +1,15 @@
+[ODE]
+C2=A_centr/THETA_V2
+C3=A_peri/THETA_V3
+CL=THETA_TCl * exp(ETA_eta_Cl)
+d/dt(A_depot)=-THETA_KA * A_depot
+d/dt(A_centr)=THETA_KA * A_depot - CL * C2 - THETA_Q * C2 + THETA_Q * C3
+d/dt(A_peri)=THETA_Q * C2 - THETA_Q * C3
+d/dt(A_eff)=THETA_Kin - THETA_Kout * (1 - C2/(THETA_EC50 + C2)) * A_eff
+
+[INIT]
+A_eff=1
+
+[ERROR]
+C2_err=C2 + THETA_add_sd*EPS_FIX1
+

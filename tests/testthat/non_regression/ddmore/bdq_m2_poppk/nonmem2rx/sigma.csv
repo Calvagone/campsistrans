@@ -1,0 +1,6 @@
+"name","index","index2","value","fix","type"
+"RUV1",1,1,0.00500974,FALSE,"var"
+"RUV2",2,2,0.00114573,FALSE,"var"
+"RUV3",3,3,0.0518161,FALSE,"var"
+"RUV_4_3",4,3,0.0189319,FALSE,"covar"
+"RUV4",4,4,0.0366836,FALSE,"var"

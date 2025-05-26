@@ -1,0 +1,19 @@
+[MAIN]
+KA=THETA_KA * exp(ETA_KA)
+K=THETA_K * exp(ETA_K)
+V=THETA_V * exp(ETA_V)
+scale2=V
+
+[ODE]
+d/dt(A_DEPOT)=-KA*A_DEPOT
+d/dt(A_CENTRAL)=-K*A_CENTRAL + KA*A_DEPOT
+d/dt(A_OUTPUT)=K*A_CENTRAL
+rxLinCmt1=A_CENTRAL/scale2
+scale2_=scale2/V
+F=rxLinCmt1/scale2_
+
+[ERROR]
+CONC=F
+CONC_ERR=CONC * (1 + EPS_RUV1)
+Y=CONC_ERR
+

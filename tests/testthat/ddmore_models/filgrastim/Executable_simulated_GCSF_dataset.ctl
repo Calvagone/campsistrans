@@ -111,7 +111,7 @@ $DES
    ABS     = A(1)
    ATOT    = A(2)
    
-   ADR     = A(4)
+   ;ADR     = A(4)
    BM1     = A(5)
    BM2     = A(6)
    BM3     = A(7)

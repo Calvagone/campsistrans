@@ -6,7 +6,7 @@
 setClass(
   "campsistrans",
   representation(
-    model = "list", # Workaround to store Pharmpy model
+    model = "list", # TODO, should be any in the future
     estimate = "logical",
     mapping = "ANY",
     dirname = "character",
@@ -104,7 +104,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   
   # Convert parameters from NONMEM to Campsis
   parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
-  
   
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
