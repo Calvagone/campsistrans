@@ -1,5 +1,7 @@
 # campsistrans 1.3.0
 
+* Translator for Monolix #51
+* Translator for Monolix #52
 * Test monolix importer based on the monolix tutorial #67
 * Translate initial conditions from rxode2 to Campsis #68
 * Parse complex if statement stuctures from rxode2 model code #69
