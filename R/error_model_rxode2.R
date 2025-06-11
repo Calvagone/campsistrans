@@ -73,7 +73,7 @@ errorModelToCampsis <- function(x, shift) {
       return(list(equation=eq, eps=c(1)+shift))
       
     } else if(length(x@add)==1 && length(x@prop)==1) {
-      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + %s*EPS_FIX%i + %s*%s*EPS_FIX%i", endpoint, x@add, x@prop, endpoint, 1L+shift, 2L+shift))
+      eq <- Equation(lhs=endpointErr, rhs=sprintf("%s + %s*EPS_FIX%i + %s*%s*EPS_FIX%i", endpoint, x@add, 1L+shift, x@prop, endpoint, 2L+shift))
       return(list(equation=eq, eps=c(1, 2)+shift))
     }
   }
