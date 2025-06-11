@@ -1,3 +1,7 @@
+# campsistrans 1.3.1
+
+* Error when importing some rxode2 models #92
+
 # campsistrans 1.3.0
 
 * Translator for Monolix #51

@@ -43,7 +43,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
-      installPython(envname=envname, python=python)
+      installPharmpy(envname=envname, python=python)
     }
     pharmpy <- reticulate::import("pharmpy")
   }

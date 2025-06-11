@@ -1,10 +1,10 @@
 #'
-#' Get the Pharmpy requirements. 
+#' Get the Pharmpy requirements (old version). 
 #' 
 #' @return a character vector
 #' @export
 #' 
-getPharmpyRequirements <- function() {
+getPharmpyRequirementsOld <- function() {
 retValue <- "alabaster==0.7.16
 altair==5.2.0
 appdirs==1.4.4
@@ -71,4 +71,133 @@ zict==3.0.0
 zipp==3.17.0
 pharmpy-core @ git+https://github.com/Calvagone/pharmpy@5ef5633ba837cf2f0cede1c90b608064057392ec"
 return(strsplit(retValue, split="\n")[[1]])
+}
+
+#'
+#' Get the Pharmpy requirements (updated version). 
+#' 
+#' @return a character vector
+#' @export
+#' 
+getPharmpyRequirementsUpdated <- function() {
+  retValue <- "alabaster==1.0.0
+altair==5.5.0
+appdirs==1.4.4
+asttokens==3.0.0
+attrs==25.3.0
+Babel==2.17.0
+beautifulsoup4==4.13.4
+bleach==6.2.0
+certifi==2025.4.26
+charset-normalizer==3.4.2
+click==8.2.0
+cloudpickle==3.1.1
+comm==0.2.2
+csscompressor==0.9.5
+dask==2025.5.0
+debugpy==1.8.14
+decorator==5.2.1
+defusedxml==0.7.1
+distributed==2025.5.0
+docutils==0.21.2
+exceptiongroup==1.3.0
+executing==2.2.0
+fastjsonschema==2.21.1
+fsspec==2025.3.2
+idna==3.10
+imagesize==1.4.1
+importlib_metadata==8.7.0
+ipykernel==6.29.5
+ipython==9.2.0
+ipywidgets==8.1.7
+itables==2.4.0
+jedi==0.19.2
+Jinja2==3.1.6
+jsonschema==4.23.0
+jsonschema-specifications==2025.4.1
+jupyter-client==8.6.3
+jupyter-core==5.7.2
+jupyter-sphinx==0.5.3
+jupyterlab-pygments==0.3.0
+jupyterlab-widgets==3.0.15
+lark==1.2.2
+locket==1.0.0
+lxml==5.4.0
+markdown-it-py==3.0.0
+MarkupSafe==3.0.2
+matplotlib-inline==0.1.7
+mdurl==0.1.2
+mistune==3.1.3
+mpmath==1.3.0
+msgpack==1.1.0
+narwhals==1.40.0
+nbclient==0.10.2
+nbconvert==7.16.6
+nbformat==5.10.4
+nest-asyncio==1.6.0
+networkx==3.4.2
+numexpr==2.10.2
+numpy==2.2.6
+packaging==25.0
+pandas==2.2.3
+pandocfilters==1.5.1
+parso==0.8.4
+partd==1.4.2
+patsy==1.0.1
+pexpect==4.9.0
+platformdirs==4.3.8
+prompt-toolkit==3.0.51
+psutil==7.0.0
+ptyprocess==0.7.0
+pure-eval==0.2.3
+Pygments==2.19.1
+pyreadr==0.5.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+pywin32>=302,!=304; sys_platform == 'win32' and platform_python_implementation != 'PyPy'
+PyYAML==6.0.2
+pyzmq==26.4.0
+referencing==0.36.2
+requests==2.32.3
+rich==14.0.0
+rpds-py==0.25.0
+scipy==1.15.3
+six==1.17.0
+snowballstemmer==3.0.1
+sortedcontainers==2.4.0
+soupsieve==2.7
+Sphinx==8.2.3
+sphinxcontrib-applehelp==2.0.0
+sphinxcontrib-devhelp==2.0.0
+sphinxcontrib-htmlhelp==2.1.0
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==2.0.0
+sphinxcontrib-serializinghtml==2.0.0
+stack-data==0.6.3
+symengine==0.14.1
+statsmodels==0.14.4
+sympy==1.13.3
+tblib==3.1.0
+tinycss2==1.4.0
+tomli==2.2.1
+toolz==1.0.0
+tornado==6.5
+traitlets==5.14.3
+typing-extensions==4.13.2
+tzdata==2025.2
+urllib3==2.4.0
+wcwidth==0.2.13
+webencodings==0.5.1
+widgetsnbextension==4.0.14
+zict==3.0.0
+zipp==3.21.0
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp310-cp310-linux_x86_64.whl ; sys_platform == 'linux' and python_version == '3.10'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp311-cp311-linux_x86_64.whl ; sys_platform == 'linux' and python_version == '3.11'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp312-cp312-linux_x86_64.whl ; sys_platform == 'linux' and python_version == '3.12'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp310-cp310-macosx_12_0_x86_64.whl ; sys_platform == 'darwin' and platform_machine != 'arm64' and python_version == '3.10'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp311-cp311-macosx_12_0_universal2.whl ; sys_platform == 'darwin' and platform_machine != 'arm64' and python_version == '3.11'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp310-cp310-win_amd64.whl ; sys_platform == 'win32' and python_version == '3.10'
+tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp311-cp311-win_amd64.whl ; sys_platform == 'win32' and python_version == '3.11'
+pharmpy-core @ git+https://github.com/Calvagone/pharmpy@d380b59ab5ec37b8e0d3e8bb359e5c0ddfb2f62f"
+  return(strsplit(retValue, split="\n")[[1]])
 }

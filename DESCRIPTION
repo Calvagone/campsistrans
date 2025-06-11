@@ -48,7 +48,7 @@ RoxygenNote: 7.3.2
 Collate:
     'global.R'
     'requirements.R'
-    'python_configuration.R'
+    'pharmpy_config.R'
     'data.R'
     'model_library.R'
     'utilities.R'
