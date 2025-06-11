@@ -1,0 +1,4 @@
+"name","index","index2","value","fix","type"
+"eta_CIRC0",1,1,0.1,FALSE,"var"
+"eta_MTT",2,2,0.03,FALSE,"var"
+"eta_SLOPU",3,3,0.2,FALSE,"var"

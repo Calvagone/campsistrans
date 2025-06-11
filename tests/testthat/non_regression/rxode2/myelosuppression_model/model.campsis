@@ -1,0 +1,28 @@
+[MAIN]
+CIRC0=exp(THETA_log_CIRC0 + ETA_eta_CIRC0)
+MTT=exp(THETA_log_MTT + ETA_eta_MTT)
+SLOPU=exp(THETA_log_SLOPU + ETA_eta_SLOPU)
+GAMMA=exp(THETA_log_GAMMA)
+CL=CLI
+V1=V1I
+V2=V2I
+Q=204
+
+[ODE]
+CONC=A_centr/V1
+NN=3
+KTR=(NN + 1)/MTT
+EDRUG=1 - SLOPU * CONC
+FDBK=pow((CIRC0/A_circ), GAMMA)
+CIRC=A_circ
+d/dt(A_centr)=A_periph * Q/V2 - A_centr * (CL/V1 + Q/V1)
+d/dt(A_periph)=A_centr * Q/V1 - A_periph * Q/V2
+d/dt(A_prol)=KTR * A_prol * EDRUG * FDBK - KTR * A_prol
+d/dt(A_tr1)=KTR * A_prol - KTR * A_tr1
+d/dt(A_tr2)=KTR * A_tr1 - KTR * A_tr2
+d/dt(A_tr3)=KTR * A_tr2 - KTR * A_tr3
+d/dt(A_circ)=KTR * A_tr3 - KTR * A_circ
+
+[ERROR]
+CIRC_err=CIRC + THETA_prop_err*CIRC*EPS_FIX1
+

@@ -374,7 +374,7 @@ extractInitialConditionsFromRxode <- function(model) {
       lhs <- extractLhs(.x@line)
       compartmentNameWithA <- sub("\\(.*\\)", "", lhs) %>% trimws()
       rhs <- extractRhs(.x@line) %>% trimws()
-      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
+      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="^A_", replacement="", x=compartmentNameWithA))
       return(InitialCondition(compartment=compartmentIndex, rhs=rhs))
     })
   model@compartments@properties@list <- c(model@compartments@properties@list, initialConditions)
