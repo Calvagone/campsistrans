@@ -193,6 +193,25 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
   steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
   model <- model$replace(execution_steps=steps)
+  
+  # Table
+  tables <- model$internals$control_stream$get_records("TABLE")
+  
+  # Working no table
+  control_stream <- model$internals$control_stream$remove_records(tables)
+
+  # Working
+  internals <- model$internals$replace(control_stream=control_stream)
+  
+  # Update control stream
+  model <- model$replace(
+    internals = internals
+  )
+  
+  # Update source
+  model <- model$update_source()
+  
+  cat(model$code, sep = "\n")
 
   # Write model
   pharmpy$modeling$write_model(model=model, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/export.mod", force=TRUE)
