@@ -142,12 +142,49 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   return(paste0(outputFolder, "/", "model.mod"))
 }
 
-updateControlStreamForSimulation <- function(pharmpyModel) {
+updateControlStreamForSimulation <- function(file, estimate=TRUE) {
+  file <-  "C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/runPKPMPD007/runPKPMPD007_QUAL.mod"
+  estimate <- TRUE
+  pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
+
+  model <- pharmpy$modeling$read_model(file)
+
+  # Access the initial parameters
+  params <- model$parameters
   
-  
+  # Retrieve the parameter estimates
+  if (estimate) {
+    results <- pharmpy$tools$read_modelfit_results(file)
+    parameter_estimates <- results$parameter_estimates
+    
+    # Replace initial estimates with the parameter estimates
+    params <- params$set_initial_estimates(as.list(parameter_estimates))
+  }
+
+  # Fix all parameters for simulation (not mandatory)
+  fix <- as.list(params$names) # Value is not important, just the names
+  names(fix) <- params$names
+  params <- params$set_fix(fix)
+
+  # Don't know why but this is needed, otherwise issues when updating initial parameters
+  # with final parameter estimates
+  model <- pharmpy$modeling$unconstrain_parameters(model=model, parameter_names=params$names)
 
   # OMEGA and SIGMA initial values to 0
-  x <- omegaSigmaToZero(x)
+  rvs <- model$random_variables$parameter_names
+  rvsParams <- as.list(rep(0, length(rvs)))
+  names(rvsParams) <- rvs
+  params <- params$set_initial_estimates(rvsParams)
+  
+  # Replace in original model
+  model <- model$replace(parameters=params)
+  
+  # Update NONMEM source code
+  model <- model$update_source()
+
+  # Write model
+  pharmpy$modeling$write_model(model=model, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/export.mod", force=TRUE)
+  
 }
 
 #' Update ETA's in NONMEM record.
@@ -205,14 +242,14 @@ updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.
 #' 
-#' @param x campsistrans object
+#' @param model Pharmpy model
 #' @return the updated campsistrans object
 #' @importFrom purrr map
 #' @importFrom campsismod getNONMEMName
 #' @export
 #' 
-omegaSigmaToZero <- function(x) {
-  parset <- x@model[[1]]$parameters
+omegaSigmaToZero <- function(model) {
+  parset <- model$parameters
   pharmpyList <- retrieveInitialValues(parset)
   pharmpyList@list %>% purrr::map(.f=function(parameter) {
     name <- parameter %>% campsismod::getNONMEMName()
@@ -223,3 +260,4 @@ omegaSigmaToZero <- function(x) {
   })
   return(x)
 }
+
