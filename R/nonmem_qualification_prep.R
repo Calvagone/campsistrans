@@ -57,14 +57,7 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   # This will update the 'model' with the new values from the generic model
   pharmpyModel$update_source()
   
-  # Replace INPUT record
-  oldInput <- pharmpyModel$control_stream$get_records("INPUT")
-  if (length(oldInput) == 0) {
-    stop("No INPUT record available")
-  }
-  colnamesDatasetStr <- paste0(colnames(dataset), collapse=" ")
-  input <- pharmpy$plugins$nonmem$nmtran_parser$create_record(paste0("$INPUT ", colnamesDatasetStr , "\n"))
-  pharmpyModel$control_stream$replace_records(oldInput, list(input))
+
   
   # Replace DATA record
   oldData <- pharmpyModel$control_stream$get_records("DATA")
@@ -178,9 +171,35 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   
   # Replace in original model
   model <- model$replace(parameters=params)
-  
+
   # Update NONMEM source code
   model <- model$update_source()
+  
+  # # Replace INPUT record
+  # model$datainfo <- model$datainfo$create(columns=c("ID", "TIME", "DV", "MDV"))
+  
+  dataset <- read.csv("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv", header=TRUE, stringsAsFactors=FALSE)
+  
+  datainfo <- model$datainfo$create(separator=",",
+                                    path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv",
+                                    columns=colnames(dataset))
+  datainfo <- datainfo$set_dv_column("DV")
+  
+  model <- model$replace(datainfo=datainfo)
+  
+  model <- model$replace(dataset=dataset)
+
+  #model$dataset <- model$dataset$create(data=dataset, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpydataset.csv")
+  
+  # colnamesDatasetStr <- paste0(colnames(dataset), collapse=" ")
+  # oldInput <- model$internals$control_stream$get_records("INPUT")
+  # if (length(oldInput) == 0) {
+  #   stop("No INPUT record available")
+  # }
+  # input <- pharmpy$model$external$nonmem$records$factory$create_record(paste0("$INPUT ", colnamesDatasetStr , "\n"))
+  # model$internals$control_stream$replace_records(oldInput, list(input))
+
+
 
   # Write model
   pharmpy$modeling$write_model(model=model, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/export.mod", force=TRUE)
