@@ -59,14 +59,6 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   
 
   
-  # Replace DATA record
-  oldData <- pharmpyModel$control_stream$get_records("DATA")
-  if (length(oldData) == 0) {
-    stop("No DATA record available")
-  }
-  data <- pharmpy$plugins$nonmem$nmtran_parser$create_record("$DATA dataset.csv IGNORE=I\n")
-  pharmpyModel$control_stream$replace_records(oldData, list(data))
-  
   # Update ERROR record
   compartmentNames <- NULL
   if (length(compartments) > 0) {
@@ -89,9 +81,7 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
     oldError[[1]]$statements <- pharmpy$statements$ModelStatements(copy)
   }
   
-  # Remove ESTIMATION record
-  estimation <- pharmpyModel$control_stream$get_records("ESTIMATION")
-  pharmpyModel$control_stream$remove_records(estimation)
+
   
   # Remove COVARIANCE record ($SIMULATE: CAN'T USE ONLYSIMULATION WITH $EST, $COV, $NONP)
   covariance <- pharmpyModel$control_stream$get_records("COVARIANCE")
@@ -186,7 +176,6 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   datainfo <- datainfo$set_dv_column("DV")
   
   model <- model$replace(datainfo=datainfo)
-  
   model <- model$replace(dataset=dataset)
 
   #model$dataset <- model$dataset$create(data=dataset, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpydataset.csv")
@@ -199,7 +188,11 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   # input <- pharmpy$model$external$nonmem$records$factory$create_record(paste0("$INPUT ", colnamesDatasetStr , "\n"))
   # model$internals$control_stream$replace_records(oldInput, list(input))
 
-
+  
+  # Remove ESTIMATION record and add SIMULATION
+  simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
+  steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
+  model <- model$replace(execution_steps=steps)
 
   # Write model
   pharmpy$modeling$write_model(model=model, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/export.mod", force=TRUE)
