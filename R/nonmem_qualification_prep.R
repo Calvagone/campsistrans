@@ -51,16 +51,7 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   # Standardise NONMEM dataset
   dataset <- standardiseDataset(dataset)
   
-  # Pharmpy model
-  pharmpyModel <- x@model[[1]]
-  
-  # First update all initial estimates of a model from its own results
-  if (x@estimate) {
-    pharmpyModel <- pharmpy$modeling$update_inits(pharmpyModel)
-  }
 
-  # OMEGA and SIGMA initial values to 0
-  x <- omegaSigmaToZero(x)
   
   # Update source
   # This will update the 'model' with the new values from the generic model
@@ -149,6 +140,14 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   close(fileConn)
   
   return(paste0(outputFolder, "/", "model.mod"))
+}
+
+updateControlStreamForSimulation <- function(pharmpyModel) {
+  
+  
+
+  # OMEGA and SIGMA initial values to 0
+  x <- omegaSigmaToZero(x)
 }
 
 #' Update ETA's in NONMEM record.

@@ -12,8 +12,7 @@ importNONMEM(
   covar_name = FALSE,
   covar_as_cor = FALSE,
   auto_install = TRUE,
-  envname = getPythonEnvName(),
-  python = getPythonPath(),
+  pharmpy_config = OldPharmpyConfig(),
   copy_dir = FALSE,
   rem_rate = FALSE,
   rem_abbr_replace = TRUE
@@ -34,9 +33,7 @@ importNONMEM(
 
 \item{auto_install}{auto install pharmpy and dependencies if not installed yet}
 
-\item{envname}{virtual python environment name, can be configured in config.yml}
-
-\item{python}{path to python, can be configured in config.yml}
+\item{pharmpy_config}{a Pharmpy configuration object, see \link{OldPharmpyConfig} for details}
 
 \item{copy_dir}{copy directory in which the control stream is}
 

@@ -27,8 +27,7 @@ setClass(
 #' @param covar_name give a name to each covariance value
 #' @param covar_as_cor transform covariance values to correlation values
 #' @param auto_install auto install pharmpy and dependencies if not installed yet
-#' @param envname virtual python environment name, can be configured in config.yml
-#' @param python path to python, can be configured in config.yml
+#' @param pharmpy_config a Pharmpy configuration object, see \link{OldPharmpyConfig} for details
 #' @param copy_dir copy directory in which the control stream is
 #' @param rem_rate remove RATE in control stream automatically to avoid issues with Pharmpy.
 #'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates, default is FALSE
@@ -38,12 +37,12 @@ setClass(
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          covar_name=FALSE, covar_as_cor=FALSE,
-                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(),
+                         auto_install=TRUE, pharmpy_config=OldPharmpyConfig(),
                          copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
   pharmpy <- importPythonPackage("pharmpy")
   if (is.null(pharmpy)) {
     if (auto_install) {
-      installPharmpy(envname=envname, python=python)
+      installPharmpy(pharmpy_config)
     }
     pharmpy <- reticulate::import("pharmpy")
   }
