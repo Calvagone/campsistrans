@@ -4,14 +4,16 @@
 \alias{updateETAinNONMEMRecord}
 \title{Update ETA's in NONMEM record.}
 \usage{
-updateETAinNONMEMRecord(pharmpyModel, recordType, params)
+updateETAinNONMEMRecord(control_stream, recordType, params, pharmpy)
 }
 \arguments{
-\item{pharmpyModel}{pharmpy model}
+\item{control_stream}{pharmpy model}
 
 \item{recordType}{record type to adapt}
 
 \item{params}{CAMPSIS parameters}
+
+\item{pharmpy}{pharmpy package}
 }
 \description{
 Update ETA's in NONMEM record.

@@ -118,6 +118,19 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   return(paste0(outputFolder, "/", "model.mod"))
 }
 
+updateControlStream <- function(model, control_stream) {
+  # Replace control stream with updated one
+  internals <- model$internals$replace(control_stream=control_stream)
+  model <- model$replace(
+    internals = internals
+  )
+  
+  # Update source
+  model <- model$update_source()
+  
+  return(model)
+}
+
 #' Update control stream for simulation.
 #' 
 #' @param model_path path to original control stream
@@ -131,10 +144,13 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
 updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset, output_folder, variables, compartments=NULL) {
   model_path <-  "C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/runPKPMPD007/runPKPMPD007_QUAL.mod"
   dataset <- read.csv("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv", header=TRUE, stringsAsFactors=FALSE)
-  output_folder <- file.path("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/")
+  test_folder <- file.path("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/")
+  output_folder <- file.path(test_folder, "Export")
+  campsis <- read.campsis(file.path(test_folder, "Model"))
   estimate <- TRUE
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
   variables <- "CONC"
+  
 
   model <- pharmpy$modeling$read_model(model_path)
 
@@ -171,6 +187,24 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   # Update NONMEM source code
   model <- model$update_source()
   
+  # Access control stream
+  control_stream <- model$internals$control_stream
+  
+  # Make ETA's as covariates
+  control_stream <- updateETAinNONMEMRecord(control_stream, "PRED", campsis@parameters, pharmpy)
+  control_stream <- updateETAinNONMEMRecord(control_stream, "PK", campsis@parameters, pharmpy)
+  control_stream <- updateETAinNONMEMRecord(control_stream, "ERROR", campsis@parameters, pharmpy)
+  
+  # Table
+  tables <- control_stream$get_records("TABLE")
+  
+  # Remove all tables from control stream
+  control_stream <- control_stream$remove_records(tables)
+  
+  # Model update
+  model <- updateControlStream(model, control_stream)
+  cat(model$code, sep = "\n")
+  
   # Replace INPUT record
   datainfo <- model$datainfo$create(separator=",",
                                     path=file.path(output_folder, "dataset.csv"),
@@ -179,18 +213,20 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   
   model <- model$replace(datainfo=datainfo)
   model <- model$replace(dataset=dataset)
-
+  
+  # Model update
+  model <- updateControlStream(model, control_stream)
+  cat(model$code, sep = "\n")
+  
+  
+  # pk <- control_stream$get_records("PK")[[1]]
   
   # Remove ESTIMATION record and add SIMULATION
   simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
   steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
   model <- model$replace(execution_steps=steps)
   
-  # Table
-  tables <- model$internals$control_stream$get_records("TABLE")
-  
-  # Remove all tables from control stream
-  control_stream <- model$internals$control_stream$remove_records(tables)
+
   
   # Prepare single TABLE to output
   variablesDataset <- colnames(dataset)
@@ -201,23 +237,11 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   table <- pharmpy$model$external$nonmem$records$factory$create_record(tableStr)
   control_stream <- control_stream$insert_record(table)
   
-  # Make ETA's as covariates
-  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PRED", x@campsis@parameters)
-  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PK", x@campsis@parameters)
-  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "ERROR", x@campsis@parameters)
-  
-  # Working
-  internals <- model$internals$replace(control_stream=control_stream)
-  
-  # Update control stream
-  model <- model$replace(
-    internals = internals
-  )
-  
-  # Update source
-  model <- model$update_source()
-  
+  # Replace control stream with updated one
+  model <- updateControlStream(model, control_stream)
   cat(model$code, sep = "\n")
+  
+
 
   # Write model
   pharmpy$modeling$write_model(model=model, path=file.path(output_folder, "export.mod"), force=TRUE)
@@ -226,21 +250,21 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
 
 #' Update ETA's in NONMEM record.
 #' 
-#' @param pharmpyModel pharmpy model
+#' @param control_stream pharmpy model
 #' @param recordType record type to adapt
 #' @param params CAMPSIS parameters
+#' @param pharmpy pharmpy package
 #' @importFrom reticulate import iterate py_has_attr
 #' @export
 #' 
-updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
-  record <- pharmpyModel$control_stream$get_records(recordType)
+updateETAinNONMEMRecord <- function(control_stream, recordType, params, pharmpy) {
+  record <- control_stream$get_records(recordType)
 
   if (record %>% length() > 0) {
     record_ <- record[[1]]
     
     # Statements
     statements <- record_$statements["_statements"]
-    sympy <- reticulate::import("sympy")
     replacementStatements <- list()
     
     # Replace all ETA's
@@ -257,8 +281,8 @@ updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
           type <- getNMParameterType(symbol_chr)
           
           if (!is.null(type) && type$type=="ETA") {
-            replacementSymbol <- sympy$symbols(nameParameter(type, params))
-            statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
+            replacementSymbol <- pharmpy$basic$Expr$symbol(nameParameter(type, params))
+            statement <- statement$replace(expression=replaceSymbol(statement$expression, freeSymbol, replacementSymbol))
           }
         }
         # After ETA's replacement, if left = right (e.g. ETA_CL=ETA_CL)
@@ -271,10 +295,10 @@ updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
       }
       
     }
-    record_$statements <- replacementStatements
-    pharmpyModel$control_stream$replace_records(record, list(record_))
+    record_ <- record_$update_statements(replacementStatements)
+    control_stream <- control_stream$replace_records(record, list(record_))
   }
-  return(pharmpyModel)
+  return(control_stream)
 }
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.

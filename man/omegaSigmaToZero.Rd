@@ -4,10 +4,10 @@
 \alias{omegaSigmaToZero}
 \title{Set OMEGA and SIGMA initial values to 0 and fix them.}
 \usage{
-omegaSigmaToZero(x)
+omegaSigmaToZero(model)
 }
 \arguments{
-\item{x}{campsistrans object}
+\item{model}{Pharmpy model}
 }
 \value{
 the updated campsistrans object
