@@ -150,9 +150,13 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   estimate <- TRUE
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
   variables <- "CONC"
-  
 
   model <- pharmpy$modeling$read_model(model_path)
+  
+  # Remove ESTIMATION record and add SIMULATION
+  simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
+  steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
+  model <- model$replace(execution_steps=steps)
 
   # Access the initial parameters
   params <- model$parameters
@@ -184,9 +188,6 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   # Replace in original model
   model <- model$replace(parameters=params)
 
-  # Update NONMEM source code
-  model <- model$update_source()
-  
   # Access control stream
   control_stream <- model$internals$control_stream
   
@@ -201,33 +202,6 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   # Remove all tables from control stream
   control_stream <- control_stream$remove_records(tables)
   
-  # Model update
-  model <- updateControlStream(model, control_stream)
-  cat(model$code, sep = "\n")
-  
-  # Replace INPUT record
-  datainfo <- model$datainfo$create(separator=",",
-                                    path=file.path(output_folder, "dataset.csv"),
-                                    columns=colnames(dataset))
-  datainfo <- datainfo$set_dv_column("DV")
-  
-  model <- model$replace(datainfo=datainfo)
-  model <- model$replace(dataset=dataset)
-  
-  # Model update
-  model <- updateControlStream(model, control_stream)
-  cat(model$code, sep = "\n")
-  
-  
-  # pk <- control_stream$get_records("PK")[[1]]
-  
-  # Remove ESTIMATION record and add SIMULATION
-  simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
-  steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
-  model <- model$replace(execution_steps=steps)
-  
-
-  
   # Prepare single TABLE to output
   variablesDataset <- colnames(dataset)
   defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
@@ -240,8 +214,18 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   # Replace control stream with updated one
   model <- updateControlStream(model, control_stream)
   cat(model$code, sep = "\n")
-  
 
+  # OK till here
+  
+  # Replace INPUT record
+  datainfo <- model$datainfo$create(separator=",",
+                                    path=file.path(output_folder, "dataset.csv"),
+                                    columns=colnames(dataset))
+  datainfo <- datainfo$set_dv_column("DV")
+  
+  model <- model$replace(datainfo=datainfo)
+  model <- model$replace(dataset=dataset)
+  
 
   # Write model
   pharmpy$modeling$write_model(model=model, path=file.path(output_folder, "export.mod"), force=TRUE)
