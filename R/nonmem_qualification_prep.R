@@ -86,18 +86,11 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   # Remove COVARIANCE record ($SIMULATE: CAN'T USE ONLYSIMULATION WITH $EST, $COV, $NONP)
   covariance <- pharmpyModel$control_stream$get_records("COVARIANCE")
   pharmpyModel$control_stream$remove_records(covariance)
-  
-  # Remove SIMULATION record
-  simulation <- pharmpyModel$control_stream$get_records("SIMULATION")
-  pharmpyModel$control_stream$remove_records(simulation)
-  
+
   # Remove TABLE record
   table <- pharmpyModel$control_stream$get_records("TABLE")
   pharmpyModel$control_stream$remove_records(table)
-  
-  # Create SIMULATION record
-  simulation <- pharmpyModel$control_stream$append_record("\n$SIMULATION (1234) ONLYSIM NSUB=1\n")
-  
+
   # Preparing variables to output
   variablesDataset <- colnames(dataset)
   defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
@@ -125,19 +118,32 @@ prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputF
   return(paste0(outputFolder, "/", "model.mod"))
 }
 
-updateControlStreamForSimulation <- function(file, estimate=TRUE) {
-  file <-  "C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/runPKPMPD007/runPKPMPD007_QUAL.mod"
+#' Update control stream for simulation.
+#' 
+#' @param model_path path to original control stream
+#' @param estimate reuse estimated parameters from the model fit, default is TRUE
+#' @param dataset simulation dataset, data frame
+#' @param output_folder output folder to export the qualification control stream and CSV dataset
+#' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
+#' @param compartments compartment indexes to output, numeric vector
+#' @return the updated campsistrans object
+#' @export
+updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset, output_folder, variables, compartments=NULL) {
+  model_path <-  "C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/runPKPMPD007/runPKPMPD007_QUAL.mod"
+  dataset <- read.csv("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv", header=TRUE, stringsAsFactors=FALSE)
+  output_folder <- file.path("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/")
   estimate <- TRUE
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
+  variables <- "CONC"
 
-  model <- pharmpy$modeling$read_model(file)
+  model <- pharmpy$modeling$read_model(model_path)
 
   # Access the initial parameters
   params <- model$parameters
   
   # Retrieve the parameter estimates
   if (estimate) {
-    results <- pharmpy$tools$read_modelfit_results(file)
+    results <- pharmpy$tools$read_modelfit_results(model_path)
     parameter_estimates <- results$parameter_estimates
     
     # Replace initial estimates with the parameter estimates
@@ -165,28 +171,14 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   # Update NONMEM source code
   model <- model$update_source()
   
-  # # Replace INPUT record
-  # model$datainfo <- model$datainfo$create(columns=c("ID", "TIME", "DV", "MDV"))
-  
-  dataset <- read.csv("C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv", header=TRUE, stringsAsFactors=FALSE)
-  
+  # Replace INPUT record
   datainfo <- model$datainfo$create(separator=",",
-                                    path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/dataset.csv",
+                                    path=file.path(output_folder, "dataset.csv"),
                                     columns=colnames(dataset))
   datainfo <- datainfo$set_dv_column("DV")
   
   model <- model$replace(datainfo=datainfo)
   model <- model$replace(dataset=dataset)
-
-  #model$dataset <- model$dataset$create(data=dataset, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpydataset.csv")
-  
-  # colnamesDatasetStr <- paste0(colnames(dataset), collapse=" ")
-  # oldInput <- model$internals$control_stream$get_records("INPUT")
-  # if (length(oldInput) == 0) {
-  #   stop("No INPUT record available")
-  # }
-  # input <- pharmpy$model$external$nonmem$records$factory$create_record(paste0("$INPUT ", colnamesDatasetStr , "\n"))
-  # model$internals$control_stream$replace_records(oldInput, list(input))
 
   
   # Remove ESTIMATION record and add SIMULATION
@@ -197,9 +189,23 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   # Table
   tables <- model$internals$control_stream$get_records("TABLE")
   
-  # Working no table
+  # Remove all tables from control stream
   control_stream <- model$internals$control_stream$remove_records(tables)
-
+  
+  # Prepare single TABLE to output
+  variablesDataset <- colnames(dataset)
+  defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
+  defaultVariables <- defaultVariables[defaultVariables %in% variablesDataset]
+  allVariables <- unique(c(defaultVariables, variables))
+  tableStr <- sprintf("$TABLE %s FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n", paste0(allVariables, collapse=" "))
+  table <- pharmpy$model$external$nonmem$records$factory$create_record(tableStr)
+  control_stream <- control_stream$insert_record(table)
+  
+  # Make ETA's as covariates
+  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PRED", x@campsis@parameters)
+  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PK", x@campsis@parameters)
+  # pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "ERROR", x@campsis@parameters)
+  
   # Working
   internals <- model$internals$replace(control_stream=control_stream)
   
@@ -214,7 +220,7 @@ updateControlStreamForSimulation <- function(file, estimate=TRUE) {
   cat(model$code, sep = "\n")
 
   # Write model
-  pharmpy$modeling$write_model(model=model, path="C:/Users/nicolas.luyckx.CALVAGONE/Desktop/Pharmpy/Export/export.mod", force=TRUE)
+  pharmpy$modeling$write_model(model=model, path=file.path(output_folder, "export.mod"), force=TRUE)
   
 }
 
