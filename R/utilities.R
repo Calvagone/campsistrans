@@ -10,10 +10,24 @@
 printSymPy <- function(x, output="C", simplify=TRUE) {
   sympy <- reticulate::import("sympy")
   if (output == "C") {
-    if (simplify) {
-      x <- sympy$simplify(x)
+    expr <- sympy$parse_expr(as.character(x))
+    # print(class(expr))
+    # print(expr)
+    if (reticulate::py_has_attr(expr, name="subs")) {
+      expr <- expr$subs(sympy$Function("newind")(), sympy$Symbol("NEWIND"))
     }
-    print <- reticulate::py_capture_output(sympy$print_ccode(x))
+    if (simplify) {
+      expr <- tryCatch({
+        sympy$simplify(expr)
+      }, error = function(e) {
+        return(expr)
+      })
+    }
+    print <- tryCatch({
+      reticulate::py_capture_output(sympy$print_ccode(expr, strict=FALSE))
+    }, error = function(e) {
+      return(as.character(x))
+    })
     print <- gsub("[\r\n]", "", print)
   } else {
     print <- as.character(x)
