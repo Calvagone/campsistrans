@@ -44,8 +44,8 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   #   return(file.path(testFolder, "ddmore_models", folder, filename))
   # }
   # testFolder <-  file.path(getwd(), testthat::test_path())
-  # folder <- "rifampin"
-  # filename <- "Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  # folder <- "midazolam"
+  # filename <- "Executable_Midazolam_PK.mod"
   # file <- modelPath(folder, filename)
   # pharmpy_config <- UpdatedPharmpyConfig()
   # copy_dir <- FALSE
@@ -56,7 +56,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # uncertainty <- FALSE
   # covar_name <- FALSE
   # covar_as_cor <- FALSE
-  
   
   pharmpy <- importPharmpyPackage(pharmpy_config)
   if (is.null(pharmpy)) {

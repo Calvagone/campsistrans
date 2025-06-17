@@ -51,6 +51,23 @@ removeRateFromString <- function(x) {
 }
 
 #'
+#' Remove NONMEM comments. 
+#' 
+#' @param lines lines
+#' @return lines without any comment
+#' @export
+#' 
+removeNONMEMComments <- function(lines) {
+  retValue <- lines
+  
+  # Any comment
+  retValue <- gsub(pattern="^(.*)(;.*)", replacement="\\1", x=retValue)
+  retValue <- trimws(x=retValue, which="right")
+  
+  return(retValue)
+}
+
+#'
 #' Adapt NONMEM control stream by manipulating the source file. 
 #' 
 #' @param file control stream file name
@@ -62,7 +79,10 @@ removeRateFromString <- function(x) {
 #' 
 adaptNONMEMControlStream <- function(file, rem_rate, rem_abbr_replace) {
   fileConn = file(file)
-  retValue <- paste0(readLines(con=fileConn), collapse="\n")
+  lines <- readLines(con=fileConn)
+  lines <- removeNONMEMComments(lines)
+  
+  retValue <- paste0(lines, collapse="\n")
   
   if (rem_rate) {
     retValue <- removeRateFromString(retValue)

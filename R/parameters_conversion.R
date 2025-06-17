@@ -192,7 +192,10 @@ retrieveInitialValues <- function(parset) {
 #' @export
 convertPharmpyParameter <- function(name, value, fix) {
   type <- getPharmpyParameterType(name)
-
+  if (is.null(type)) {
+    stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
+  }
+  
   if (type$type=="THETA") {
     param <- campsismod::Theta(index=type$index, value=value, fix=fix)
     
