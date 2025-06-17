@@ -28,7 +28,7 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
     system <- statements %>%
       purrr::keep(~("pharmpy.model.statements.CompartmentalSystem" %in% class(.x)))
     if (length(system) > 0) {
-      records@list <- c(records@list, convertCompartmentSystem(model))
+      records@list <- c(records@list, convertCompartmentSystem(pharmpyModel))
     }
   } else {
     records <- addconvertRecord(records, record, emptyRecord, parameters)
