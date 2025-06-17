@@ -112,19 +112,21 @@ convertStatement <- function(statement, parameters) {
     exprCondPair <- expression$args[[1]]
     expression <- exprCondPair[[1]]
     condition <- exprCondPair[[2]]
-    return(IfStatement(printSymPy(condition), Equation(symbol_chr, printSymPy(expression))))
+    return(IfStatement(printSymPy(condition, simplify=TRUE),
+                       Equation(symbol_chr, printSymPy(expression, simplify=FALSE))))
 
   } else if (expression %>% as.character() %>% startsWith("forward(")) {
     what <- expression$args[[1]]
     condition <- expression$args[[2]]
-    return(IfStatement(printSymPy(condition), Equation(symbol_chr, printSymPy(what))))
+    return(IfStatement(printSymPy(condition, simplify=TRUE),
+                       Equation(symbol_chr, printSymPy(what, simplify=FALSE))))
     
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
-    return(Ode(paste0("A_", cmtNumber), printSymPy(expression)))
+    return(Ode(paste0("A_", cmtNumber), printSymPy(expression, simplify=FALSE)))
 
   } else {
-    return(Equation(symbol_chr, printSymPy(expression)))
+    return(Equation(symbol_chr, printSymPy(expression, simplify=FALSE)))
   }
 }
 
@@ -156,7 +158,7 @@ convertRecord <- function(record, emptyRecord, parameters) {
   
   # Retrieve all equations
   for (index in (seq_along(statements) - 1)) {
-    print(index)
+    # print(index)
     statement <- statements[[index]]
     campsisStatement <- convertStatement(statement, parameters)
     

@@ -40,22 +40,22 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          auto_install=TRUE, pharmpy_config=UpdatedPharmpyConfig(),
                          copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
   
-  modelPath <- function(folder, filename) {
-    return(file.path(testFolder, "ddmore_models", folder, filename))
-  }
-  testFolder <-  file.path(getwd(), testthat::test_path())
-  folder <- "rifampin"
-  filename <- "Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
-  file <- modelPath(folder, filename)
-  pharmpy_config <- UpdatedPharmpyConfig()
-  copy_dir <- FALSE
-  rem_rate <- FALSE
-  rem_abbr_replace <- FALSE
-  estimate <- FALSE
-  mapping <- mapping(auto=TRUE)
-  uncertainty <- FALSE
-  covar_name <- FALSE
-  covar_as_cor <- FALSE
+  # modelPath <- function(folder, filename) {
+  #   return(file.path(testFolder, "ddmore_models", folder, filename))
+  # }
+  # testFolder <-  file.path(getwd(), testthat::test_path())
+  # folder <- "rifampin"
+  # filename <- "Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  # file <- modelPath(folder, filename)
+  # pharmpy_config <- UpdatedPharmpyConfig()
+  # copy_dir <- FALSE
+  # rem_rate <- FALSE
+  # rem_abbr_replace <- FALSE
+  # estimate <- FALSE
+  # mapping <- mapping(auto=TRUE)
+  # uncertainty <- FALSE
+  # covar_name <- FALSE
+  # covar_as_cor <- FALSE
   
   
   pharmpy <- importPharmpyPackage(pharmpy_config)

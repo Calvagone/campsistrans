@@ -3,12 +3,16 @@
 #' 
 #' @param x SymPy expression or condition
 #' @param output type of desired output
+#' @param simplify whether to simplify the expression before printing, default is TRUE
 #' @return code
 #' @importFrom reticulate import py_capture_output
 #' @export
-printSymPy <- function(x, output = "C") {
+printSymPy <- function(x, output="C", simplify=TRUE) {
   sympy <- reticulate::import("sympy")
   if (output == "C") {
+    if (simplify) {
+      x <- sympy$simplify(x)
+    }
     print <- reticulate::py_capture_output(sympy$print_ccode(x))
     print <- gsub("[\r\n]", "", print)
   } else {
