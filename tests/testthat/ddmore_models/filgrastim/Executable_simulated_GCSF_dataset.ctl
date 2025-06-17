@@ -108,7 +108,7 @@ $PK
   
 $DES    
     
-   ABS     = A(1)
+   ABSO     = A(1)
    ATOT    = A(2)
    
    ;ADR     = A(4)
@@ -136,8 +136,8 @@ $DES
    
 ;-------- SET OF DIFFERENTIAL EQUATIONS:
              
-DADT(1) = - KA * ABS
-DADT(2) =   KA * ABS  + KIN - KEL * AC - KINT * ADR
+DADT(1) = - KA * ABSO
+DADT(2) =   KA * ABSO  + KIN - KEL * AC - KINT * ADR
 DADT(3) =   0
 DADT(4) =   0
  

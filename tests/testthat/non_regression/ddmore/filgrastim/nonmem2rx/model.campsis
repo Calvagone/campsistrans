@@ -21,7 +21,7 @@ CP0=BAS
 F_A1=FF
 F_A2=0
 if (ROUT == 1) F_A1=0
-if (ROUT == 1) FIXME1=0 # f(A_c.ABS) = F_A1
+if (ROUT == 1) FIXME1=0 # f(A_ABS) = F_A1
 if (ROUT == 1) F_A2=1
 if (ROUT == 1) FIXME2=0 # f(A_CENT) = F_A2
 KON=KOFF/KD
@@ -59,7 +59,7 @@ INIT_A13=BM90
 INIT_A14=NB0
 
 [ODE]
-ABS=A_c_ABS
+ABSO=A_ABS
 ATOT=A_CENT
 BM1=A_B1
 BM2=A_B2
@@ -80,8 +80,8 @@ ADR=RTOT * AC/(KD + CP)
 H1=1 + SM1 * CP/(SC1 + CP)
 H2=1 + SM2 * CP/(SC1 + CP)
 H3=1 + SM3 * CP/(SC1 + CP)
-d/dt(A_c_ABS)=-KA * ABS
-d/dt(A_CENT)=KA * ABS + KIN - KEL * AC - KINT * ADR
+d/dt(A_ABS)=-KA * ABSO
+d/dt(A_CENT)=KA * ABSO + KIN - KEL * AC - KINT * ADR
 d/dt(A_c_FR)=0
 d/dt(A_DR)=0
 d/dt(A_B1)=KINB * H1 * (BM1/BM10) - KBB1 * H3 * BM1 - KTT * H2 * BM1
@@ -94,17 +94,17 @@ d/dt(A_B7)=KTT * H2 * BM6 - KBB1 * H3 * BM7 - KTT * H2 * BM7
 d/dt(A_B8)=KTT * H2 * BM7 - KBB1 * H3 * BM8 - KTT * H2 * BM8
 d/dt(A_B9)=KTT * H2 * BM8 - KBB1 * H3 * BM9 - KTT * H2 * BM9
 d/dt(A_c_NB)=KTT * H2 * BM9 + KBB1 * H3 * (BM1 + BM2 + BM3 + BM4 + BM5 + BM6 + BM7 + BM8 + BM9) - KMT * NB
-F=A_c_ABS
+F=A_ABS
 
 [F]
-A_c_ABS=F_A1
+A_ABS=F_A1
 A_CENT=F_A2
 
 [DURATION]
 A_CENT=DUR_A2
 
 [INIT]
-A_c_ABS=INIT_A1
+A_ABS=INIT_A1
 A_CENT=INIT_A2
 A_c_FR=INIT_A3
 A_DR=INIT_A4

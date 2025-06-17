@@ -44,9 +44,10 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   #   return(file.path(testFolder, "ddmore_models", folder, filename))
   # }
   # testFolder <-  file.path(getwd(), testthat::test_path())
-  # folder <- "midazolam"
-  # filename <- "Executable_Midazolam_PK.mod"
+  # folder <- "filgrastim"
+  # filename <- "Executable_simulated_GCSF_dataset.ctl"
   # file <- modelPath(folder, filename)
+  # model <- pharmpy$modeling$read_model(file)
   # pharmpy_config <- UpdatedPharmpyConfig()
   # copy_dir <- FALSE
   # rem_rate <- FALSE
