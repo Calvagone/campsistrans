@@ -157,6 +157,17 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
   steps <- pharmpy$model$ExecutionSteps(list(simulationStep))
   model <- model$replace(execution_steps=steps)
+  
+  # Update ETAs
+  updatedStatements <- setEtasAsCovariates(statements=model$statements, params=campsis@parameters, pharmpy=pharmpy)
+  
+  # Replace statements and dataset
+  datainfo <- model$datainfo$create(separator=",",
+                                    path=file.path(output_folder, "dataset.csv"),
+                                    columns=colnames(dataset))
+  datainfo <- datainfo$set_dv_column("DV")
+  datainfo <- datainfo$set_id_column("ID")
+  model <- model$replace(statements=updatedStatements, datainfo=datainfo, dataset=dataset)
 
   # Access the initial parameters
   params <- model$parameters
@@ -184,18 +195,18 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   rvsParams <- as.list(rep(0, length(rvs)))
   names(rvsParams) <- rvs
   params <- params$set_initial_estimates(rvsParams)
-  
+
   # Replace in original model
   model <- model$replace(parameters=params)
-
+  
   # Access control stream
   control_stream <- model$internals$control_stream
   
   # Make ETA's as covariates
-  control_stream <- updateETAinNONMEMRecord(control_stream, "PRED", campsis@parameters, pharmpy)
-  control_stream <- updateETAinNONMEMRecord(control_stream, "PK", campsis@parameters, pharmpy)
-  control_stream <- updateETAinNONMEMRecord(control_stream, "ERROR", campsis@parameters, pharmpy)
-  
+  # control_stream <- updateETAinNONMEMRecord(control_stream, "PRED", campsis@parameters, pharmpy)
+  # control_stream <- updateETAinNONMEMRecord(control_stream, "PK", campsis@parameters, pharmpy)
+  # control_stream <- updateETAinNONMEMRecord(control_stream, "ERROR", campsis@parameters, pharmpy)
+  # 
   # Table
   tables <- control_stream$get_records("TABLE")
   
@@ -211,21 +222,13 @@ updateControlStreamForSimulation <- function(model_path, estimate=TRUE, dataset,
   table <- pharmpy$model$external$nonmem$records$factory$create_record(tableStr)
   control_stream <- control_stream$insert_record(table)
   
+  # # Works in fact
+  # control_stream <- control_stream$remove_records(control_stream$get_records("INPUT"))
+  # control_stream <- control_stream$remove_records(control_stream$get_records("DATA"))
+  # 
   # Replace control stream with updated one
   model <- updateControlStream(model, control_stream)
   cat(model$code, sep = "\n")
-
-  # OK till here
-  
-  # Replace INPUT record
-  datainfo <- model$datainfo$create(separator=",",
-                                    path=file.path(output_folder, "dataset.csv"),
-                                    columns=colnames(dataset))
-  datainfo <- datainfo$set_dv_column("DV")
-  
-  model <- model$replace(datainfo=datainfo)
-  model <- model$replace(dataset=dataset)
-  
 
   # Write model
   pharmpy$modeling$write_model(model=model, path=file.path(output_folder, "export.mod"), force=TRUE)
@@ -252,7 +255,7 @@ updateETAinNONMEMRecord <- function(control_stream, recordType, params, pharmpy)
     replacementStatements <- list()
     
     # Replace all ETA's
-    for (index in (seq_along(statements))) {
+    for (index in (seq_along(statements) - 1)) {
       statement <- statements[[index]]
 
       # Only if expression is present
@@ -283,6 +286,50 @@ updateETAinNONMEMRecord <- function(control_stream, recordType, params, pharmpy)
     control_stream <- control_stream$replace_records(record, list(record_))
   }
   return(control_stream)
+}
+
+#' Update ETA's in NONMEM record.
+#' 
+#' @param control_stream pharmpy model
+#' @param params CAMPSIS parameters
+#' @param pharmpy pharmpy package
+#' @importFrom reticulate import iterate py_has_attr
+#' @export
+#' 
+setEtasAsCovariates <- function(statements, params, pharmpy) {
+  replacementStatements <- list()
+
+  # Replace all ETA's
+  for (index in (seq_along(statements) - 1)) {
+    statement <- statements[[index]]
+    
+    # Only if expression is present
+    if (reticulate::py_has_attr(statement, name="expression")) {
+      free_symbols <- reticulate::iterate(statement$expression$free_symbols)
+      
+      for (symbolIndex in seq_along(free_symbols)) {
+        freeSymbol <- free_symbols[[symbolIndex]]
+        symbol_chr <- as.character(freeSymbol)
+        print(symbol_chr)
+        type <- getPharmpyParameterType(symbol_chr)
+        
+        if (!is.null(type) && type$type=="ETA") {
+          replacementSymbol <- pharmpy$basic$Expr$symbol(nameParameter(type, params))
+          statement <- statement$replace(expression=replaceSymbol(statement$expression, freeSymbol, replacementSymbol))
+        }
+      }
+      # After ETA's replacement, if left = right (e.g. ETA_CL=ETA_CL)
+      # -> the current statement is omitted
+      if (statement$symbol %>% as.character() != statement$expression %>% as.character()) {
+        replacementStatements <- c(replacementStatements, statement)
+      }
+    } else {
+      replacementStatements <- c(replacementStatements, statement)
+    }
+  }
+  
+  statements_ <- pharmpy$model$Statements(replacementStatements)
+  return(statements_)
 }
 
 #' Set OMEGA and SIGMA initial values to 0 and fix them.
