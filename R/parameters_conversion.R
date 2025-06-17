@@ -89,7 +89,7 @@ processParameters <- function(parameters) {
 #' @export
 convertParameters <- function(model, mapping, estimate) {
   
-  assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
+  assertthat::assert_that(inherits(model, "pharmpy.model.model.Model"),
                           msg="model is not a Pharmpy model")
   if (!is.null(mapping)) {
     assertthat::assert_that(inherits(mapping, "pmxmapping"),
@@ -167,12 +167,12 @@ convertParameters <- function(model, mapping, estimate) {
 #' @importFrom assertthat assert_that
 #' @export
 retrieveInitialValues <- function(parset) {
-  assertthat::assert_that(inherits(parset, "pharmpy.parameter.Parameters"),
+  assertthat::assert_that(inherits(parset, "pharmpy.model.parameters.Parameters"),
                           msg="parset is not a parameter set")
   
   paramsList <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
     fix <- as.logical(parset$fix[name])
-    return(convertNONMEMParameter(name=name, value=initialValue, fix=fix))
+    return(convertPharmpyParameter(name=name, value=initialValue, fix=fix))
   })
   
   # Skip parameters validation because SAME omegas are not returned!
@@ -190,25 +190,18 @@ retrieveInitialValues <- function(parset) {
 #' @return S4 parameters object
 #' @importFrom campsismod Theta Omega Sigma
 #' @export
-convertNONMEMParameter <- function(name, value, fix) {
-  index <- extractValueInParentheses(name)
-  isTheta <- isNMThetaParameter(name)
-  isOmega <- isNMOmegaParameter(name)
-  isSigma <- isNMSigmaParameter(name)
-  
-  if (isTheta) {
-    param <- campsismod::Theta(index=index, value=value, fix=fix)
+convertPharmpyParameter <- function(name, value, fix) {
+  type <- getPharmpyParameterType(name)
+
+  if (type$type=="THETA") {
+    param <- campsismod::Theta(index=type$index, value=value, fix=fix)
     
-  } else if (isOmega || isSigma) {
-    indexes <- strsplit(index, ",")
-    index1 <- indexes[[1]][1]
-    index2 <- indexes[[1]][2]
-    className <- if(isOmega) {"omega"} else {"sigma"}
-    if (isOmega) {
-      param <- campsismod::Omega(index=index1, index2=index2, value=value, fix=fix)
-    } else {
-      param <- campsismod::Sigma(index=index1, index2=index2, value=value, fix=fix)
-    }
+  } else if (type$type=="OMEGA") {
+    param <- campsismod::Omega(index=type$index[1], index2=type$index[2], value=value, fix=fix)
+    
+  } else if (type$type=="SIGMA") {
+    param <- campsismod::Sigma(index=type$index[1], index2=type$index[2], value=value, fix=fix)
+    
   } else {
     stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
   }

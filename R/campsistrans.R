@@ -37,9 +37,28 @@ setClass(
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          covar_name=FALSE, covar_as_cor=FALSE,
-                         auto_install=TRUE, pharmpy_config=OldPharmpyConfig(),
+                         auto_install=TRUE, pharmpy_config=UpdatedPharmpyConfig(),
                          copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
-  pharmpy <- importPythonPackage("pharmpy")
+  
+  modelPath <- function(folder, filename) {
+    return(file.path(testFolder, "ddmore_models", folder, filename))
+  }
+  testFolder <-  file.path(getwd(), testthat::test_path())
+  folder <- "rifampin"
+  filename <- "Executable_real_TB_Rifampicin_PK_Wilkins_2008.mod"
+  file <- modelPath(folder, filename)
+  pharmpy_config <- UpdatedPharmpyConfig()
+  copy_dir <- FALSE
+  rem_rate <- FALSE
+  rem_abbr_replace <- FALSE
+  estimate <- FALSE
+  mapping <- mapping(auto=TRUE)
+  uncertainty <- FALSE
+  covar_name <- FALSE
+  covar_as_cor <- FALSE
+  
+  
+  pharmpy <- importPharmpyPackage(pharmpy_config)
   if (is.null(pharmpy)) {
     if (auto_install) {
       installPharmpy(pharmpy_config)
@@ -73,7 +92,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   adaptNONMEMControlStream(file=ctlPath, rem_rate=rem_rate, rem_abbr_replace=rem_abbr_replace)
 
   # Create model with Pharmpy
-  model <- pharmpy$Model$create_model(ctlPath)
+  model <- pharmpy$modeling$read_model(ctlPath)
   
   if (uncertainty) {
     fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", ctlBasename)
@@ -84,13 +103,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     varcov <- read.nonmemcov(file=covFile)
   } else {
     varcov <- matrix(numeric(0), nrow=0, ncol=0)
-  }
-  
-  # Line needed! Otherwise pharmpyOmegas[[index]]$eta_map not working in getNumberOfEtas()
-  # Probably due to lazy instantiation
-  # Problem: only there when estimated parameters are provided
-  if (estimate) {
-    pharmpyEstimates <- model$modelfit_results$parameter_estimates
   }
   
   # Always provide OMEGA mapping if unset

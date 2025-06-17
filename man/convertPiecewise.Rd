@@ -4,12 +4,12 @@
 \alias{convertPiecewise}
 \title{SymPy piecewise conversion to CAMPSIS model.}
 \usage{
-convertPiecewise(symbol, piecewise)
+convertPiecewise(symbol, expression)
 }
 \arguments{
 \item{symbol}{SymPy statement symbol}
 
-\item{piecewise}{SymPy piecewise}
+\item{expression}{SymPy piecewise}
 }
 \value{
 C code

@@ -12,7 +12,7 @@ importNONMEM(
   covar_name = FALSE,
   covar_as_cor = FALSE,
   auto_install = TRUE,
-  pharmpy_config = OldPharmpyConfig(),
+  pharmpy_config = UpdatedPharmpyConfig(),
   copy_dir = FALSE,
   rem_rate = FALSE,
   rem_abbr_replace = TRUE

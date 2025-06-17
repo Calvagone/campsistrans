@@ -4,14 +4,14 @@
 \alias{convertRecord}
 \title{NONMEM record (pharmpy) to CAMPSIS model.}
 \usage{
-convertRecord(records, emptyRecord, parameters)
+convertRecord(record, emptyRecord, parameters)
 }
 \arguments{
-\item{records}{one or more NONMEM record}
-
 \item{emptyRecord}{empty code record, already instantiated with the right type}
 
 \item{parameters}{parameters}
+
+\item{records}{one or more NONMEM record}
 }
 \value{
 a CAMPSIS record

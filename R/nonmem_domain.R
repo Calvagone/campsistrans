@@ -142,6 +142,15 @@ getPharmpyParameterType <- function(str) {
     retValue$type <- "EPS"
     retValue$index <- as.numeric(gsub("^EPS_(\\d+)$", "\\1", str))
     
+  } else if (grepl("^OMEGA_\\d+_\\d+$", str)) {
+    retValue$type <- "OMEGA"
+    retValue$index <- c(as.numeric(gsub("^OMEGA_(\\d+)_(\\d+)$", "\\1", str)),
+                        as.numeric(gsub("^OMEGA_(\\d+)_(\\d+)$", "\\2", str)))
+    
+  } else if (grepl("^SIGMA_\\d+_\\d+$", str)) {
+    retValue$type <- "SIGMA"
+    retValue$index <- c(as.numeric(gsub("^SIGMA_(\\d+)_(\\d+)$", "\\1", str)),
+                        as.numeric(gsub("^SIGMA_(\\d+)_(\\d+)$", "\\2", str)))
   } 
   
   if (is.null(retValue$type)) {

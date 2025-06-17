@@ -4,10 +4,10 @@
 \alias{convertCompartmentSystem}
 \title{Pharmpy compartment system conversion to PMX model.}
 \usage{
-convertCompartmentSystem(system)
+convertCompartmentSystem(model)
 }
 \arguments{
-\item{system}{Pharmpy compartment system}
+\item{model}{Pharmpy model}
 }
 \value{
 ODE record (CAMPSIS domain)
