@@ -2,17 +2,17 @@
 % Please edit documentation in R/nonmem_qualification_prep.R
 \name{setEtasAsCovariates}
 \alias{setEtasAsCovariates}
-\title{Update ETA's in NONMEM record.}
+\title{Set ETAs as covariates in Pharmpy model.}
 \usage{
 setEtasAsCovariates(statements, params, pharmpy)
 }
 \arguments{
-\item{params}{CAMPSIS parameters}
+\item{statements}{pharmpy model}
+
+\item{params}{Campsis parameters}
 
 \item{pharmpy}{pharmpy package}
-
-\item{control_stream}{pharmpy model}
 }
 \description{
-Update ETA's in NONMEM record.
+Set ETAs as covariates in Pharmpy model.
 }
