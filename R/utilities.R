@@ -23,8 +23,14 @@ printSymPy <- function(x, output="C", simplify=TRUE) {
         return(expr)
       })
     }
+    # Note: when not supported in C
+    # Message
+    # /* Not supported in C: */
+    # /* A_0 */
+    # is deleted automatically
     print <- tryCatch({
-      reticulate::py_capture_output(sympy$print_ccode(expr, strict=FALSE))
+      gsub(pattern="^/\\*.*\\*/\\s*", replacement="",
+           x=reticulate::py_capture_output(sympy$print_ccode(expr, strict=FALSE)))
     }, error = function(e) {
       return(as.character(x))
     })
