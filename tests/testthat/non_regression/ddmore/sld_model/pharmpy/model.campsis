@@ -23,7 +23,7 @@ LLOQ=5
 IPRED=A_1
 W=FADD
 DUM=(-IPRED + LLOQ)/W
-DUM2=(1.0/4.0)*M_SQRT2*erf(DUM) + 1.0/2.0
+DUM2=PHI(DUM)
 if (BQL == 1) F_FLAG=1
 if (BQL == 1) Y=DUM2
 if (BQL == 0) F_FLAG=0

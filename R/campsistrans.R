@@ -123,6 +123,10 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   campsis <- campsis %>%
     substituteDuplicateEquationNames()
   
+  # Newind() to NEWIND
+  campsis <- campsis %>%
+    replaceAll(pattern=Pattern("newind\\(\\)"), replacement="NEWIND")
+  
   # In case parameters are not valid (e.g. because of the SAME omega's)
   # Try to make it valid using auto-extraction
   if (mapping$auto && !isTRUE(validObject(campsis@parameters, test=TRUE, complete=TRUE))) {
