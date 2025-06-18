@@ -8,6 +8,7 @@ importDataset(
   campsistrans,
   covariates = NULL,
   etas = FALSE,
+  table_no = 1,
   etas_zero = FALSE,
   campsis_id = FALSE
 )
@@ -20,6 +21,8 @@ NULL is default (all covariates are kept)}
 
 \item{etas}{import estimated ETA's that were output by $TABLE in control stream.
 By default, ETA's are not imported. Please set it to TRUE to enable this feature.}
+
+\item{table_no}{table number to look for the ETAs, default is 1}
 
 \item{etas_zero}{if previous argument is set to FALSE, etas_zero set to TRUE will
 all ETA's from model to 0 (useful to simulate model without IIV)}

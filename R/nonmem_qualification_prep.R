@@ -70,18 +70,19 @@ loadCtl <- function(path, estimate) {
   return(model)
 }
 
-#' Update control stream for qualification
+#' Prepare simulation control stream.
 #' 
-#' @param model Pharmpy model
+#' @param campsistrans Pharmpy model
 #' @param dataset simulation dataset, data frame
 #' @param campsis Campsis model, used for mapping ETAs to covariates
-#' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
+#' @param variables variables to output
 #' @param compartments compartment indexes to output, numeric vector
-#' @return the updated campsistrans object
+#' @return the updated Campsistrans object
 #' @export
-updateCtlForQual <- function(model, dataset, campsis, variables, compartments=NULL) {
-
+prepareSimulationCtl <- function(campsistrans, dataset, variables, compartments=NULL) {
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
+  model <- campsistrans@model
+  campsis <- campsistrans@campsis
 
   # Remove ESTIMATION record and add SIMULATION
   simulationStep <- pharmpy$modeling$estimation_steps$SimulationStep()
@@ -124,7 +125,7 @@ updateCtlForQual <- function(model, dataset, campsis, variables, compartments=NU
   
   # Prepare single TABLE to output
   variablesDataset <- colnames(dataset)
-  defaultVariables <- c("ID", "TIME", "MDV")
+  defaultVariables <- c("ID", "TIME", "EVID")
   defaultVariables <- defaultVariables[defaultVariables %in% variablesDataset]
   allVariables <- unique(c(defaultVariables, variables))
   tableStr <- sprintf("$TABLE %s FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n", paste0(allVariables, collapse=" "))
@@ -133,38 +134,36 @@ updateCtlForQual <- function(model, dataset, campsis, variables, compartments=NU
   
   # Replace control stream with updated one
   model <- updateCtl(model, control_stream)
-  # cat(model$code, sep = "\n")
 
-  return(model)
+  # Update Campsistrans
+  campsistrans@model <- model
+  return(campsistrans)
 }
 
-#' Write control stream to files.
+#' Write simulation control stream.
 #' 
-#' @param model Pharmpy model
-#' @param path where to write the control stream
-#' @param force if TRUE, overwrite existing file
-#' @return the path to the written control stream
+#' @param campsistrans Campsistrans object
+#' @param folder the path to the qualification folder
+#' @return the path to the qualification folder
 #' @export
-writeCtl <- function(model, path, force) {
+writeSimulationCtl <- function(campsistrans, folder) {
+  model <- campsistrans@model
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
-  dir <- dirname(path)
+
+  # Create dir if not existing
+  if (!dir.exists(folder)) {
+    dir.create(folder, recursive=TRUE)
+  }
   
-  # # Remove any DROP directive in INPUT
-  # control_stream <- model$internals$control_stream
-  # inputs <- control_stream$get_records("INPUT")
-  # input <- inputs[[1]]
-  # inputStr <- "$INPUT"
-  # for (option in input$all_options) {
-  #   inputStr <- inputStr %>% append(option$key)
-  # }
-  # updatedInput <- pharmpy$model$external$nonmem$records$factory$create_record(paste(inputStr, collapse=" "))
-  # control_stream <- control_stream$remove_records(inputs)
-  # control_stream <- control_stream$insert_record(input)
-  # model <- updateCtl(model, control_stream)
+  # Clear directory
+  do.call(file.remove, list(list.files(folder, full.names=TRUE)))
+  
+  # Write NONMEM dataset
+  write.csv(model$dataset, file=file.path(folder, "dataset.csv"), quote=FALSE, row.names=FALSE)
   
   # Update dataset path
   datainfo <- model$datainfo$create(separator=",",
-                                    path=file.path(dir, "dataset.csv"),
+                                    path=file.path(folder, "dataset.csv"),
                                     columns=model$dataset %>% colnames())
   datainfo <- datainfo$set_dv_column("DV")
   datainfo <- datainfo$set_id_column("ID")
@@ -173,7 +172,47 @@ writeCtl <- function(model, path, force) {
   # Last call to update source
   model <- model$update_source()
   
-  pharmpy$modeling$write_model(model=model, path=path, force=force)
+  pharmpy$modeling$write_model(model=model, path=file.path(folder, "model.mod"), force=TRUE)
+  
+  return(folder)
+}
+
+
+#' Execute NONMEM. PsN will be called automatically by R. 
+#' Prepared control stream 'model.mod' is executed automatically and NONMEM results
+#' are returned in the form of a data frame.
+#' 
+#' @param folder qualification folder where the control stream is
+#' @param reexecuteNONMEM force re-execute NONMEM if results already exist
+#' @param ctl_name control stream name, default is 'model.mod'
+#' @export
+executeNONMEM <- function(folder, reexecuteNONMEM=T, ctl_name="model.mod") {
+  tabFile <- paste0(folder, "/", "output.tab")
+  if (!file.exists(tabFile) || reexecuteNONMEM) {
+    system("cmd.exe", input=paste0("cd ","\"", folder, "\"", " & ", "execute ", ctl_name))
+    unlink(paste0(folder, "/", "modelfit_dir1"), recursive=TRUE)
+  }
+  nonmem <- read.nonmem(tabFile)[[1]] %>% as.data.frame()
+  return(nonmem)
+}
+
+#' Prepare simulation control stream and execute it with NONMEM.
+#' 
+#' @param campsistrans campsistrans object
+#' @param dataset simulation dataset, data frame
+#' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
+#' @param compartments compartment indexes to output, numeric vector
+#' @param folder where to execute the simulation control stream
+#' @param reexecuteNONMEM force re-execute NONMEM if results already exist
+#' @return a data frame with NONMEM results
+#' @export
+#' 
+executeSimulationCtl <- function(campsistrans, dataset, variables, compartments=NULL, folder, reexecuteNONMEM=T) {
+  campsistrans_ <- prepareSimulationCtl(campsistrans=campsistrans, dataset=dataset,
+                                  variables=variables, compartments=compartments)
+  folder <- writeSimulationCtl(campsistrans=campsistrans_, folder=folder)
+  results <- executeNONMEM(folder=folder, reexecuteNONMEM=reexecuteNONMEM)
+  return(results)
 }
 
 #' Set ETAs as covariates in Pharmpy model.
@@ -218,26 +257,5 @@ setEtasAsCovariates <- function(statements, params, pharmpy) {
   
   statements_ <- pharmpy$model$Statements(replacementStatements)
   return(statements_)
-}
-
-#' Set OMEGA and SIGMA initial values to 0 and fix them.
-#' 
-#' @param model Pharmpy model
-#' @return the updated campsistrans object
-#' @importFrom purrr map
-#' @importFrom campsismod getNONMEMName
-#' @export
-#' 
-omegaSigmaToZero <- function(model) {
-  parset <- model$parameters
-  pharmpyList <- retrieveInitialValues(parset)
-  pharmpyList@list %>% purrr::map(.f=function(parameter) {
-    name <- parameter %>% campsismod::getNONMEMName()
-    if (as.character(class(parameter)) != "theta" && length(parset$inits[[name]]) > 0) {
-      parset$inits[[name]] <<- 0
-      parset$fix[[name]] <<- TRUE
-    }
-  })
-  return(x)
 }
 

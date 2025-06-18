@@ -37,6 +37,7 @@ standardiseNMDataset <- function(dataset) {
 #' By default, ETA's are not imported. Please set it to TRUE to enable this feature.
 #' @param etas_zero if previous argument is set to FALSE, etas_zero set to TRUE will
 #' all ETA's from model to 0 (useful to simulate model without IIV)
+#' @param table_no table number to look for the ETAs, default is 1
 #' @param campsis_id rework ID column for simulation with CAMPSIS (ID must start at 1 and must be consecutive).
 #' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 #' preserved in column 'ORIGINAL_ID'.
@@ -45,17 +46,17 @@ standardiseNMDataset <- function(dataset) {
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=FALSE, campsis_id=FALSE) {
-  pharmpy <- campsistrans@model[[1]]
+importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, table_no=1, etas_zero=FALSE, campsis_id=FALSE) {
+  pharmpy <- campsistrans@model
   
   # Looking at DATA section
-  data <- getFirstRecord(pharmpy, name="DATA")
+  data <- getRecordAt(pharmpy, name="DATA")
   dataset <- read.csv(file=paste0(campsistrans@dirname, "/", data$filename))
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
   
   # Looking at INPUT section
-  input <- getFirstRecord(pharmpy, name="INPUT")
+  input <- getRecordAt(pharmpy, name="INPUT")
   
   # All options in INPUT
   options <- input$all_options
@@ -99,7 +100,7 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=F
   
   # Import ETAs if it was required (default is FALSE)
   if (etas) {
-    table <- getFirstRecord(pharmpy, name="TABLE")
+    table <- getRecordAt(pharmpy, name="TABLE", index=table_no)
     tabFilename <- table$path %>% as.character()
     dataset <- dataset %>% importETAs(file=paste0(campsistrans@dirname, "/", tabFilename),
                                       model=campsistrans@campsis)
@@ -122,19 +123,20 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=F
   return(dataset)
 }
 
-#' Get first NONMEM record from the NONMEM control stream for the given section name.
+#' Get indexed NONMEM record from the NONMEM control stream for the given section name.
 #'
 #' @param pharmpy pharmpy model
 #' @param name NONMEM section name
+#' @param index index of the record, default is 1
 #' @param stop_if_not_found throw an error if no section was found
 #' @return a record
 #' 
-getFirstRecord <- function(pharmpy, name, stop_if_not_found=TRUE) {
-  records <- pharmpy$control_stream$get_records(name)
+getRecordAt <- function(pharmpy, name, index=1, stop_if_not_found=TRUE) {
+  records <- pharmpy$internals$control_stream$get_records(name)
   if (records %>% length() == 0) {
     stop(paste0("No ", name, " section in control stream"))
   }
-  record <- records[[1]]
+  record <- records[[index]]
   return(record)
 }
 

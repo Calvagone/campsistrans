@@ -6,7 +6,7 @@
 setClass(
   "campsistrans",
   representation(
-    model = "list", # TODO, should be any in the future
+    model = "ANY",
     estimate = "logical",
     mapping = "ANY",
     dirname = "character",
@@ -132,7 +132,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # Create campsistrans object
   retValue <- new(
     "campsistrans",
-    model = list(model),
+    model = model,
     estimate = estimate,
     mapping = mapping,
     dirname = dirname,
@@ -160,6 +160,6 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
 
 setMethod("write", signature=c("campsistrans", "character"), definition=function(object, file, ...) {
   pharmpy <- reticulate::import("pharmpy")
-  model <- object@model[[1]]
+  model <- object@model
   pharmpy$modeling$write_model(model=model, path=file, force=TRUE)
 })
