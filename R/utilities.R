@@ -10,11 +10,11 @@
 printSymPy <- function(x, output="C", simplify=TRUE) {
   sympy <- reticulate::import("sympy")
   if (output == "C") {
-    expr <- sympy$parse_expr(as.character(x))
+    expr <- x # sympy$parse_expr(as.character(x))
     # print(class(expr))
     # print(expr)
     if (reticulate::py_has_attr(expr, name="subs")) {
-      expr <- expr$subs(sympy$Function("newind")(), sympy$Symbol("NEWIND"))
+      # expr <- expr$subs(sympy$Function("newind")(), sympy$Symbol("NEWIND"))
     }
     if (simplify) {
       expr <- tryCatch({

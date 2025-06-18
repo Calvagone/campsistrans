@@ -3,14 +3,15 @@
 $SIZES LIM6=2000
 $PROBLEM Model for SLD(t)
 
-$INPUT CCOM,ID,
-TIME, ;in day
-DV, ;SLD in mm
-BQL, ;the LLOQ is 5 mm
-CB, ;exposure to carboplatin (per-cycle average AUC)
-G, ;exposure to gemcitabine (per-cycle average AUC)
-EVID,
-FLG, ;FLG=2 for SLD data, FLG=1 for exposure-related entries
+$INPUT CCOM
+ID
+TIME ;in day
+DV ;SLD in mm
+BQL ;the LLOQ is 5 mm
+CB ;exposure to carboplatin (per-cycle average AUC)
+G ;exposure to gemcitabine (per-cycle average AUC)
+EVID
+FLG ;FLG=2 for SLD data, FLG=1 for exposure-related entries
 CMT ;CMT=1 for SLD data
 
 $DATA Simulated_SLD.csv IGNORE=C 

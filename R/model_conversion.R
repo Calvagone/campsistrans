@@ -123,12 +123,33 @@ convertStatement <- function(statement, parameters) {
     
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
+    # browser()
     return(Ode(paste0("A_", cmtNumber), printSymPy(expression, simplify=FALSE)))
 
   } else {
-    return(Equation(symbol_chr, printSymPy(expression, simplify=FALSE)))
+    equation <- Equation(symbol_chr, printSymPy(expression, simplify=FALSE))
+    return(checkNewindStatement(equation))
   }
 }
+
+#' Check if the equation is a newind statement.
+#' E.g. if Equation("OCB", "first(CB, ID)"),
+#' we return an if-statement.
+#' 
+#' @param equation equation to check
+#' @return IfStatement or Equation
+#' 
+checkNewindStatement <- function(equation) {
+  newindPattern <- "^first\\((.+), ID\\)$"
+  
+  if (grepl(pattern=newindPattern, x=equation@rhs)) {
+    rhs_ <- gsub(pattern=newindPattern, replacement="\\1", x=equation@rhs)
+    return(IfStatement("NEWIND != 2", 
+                       Equation(equation@lhs, rhs_)))
+  } else {
+    return(equation)
+  }
+} 
 
 #' SymPy piecewise conversion to CAMPSIS model.
 #' 
