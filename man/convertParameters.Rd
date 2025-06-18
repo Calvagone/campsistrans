@@ -4,14 +4,12 @@
 \alias{convertParameters}
 \title{Define and annotate your parameters.}
 \usage{
-convertParameters(model, mapping, estimate)
+convertParameters(model, mapping)
 }
 \arguments{
 \item{model}{Pharmpy model}
 
 \item{mapping}{PMX mapping}
-
-\item{estimate}{if TRUE, estimated values are used, if FALSE, initial values are used}
 }
 \value{
 parameters definition table

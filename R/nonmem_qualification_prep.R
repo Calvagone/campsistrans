@@ -47,7 +47,7 @@ updateCtl <- function(model, control_stream) {
 #' 
 #' @param path path to original control stream
 #' @param estimate reuse estimated parameters from the model fit, default is TRUE
-#' @return the updated campsistrans object
+#' @return the pharmpy model
 #' @export
 loadCtl <- function(path, estimate) {
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
@@ -66,6 +66,8 @@ loadCtl <- function(path, estimate) {
     # Replace parameters in original model
     model <- model$replace(parameters=parameters)
   }
+  
+  return(model)
 }
 
 #' Update control stream for qualification

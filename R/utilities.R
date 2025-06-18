@@ -41,13 +41,23 @@ printSymPy <- function(x, output="C", simplify=TRUE) {
 }
 
 getNumberOfEtas <- function(model) {
-  pharmpyOmegas <- model$control_stream$get_records("OMEGA")
-  etas <- 0
-  for (index in seq_along(pharmpyOmegas)) {
-    map <- pharmpyOmegas[[index]]$eta_map
-    etas <- etas + length(map)
+  retValue <- 0
+  rvs <- model$random_variables
+  for (index in seq_along(rvs)) {
+    rv <- rvs[[index - 1]]
+    level <- rv$level
+    if (level=="IIV" || level=="IOV") {
+      matrix <- rv$variance
+      if ("pharmpy.basic.matrix.Matrix" %in% class(matrix)) {
+        retValue <- retValue + matrix$cols
+      } else if ("pharmpy.basic.expr.Expr" %in% class(matrix)) {
+        retValue <- retValue + 1
+      } else {
+        stop(sprintf("Unexpected matrix class"))
+      }
+    }
   }
-  return(etas)
+  return(retValue)
 }
 
 #'

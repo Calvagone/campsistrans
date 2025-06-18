@@ -12,7 +12,7 @@ loadCtl(path, estimate)
 \item{estimate}{reuse estimated parameters from the model fit, default is TRUE}
 }
 \value{
-the updated campsistrans object
+the pharmpy model
 }
 \description{
 Load control stream with Pharmpy.

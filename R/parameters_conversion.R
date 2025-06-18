@@ -83,11 +83,10 @@ processParameters <- function(parameters) {
 #' @param model Pharmpy model
 #' @param mapping PMX mapping
 #' @return parameters definition table
-#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
 #' @importFrom campsismod add getByIndex getNONMEMName Parameters sort
 #' @export
-convertParameters <- function(model, mapping, estimate) {
+convertParameters <- function(model, mapping) {
   
   assertthat::assert_that(inherits(model, "pharmpy.model.model.Model"),
                           msg="model is not a Pharmpy model")
@@ -123,38 +122,6 @@ convertParameters <- function(model, mapping, estimate) {
       parameters <<- parameters %>% campsismod::add(parameter)
     }
   })
-  
-  if (!estimate) {
-    return(processParameters(parameters))
-  }
-  
-  # Reading estimated values with pharmpy
-  estimates <- model$modelfit_results$parameter_estimates
-  
-  if (is.null(estimates)) {
-    stop("No NONMEM results are available through Pharmpy")
-  }
-  
-  list <- parameters@list %>% purrr::map(.f=function(param) {
-    name <- param %>% campsismod::getNONMEMName()
-    estimateIndex <- which(names(estimates)==name)
-    if (length(estimateIndex) == 0) {
-      if (!is.na(param@fix) && !param@fix) {
-        warning(paste0("No estimate for parameter ", name))
-      }
-    } else if (length(estimateIndex) == 1){
-      param@value <- estimates[[estimateIndex]]
-      
-    } else {
-      warning(paste0("Several values corresponding to ", name))
-    }
-    
-    return(param)
-  })
-  
-  # Skip parameters validation here
-  parameters <- Parameters()
-  parameters@list <- list
   
   return(processParameters(parameters))
 }

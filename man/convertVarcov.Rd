@@ -9,7 +9,7 @@ convertVarcov(varcov, parameters)
 \arguments{
 \item{varcov}{raw variance-covariance matrix}
 
-\item{parameters}{CAMPSIS model parameters}
+\item{parameters}{Campsis model parameters}
 }
 \value{
 an updated variance-covariance matrix

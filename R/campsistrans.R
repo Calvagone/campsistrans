@@ -74,7 +74,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   adaptNONMEMControlStream(file=ctlPath, rem_rate=rem_rate, rem_abbr_replace=rem_abbr_replace)
 
   # Create model with Pharmpy
-  model <- pharmpy$modeling$read_model(ctlPath)
+  model <- loadCtl(path=ctlPath, estimate=estimate)
   
   if (uncertainty) {
     fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", ctlBasename)
@@ -96,7 +96,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   }
   
   # Convert parameters from NONMEM to Campsis
-  parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
+  parameters <- convertParameters(model, mapping=mapping)
   
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
