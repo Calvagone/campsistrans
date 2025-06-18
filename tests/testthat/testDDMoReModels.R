@@ -139,7 +139,7 @@ test_that("Paracetamol PK in newborns can be imported well (pharmpy/nonmem2rx)",
   # DDMODEL00000271
   # Paracetamol and metabolite PK in newborns
 
-  filename <- "Executable_ParacetamolInNewborns.mod"
+  filename <- "Executable_ParacetamolInNewborns_modified.mod"
   folder <- "paracetamol"
 
   # Note: when updating Pharmpy from 0.30.1 to 0.43.0
@@ -326,6 +326,7 @@ test_that("OS model can be imported well (pharmpy/nonmem2rx)", {
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
 
+
 test_that("BDQ M2 popPK model can be imported well (pharmpy/nonmem2rx)", {
   # DDMODEL00000219
 
@@ -364,4 +365,3 @@ test_that("CPHPC model can be imported well (pharmpy/nonmem2rx)", {
   model2 <- generateModel2(filename=filename, folder=folder, ctlExt="ctl", unknownStatements=TRUE)
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
-

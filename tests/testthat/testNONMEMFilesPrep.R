@@ -23,8 +23,5 @@ test_that("Import custom model", {
   output_folder <- file.path(test_folder, "Export")
   
   writeCtl(model=model_, path=file.path(output_folder, "export.mod"), force=TRUE)
-  
-  
-  
 })
 

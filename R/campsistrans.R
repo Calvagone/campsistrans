@@ -40,24 +40,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          auto_install=TRUE, pharmpy_config=UpdatedPharmpyConfig(),
                          copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
   
-  # modelPath <- function(folder, filename) {
-  #   return(file.path(testFolder, "ddmore_models", folder, filename))
-  # }
-  # testFolder <-  file.path(getwd(), testthat::test_path())
-  # folder <- "filgrastim"
-  # filename <- "Executable_simulated_GCSF_dataset.ctl"
-  # file <- modelPath(folder, filename)
-  # model <- pharmpy$modeling$read_model(file)
-  # pharmpy_config <- UpdatedPharmpyConfig()
-  # copy_dir <- FALSE
-  # rem_rate <- FALSE
-  # rem_abbr_replace <- FALSE
-  # estimate <- FALSE
-  # mapping <- mapping(auto=TRUE)
-  # uncertainty <- FALSE
-  # covar_name <- FALSE
-  # covar_as_cor <- FALSE
-  
   pharmpy <- importPharmpyPackage(pharmpy_config)
   if (is.null(pharmpy)) {
     if (auto_install) {
