@@ -37,19 +37,3 @@ d/dt(A_4)=A_2*K24
 d/dt(A_5)=A_1*K15
 d/dt(A_6)=A_3*K36
 
-[ERROR]
-COM1=0
-if (CMT == 1) COM1=1
-COM4=0
-if (CMT == 4) COM4=1
-COM5=0
-if (CMT == 5) COM5=1
-COM6=0
-if (CMT == 6) COM6=1
-IPRE=F
-Y1=EPS_5 + F*(EPS_1 + 1)
-Y4=F*(EPS_2 + 1)
-Y5=F*(EPS_3 + 1)
-Y6=F*(EPS_4 + 1)
-Y=COM1*Y1 + COM4*Y4 + COM5*Y5 + COM6*Y6
-
