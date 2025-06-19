@@ -11,7 +11,7 @@ prepareSimulationCtl(campsistrans, dataset, variables, compartments = NULL)
 
 \item{dataset}{simulation dataset, data frame}
 
-\item{variables}{variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)}
+\item{variables}{variables to output}
 
 \item{compartments}{compartment indexes to output, numeric vector}
 

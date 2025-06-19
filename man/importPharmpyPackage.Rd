@@ -4,10 +4,10 @@
 \alias{importPharmpyPackage}
 \title{Import python package without error.}
 \usage{
-importPharmpyPackage(config = OldPharmpyConfig())
+importPharmpyPackage(config = UpdatedPharmpyConfig())
 }
 \arguments{
-\item{config}{pharmpy config}
+\item{config}{pharmpy config, default is UpdatedPharmpyConfig()}
 }
 \value{
 NULL if an error occurs

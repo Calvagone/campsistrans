@@ -4,10 +4,10 @@
 \alias{installPharmpy}
 \title{Install Pharmpy environment from R.}
 \usage{
-installPharmpy(config = OldPharmpyConfig())
+installPharmpy(config = UpdatedPharmpyConfig())
 }
 \arguments{
-\item{config}{Pharmpy configuration object, default is OldPharmpyConfig()}
+\item{config}{Pharmpy configuration object, default is UpdatedPharmpyConfig()}
 }
 \value{
 virtual environment

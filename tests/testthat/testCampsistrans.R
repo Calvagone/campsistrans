@@ -5,8 +5,6 @@ library(ggplot2)
 
 context("Test campsistrans")
 
-testFolder <<- ""
-
 test_that("ADVAN3 TRANS4 - simulation", {
 
   # Import your NONMEM model using pharmpy

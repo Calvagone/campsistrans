@@ -4,10 +4,10 @@
 \alias{installPharmpyInBackground}
 \title{Install python in the background.}
 \usage{
-installPharmpyInBackground(config = OldPharmpyConfig())
+installPharmpyInBackground(config = UpdatedPharmpyConfig())
 }
 \arguments{
-\item{config}{Pharmpy configuration object, default is OldPharmpyConfig()}
+\item{config}{Pharmpy configuration object, default is UpdatedPharmpyConfig()}
 }
 \value{
 callr S4 object

@@ -41,12 +41,12 @@ UpdatedPharmpyConfig <- function() {
 #'
 #' Install Pharmpy environment from R.
 #' 
-#' @param config Pharmpy configuration object, default is OldPharmpyConfig()
+#' @param config Pharmpy configuration object, default is UpdatedPharmpyConfig()
 #' @return virtual environment
 #' @importFrom reticulate virtualenv_create virtualenv_install use_virtualenv
 #' @export
 #' 
-installPharmpy <- function(config=OldPharmpyConfig()) {
+installPharmpy <- function(config=UpdatedPharmpyConfig()) {
   requirements <- config@requirements
   reqPath <- tempfile(fileext=".txt")
   fileConn <- file(reqPath)
@@ -59,12 +59,12 @@ installPharmpy <- function(config=OldPharmpyConfig()) {
 #'
 #' Import python package without error.
 #' 
-#' @param config pharmpy config
+#' @param config pharmpy config, default is UpdatedPharmpyConfig()
 #' @return NULL if an error occurs
 #' @importFrom reticulate import use_virtualenv
 #' @export
 #' 
-importPharmpyPackage <- function(config=OldPharmpyConfig()) {
+importPharmpyPackage <- function(config=UpdatedPharmpyConfig()) {
   env <- tryCatch(expr={
     reticulate::use_virtualenv(config@envname, required=TRUE)
   }, error=function(cond) {
@@ -84,13 +84,13 @@ importPharmpyPackage <- function(config=OldPharmpyConfig()) {
 #'
 #' Install python in the background.
 #' 
-#' @param config Pharmpy configuration object, default is OldPharmpyConfig()
+#' @param config Pharmpy configuration object, default is UpdatedPharmpyConfig()
 #' @return callr S4 object
 #' @importFrom callr r_bg
 #' @importFrom config get
 #' @export
 #' 
-installPharmpyInBackground <- function(config=OldPharmpyConfig()) {
+installPharmpyInBackground <- function(config=UpdatedPharmpyConfig()) {
   pkgconfig <- config::get()
   x <- callr::r_bg(
     func=installPharmpy,
