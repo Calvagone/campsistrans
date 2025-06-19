@@ -3,7 +3,7 @@ library(campsismod)
 library(campsistrans)
 library(campsisqual)
 
-context("Test NONMEM import on a few DDMoRE models")
+context("Test the NONMEM import feature and its integration with the campsisqual package")
 
 testFolder <-  file.path(getwd(), test_path())
 qualFolder <- file.path(testFolder, "integration_tests", "nonmem_qualification")
@@ -20,18 +20,19 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   modelFolder <- "filgrastim"
 
   # Pharmpy import
-  campsistrans <- importNONMEM(modelPath(modelFolder, filename), mapping(auto=TRUE), estimate=FALSE)
+  campsistrans <- importNONMEM(modelPath(modelFolder, filename), mapping(auto=TRUE), estimate=FALSE, copy_dir=TRUE)
   
   # Campsis export
   model <- campsistrans %>% export(dest="campsis")
   
   # Remove IPRED/IRES statements
-  model <- model %>% delete(IfStatement("CMT == 2", Equation("IPRED")))
-  model <- model %>% delete(IfStatement("CMT == 2", Equation("IRES")))
-  model <- model %>% delete(IfStatement("CMT == 2", Equation("Y")))
-  model <- model %>% delete(IfStatement("CMT == 4", Equation("IPRED")))
-  model <- model %>% delete(IfStatement("CMT == 4", Equation("IRES")))
-  model <- model %>% delete(IfStatement("CMT == 4", Equation("Y")))
+  model <- model %>%
+    delete(IfStatement("CMT == 2", Equation("IPRED"))) %>%
+    delete(IfStatement("CMT == 2", Equation("IRES"))) %>%
+    delete(IfStatement("CMT == 2", Equation("Y"))) %>%
+    delete(IfStatement("CMT == 4", Equation("IPRED"))) %>%
+    delete(IfStatement("CMT == 4", Equation("IRES"))) %>%
+    delete(IfStatement("CMT == 4", Equation("Y")))
   
   dest <- "rxode2"
   covariates <- c("ROUT", "BAS")
@@ -44,24 +45,22 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   }
   
   datasetZCP <- getDataset(excludeCMT=4) # PK
+  ipredZCP <- executeSimulationCtl(campsistrans=campsistrans, dataset=datasetZCP,
+                                   variables="ZCP", folder=file.path(qualFolder, paste0(modelFolder, "_zcp")),
+                                   reexecuteNONMEM=reexecuteNONMEM)
+  
   # 3 PD values at TIME 0, only keep 1...
   datasetZNB <- getDataset(excludeCMT=2) %>% dplyr::distinct(ID, TIME, EVID, .keep_all=TRUE) # PD
+  ipredZNB <- executeSimulationCtl(campsistrans=campsistrans, dataset=datasetZNB,
+                                   variables="ZNB", folder=file.path(qualFolder, paste0(modelFolder, "_znb")),
+                                   reexecuteNONMEM=reexecuteNONMEM)
+
   
   # Qualify ZCP
-  qual <- campsistrans %>%
-    qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZCP, variables="ZCP",
-            outputFolder=file.path(qualFolder, paste0(modelFolder, "_zcp")), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+  qual <- qualify(model=model %>% disable("RUV"), ipred=ipredZCP, dest=dest, dataset=datasetZCP, variables="ZCP", settings=settings)
   expect_true(qual %>% passed())
-  # if (exportReport) {
-  #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_zcp_", dest, ".pdf"))
-  # }
-  
+
   # Qualify ZNB
-  qual <- campsistrans %>%
-    qualify(model=model %>% disable("RUV"), dest=dest, dataset=datasetZNB, variables="ZNB",
-            outputFolder=file.path(qualFolder, paste0(modelFolder, "_znb")), reexecuteNONMEM=reexecuteNONMEM, settings=settings)
+  qual <- qualify(model=model %>% disable("RUV"), ipred=ipredZNB, dest=dest, dataset=datasetZNB, variables="ZNB", settings=settings)
   expect_true(qual %>% passed())
-  # if (exportReport) {
-  #   qual %>% write(file=paste0(reportFolder, "qualification_", modelFolder, "_znb_", dest, ".pdf"))
-  # }
 })

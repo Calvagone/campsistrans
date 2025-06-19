@@ -202,14 +202,17 @@ executeNONMEM <- function(folder, reexecuteNONMEM=T, ctl_name="model.mod") {
 #' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
 #' @param compartments compartment indexes to output, numeric vector
 #' @param folder where to execute the simulation control stream
-#' @param reexecuteNONMEM force re-execute NONMEM if results already exist
+#' @param reexecuteNONMEM force re-execute NONMEM
 #' @return a data frame with NONMEM results
 #' @export
 #' 
 executeSimulationCtl <- function(campsistrans, dataset, variables, compartments=NULL, folder, reexecuteNONMEM=T) {
-  campsistrans_ <- prepareSimulationCtl(campsistrans=campsistrans, dataset=dataset,
-                                  variables=variables, compartments=compartments)
-  folder <- writeSimulationCtl(campsistrans=campsistrans_, folder=folder)
+  if (reexecuteNONMEM) {
+    campsistrans_ <- prepareSimulationCtl(campsistrans=campsistrans, dataset=dataset,
+                                          variables=variables, compartments=compartments)
+    writeSimulationCtl(campsistrans=campsistrans_, folder=folder)
+  }
+  
   results <- executeNONMEM(folder=folder, reexecuteNONMEM=reexecuteNONMEM)
   return(results)
 }

@@ -24,7 +24,7 @@ executeSimulationCtl(
 
 \item{folder}{where to execute the simulation control stream}
 
-\item{reexecuteNONMEM}{force re-execute NONMEM if results already exist}
+\item{reexecuteNONMEM}{force re-execute NONMEM}
 }
 \value{
 a data frame with NONMEM results
