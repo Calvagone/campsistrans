@@ -52,7 +52,6 @@ updateCtl <- function(model, control_stream) {
 loadCtl <- function(path, estimate) {
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
   model <- pharmpy$modeling$read_model(path)
-  estimate <- TRUE
   
   # Retrieve the parameter estimates
   if (estimate) {

@@ -3,20 +3,20 @@ library(campsismod)
 
 context("Tests on custom model 1")
 
-testFolder <- ""
+testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(modelDir, modelName) {
-  return(paste0(testFolder, "custom_models/", modelDir, "/", modelName))
+  return(file.path(testFolder, "custom_models", modelDir, modelName))
 }
 
 nonRegressionFolderPath <- function(regFolder) {
-  return(paste0(testFolder, "non_regression/custom/", regFolder, "/"))
+  return(file.path(testFolder, "non_regression", "custom", regFolder))
 }
 
 generateModel <- function(modelDir, modelName, regFolder, mapping, ...) {
   # Import your NONMEM model using pharmpy
-  object <- importNONMEM(modelPath(modelDir, modelName), mapping=mapping, ...)
+  object <- importNONMEM(file=modelPath(modelDir, modelName), mapping=mapping, ...)
   
   model <- object %>% export(dest="campsis")
   if (overwriteNonRegressionFiles) {
