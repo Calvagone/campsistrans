@@ -75,10 +75,9 @@ loadCtl <- function(path, estimate) {
 #' @param dataset simulation dataset, data frame
 #' @param campsis Campsis model, used for mapping ETAs to covariates
 #' @param variables variables to output
-#' @param compartments compartment indexes to output, numeric vector
 #' @return the updated Campsistrans object
 #' @export
-prepareSimulationCtl <- function(campsistrans, dataset, variables, compartments=NULL) {
+prepareSimulationCtl <- function(campsistrans, dataset, variables) {
   pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
   model <- campsistrans@model
   campsis <- campsistrans@campsis
@@ -200,16 +199,14 @@ executeNONMEM <- function(folder, reexecuteNONMEM=T, ctl_name="model.mod") {
 #' @param campsistrans campsistrans object
 #' @param dataset simulation dataset, data frame
 #' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
-#' @param compartments compartment indexes to output, numeric vector
 #' @param folder where to execute the simulation control stream
 #' @param reexecuteNONMEM force re-execute NONMEM
 #' @return a data frame with NONMEM results
 #' @export
 #' 
-executeSimulationCtl <- function(campsistrans, dataset, variables, compartments=NULL, folder, reexecuteNONMEM=T) {
+executeSimulationCtl <- function(campsistrans, dataset, variables, folder, reexecuteNONMEM=T) {
   if (reexecuteNONMEM) {
-    campsistrans_ <- prepareSimulationCtl(campsistrans=campsistrans, dataset=dataset,
-                                          variables=variables, compartments=compartments)
+    campsistrans_ <- prepareSimulationCtl(campsistrans=campsistrans, dataset=dataset, variables=variables)
     writeSimulationCtl(campsistrans=campsistrans_, folder=folder)
   }
   
@@ -239,7 +236,7 @@ setEtasAsCovariates <- function(statements, params, pharmpy) {
       for (symbolIndex in seq_along(free_symbols)) {
         freeSymbol <- free_symbols[[symbolIndex]]
         symbol_chr <- as.character(freeSymbol)
-        print(symbol_chr)
+        # print(symbol_chr)
         type <- getPharmpyParameterType(symbol_chr)
         
         if (!is.null(type) && type$type=="ETA") {

@@ -4,7 +4,7 @@
 \alias{prepareSimulationCtl}
 \title{Prepare simulation control stream.}
 \usage{
-prepareSimulationCtl(campsistrans, dataset, variables, compartments = NULL)
+prepareSimulationCtl(campsistrans, dataset, variables)
 }
 \arguments{
 \item{campsistrans}{Pharmpy model}
@@ -12,8 +12,6 @@ prepareSimulationCtl(campsistrans, dataset, variables, compartments = NULL)
 \item{dataset}{simulation dataset, data frame}
 
 \item{variables}{variables to output}
-
-\item{compartments}{compartment indexes to output, numeric vector}
 
 \item{campsis}{Campsis model, used for mapping ETAs to covariates}
 }

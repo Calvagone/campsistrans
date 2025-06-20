@@ -8,7 +8,6 @@ executeSimulationCtl(
   campsistrans,
   dataset,
   variables,
-  compartments = NULL,
   folder,
   reexecuteNONMEM = T
 )
@@ -19,8 +18,6 @@ executeSimulationCtl(
 \item{dataset}{simulation dataset, data frame}
 
 \item{variables}{variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)}
-
-\item{compartments}{compartment indexes to output, numeric vector}
 
 \item{folder}{where to execute the simulation control stream}
 
