@@ -73,7 +73,6 @@ loadCtl <- function(path, estimate) {
 #' 
 #' @param campsistrans Pharmpy model
 #' @param dataset simulation dataset, data frame
-#' @param campsis Campsis model, used for mapping ETAs to covariates
 #' @param variables variables to output
 #' @return the updated Campsistrans object
 #' @export

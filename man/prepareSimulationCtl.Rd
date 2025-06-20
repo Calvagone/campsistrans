@@ -12,8 +12,6 @@ prepareSimulationCtl(campsistrans, dataset, variables)
 \item{dataset}{simulation dataset, data frame}
 
 \item{variables}{variables to output}
-
-\item{campsis}{Campsis model, used for mapping ETAs to covariates}
 }
 \value{
 the updated Campsistrans object
