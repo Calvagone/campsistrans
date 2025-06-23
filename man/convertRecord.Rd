@@ -7,11 +7,11 @@
 convertRecord(record, emptyRecord, parameters)
 }
 \arguments{
+\item{record}{one or more NONMEM record}
+
 \item{emptyRecord}{empty code record, already instantiated with the right type}
 
 \item{parameters}{parameters}
-
-\item{records}{one or more NONMEM record}
 }
 \value{
 a CAMPSIS record

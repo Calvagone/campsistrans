@@ -151,19 +151,9 @@ checkNewindStatement <- function(equation) {
   }
 } 
 
-#' SymPy piecewise conversion to CAMPSIS model.
-#' 
-#' @param symbol SymPy statement symbol
-#' @param expression SymPy piecewise
-#' @return C code
-#' @export
-convertPiecewise <- function(symbol, expression) {
-  
-}
-
 #' NONMEM record (pharmpy) to CAMPSIS model.
 #' 
-#' @param records one or more NONMEM record
+#' @param record one or more NONMEM record
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
 #' @return a CAMPSIS record

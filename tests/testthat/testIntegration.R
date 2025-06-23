@@ -39,7 +39,8 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   settings <- Settings(Declare(covariates))
   
   getDataset <- function(excludeCMT=4) {
-    dataset <- importDataset(campsistrans, covariates=c("ROUT", "BAS"), etas_zero=TRUE, campsis_id=TRUE)
+    dataset <- importDataset(file=modelPath(modelFolder, filename), covariates=c("ROUT", "BAS"), etas_zero=TRUE,
+                             campsis=campsistrans@campsis, campsis_id=TRUE)
     dataset <- dataset %>% dplyr::filter(CMT!=excludeCMT)
     return(dataset)
   }
