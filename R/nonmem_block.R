@@ -12,7 +12,13 @@ setClass(
   )
 )
 
-
+#' Extract NONMEM block.
+#' 
+#' @param x NONMEM control stream as a character string
+#' @param name name of the NONMEM block to extract
+#' @param first if TRUE, return only the first block found, otherwise return all blocks
+#' @return a list of nonmem_block objects, or a single nonmem_block object if first=TRUE
+#' @export
 extractNONMEMBlock <- function(x, name, first=TRUE) {
   lines <- strsplit(x, split="\n")[[1]]
   blockIndexes <- grepl(pattern="^\\s*\\$([A-Z]+)", x=lines)
@@ -24,11 +30,11 @@ extractNONMEMBlock <- function(x, name, first=TRUE) {
   specificBlockIndexes <- grepl(pattern=sprintf("^\\s*\\$(%s)", blockRegex), x=blockIndexesStr) %>%
     which()
   
-  list <- list()
+  retValue <- list()
   for (specificBlockIndex in specificBlockIndexes) {
     startIndex <- blockIndexes[specificBlockIndex]
     endIndex <- length(lines)
-    if (length(blockIndexes) > specificBlockIndex + 1) {
+    if (length(blockIndexes) >= specificBlockIndex + 1) {
       endIndex <- blockIndexes[specificBlockIndex + 1]-1
     }
     content <- lines[startIndex:endIndex]
@@ -41,7 +47,7 @@ extractNONMEMBlock <- function(x, name, first=TRUE) {
     # Remove empty lines
     content <- content[content != ""] # Remove empty lines
     
-    list <- list %>%
+    retValue <- retValue %>%
       append(new("nonmem_block", name=name,
                  startIndex=as.integer(startIndex),
                  endIndex=as.integer(endIndex),
@@ -51,7 +57,7 @@ extractNONMEMBlock <- function(x, name, first=TRUE) {
     stop(sprintf("No NONMEM block '%s' found", name))
   }
   if (first) {
-    retValue <- list[[1]]
+    retValue <- retValue[[1]]
   }
   
   return(retValue)

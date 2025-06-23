@@ -8,8 +8,9 @@ importDataset(
   file,
   covariates = NULL,
   etas = FALSE,
-  table_no = 1,
+  table_no = NULL,
   etas_zero = FALSE,
+  campsis = NULL,
   campsis_id = FALSE
 )
 }
@@ -19,15 +20,17 @@ importDataset(
 \item{covariates}{covariates vector. If provided, only these covariates are kept in dataset.
 NULL is default (all covariates are kept)}
 
-\item{etas}{import estimated ETA's that were output by $TABLE in control stream.
-By default, ETA's are not imported. Please set it to TRUE to enable this feature.}
+\item{etas}{import estimated ETAs that were output by $TABLE in control stream.
+By default, ETAs are not imported. Please set it to TRUE to enable this feature.}
 
-\item{table_no}{table number to look for the ETAs, default is 1}
+\item{table_no}{table number to look for the ETAs, if NULL, first table with ETAS(1:LAST) occurrence will be used}
 
 \item{etas_zero}{if previous argument is set to FALSE, etas_zero set to TRUE will
-all ETA's from model to 0 (useful to simulate model without IIV)}
+all ETAs from model to 0 (useful to simulate model without IIV)}
 
-\item{campsis_id}{rework ID column for simulation with CAMPSIS (ID must start at 1 and must be consecutive).
+\item{campsis}{Campsis model object, if provided, ETAs in the dataset will be renamed according to the Campsis model}
+
+\item{campsis_id}{rework ID column for simulation with Campsis (ID must start at 1 and must be consecutive).
 Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 preserved in column 'ORIGINAL_ID'.}
 }
