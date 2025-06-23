@@ -57,6 +57,7 @@ Collate:
     'nonmem_table_parser.R'
     'nonmem_block.R'
     'nonmem_dataset_parser.R'
+    'nonmem_predictions_parser.R'
     'nonmem_qualification_prep.R'
     'nonmem_domain.R'
     'substitute_duplicates.R'

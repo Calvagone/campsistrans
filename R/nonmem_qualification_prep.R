@@ -256,4 +256,3 @@ setEtasAsCovariates <- function(statements, params, pharmpy) {
   statements_ <- pharmpy$model$Statements(replacementStatements)
   return(statements_)
 }
-
