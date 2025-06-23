@@ -5,7 +5,7 @@
 \title{Import a NONMEM dataset and prepare it for the qualification.}
 \usage{
 importDataset(
-  campsistrans,
+  file,
   covariates = NULL,
   etas = FALSE,
   table_no = 1,
@@ -14,7 +14,7 @@ importDataset(
 )
 }
 \arguments{
-\item{campsistrans}{campsistrans object}
+\item{file}{path to NONMEM control stream (dataset path will be automatically extracted)}
 
 \item{covariates}{covariates vector. If provided, only these covariates are kept in dataset.
 NULL is default (all covariates are kept)}

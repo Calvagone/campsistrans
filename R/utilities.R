@@ -91,7 +91,7 @@ removeNONMEMComments <- function(lines) {
   retValue <- lines
   
   # Any comment
-  retValue <- gsub(pattern="^(.*)(;.*)", replacement="\\1", x=retValue)
+  retValue <- gsub(pattern="^([^;]*)(;.*)", replacement="\\1", x=retValue)
   retValue <- trimws(x=retValue, which="right")
   
   return(retValue)

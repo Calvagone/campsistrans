@@ -30,7 +30,7 @@ standardiseNMDataset <- function(dataset) {
 
 #' Import a NONMEM dataset and prepare it for the qualification.
 #'
-#' @param campsistrans campsistrans object
+#' @param file path to NONMEM control stream (dataset path will be automatically extracted)
 #' @param covariates covariates vector. If provided, only these covariates are kept in dataset.
 #'  NULL is default (all covariates are kept)
 #' @param etas import estimated ETA's that were output by $TABLE in control stream.
@@ -46,20 +46,43 @@ standardiseNMDataset <- function(dataset) {
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, table_no=1, etas_zero=FALSE, campsis_id=FALSE) {
-  pharmpy <- campsistrans@model
+importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=1, etas_zero=FALSE, campsis_id=FALSE) {
   
-  # Looking at DATA section
-  data <- getRecordAt(pharmpy, name="DATA")
-  dataset <- read.csv(file=paste0(campsistrans@dirname, "/", data$filename))
+  path <- file.path("C:/Calvagone/Clients/Kynexis/24PXC0289_PKPD/runPKPMPD007/NONMEM/", "runPKPMPD007_QUAL.mod")
+  covariates <- NULL
+  
+  # Read control stream
+  ctlLines <- readLines(path) %>%
+    removeNONMEMComments()
+  ctl <- paste0(ctlLines_, collapse="\n")
+
+  # Looking at DATA block
+  data <- extractNONMEMBlock(x=ctl, name="DATA")
+  datasetFilename <- gsub(pattern="^(.*?\\.(CSV|csv)).*", replacement="\\1", x=data@content[1])
+  datasetPath <- file.path(dirname(path), datasetFilename)
+  if (!file.exists(datasetPath)) {
+    stop(paste0("Dataset file '", datasetFilename, "' not found in directory: ", dirname(path)))
+  }
+  dataset <- read.csv(file=datasetPath)
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
   
-  # Looking at INPUT section
-  input <- getRecordAt(pharmpy, name="INPUT")
-  
-  # All options in INPUT
-  options <- input$all_options
+  # Looking at INPUT block
+  input <- extractNONMEMBlock(x=ctl, name="INPUT")
+  inputs <- paste0(input@content, collapse=" ") %>%
+    strsplit(inputs, split="\\s+")
+  inputs <- inputs[[1]]
+  options <- list()
+  for (tmpInput in inputs) {
+    if (grepl("=", tmpInput)) {
+      parts <- strsplit(tmpInput, split="=")[[1]]
+      key <- parts[1] %>% trimws()
+      value <- parts[2] %>% trimws()
+      options <- append(options, list(list(key=key, value=value)))
+    } else {
+      options <- append(options, list(list(key=tmpInput, value=NULL)))
+    }
+  }
   optionsLength <- options %>% length()
   
   if (optionsLength != columnNamesLength) {
@@ -92,11 +115,13 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, table_no=1,
   
   # Remove unnecessary columns
   if (!is.null(covariates)) {
-    dataset <- dataset %>% dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
+    dataset <- dataset %>%
+      dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
   }
   
   # Standardise dataset
-  dataset <- dataset %>% dplyr::relocate(dplyr::any_of(nmVariables))
+  dataset <- dataset %>%
+    dplyr::relocate(dplyr::any_of(nmVariables))
   
   # Import ETAs if it was required (default is FALSE)
   if (etas) {

@@ -55,6 +55,7 @@ Collate:
     'caret_to_pow.R'
     'auto_extract_parameters.R'
     'nonmem_table_parser.R'
+    'nonmem_block.R'
     'nonmem_dataset_parser.R'
     'nonmem_qualification_prep.R'
     'nonmem_domain.R'
