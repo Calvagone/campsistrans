@@ -77,7 +77,7 @@ loadCtl <- function(path, estimate) {
 #' @param dataset simulation dataset, data frame
 #' @param variables variables to output
 #' @param folder where to write the control stream
-#' @param run_nonmem function to execute NONMEM, default is TRUE
+#' @param reexecuteNONMEM re-execute NONMEM if results already exist, default is TRUE
 #' @return the path to the simulation control stream
 #' @export
 executeSimulationCtl <- function(file, updateInits=TRUE, model, dataset, variables, folder, reexecuteNONMEM=TRUE) {

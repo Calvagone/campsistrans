@@ -27,7 +27,7 @@ executeSimulationCtl(
 
 \item{folder}{where to write the control stream}
 
-\item{run_nonmem}{function to execute NONMEM, default is TRUE}
+\item{reexecuteNONMEM}{re-execute NONMEM if results already exist, default is TRUE}
 }
 \value{
 the path to the simulation control stream
