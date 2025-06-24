@@ -8,7 +8,8 @@ setClass(
     name = "character",
     startIndex = "integer",
     endIndex = "integer",
-    content = "character"
+    content = "character",
+    content_on_first_line = "logical"
   )
 )
 
@@ -17,9 +18,10 @@ setClass(
 #' @param x NONMEM control stream as a character string
 #' @param name name of the NONMEM block to extract
 #' @param first if TRUE, return only the first block found, otherwise return all blocks
+#' @param raise_error if TRUE, raise an error if no block is found, otherwise return an empty list
 #' @return a list of nonmem_block objects, or a single nonmem_block object if first=TRUE
 #' @export
-extractNONMEMBlock <- function(x, name, first=TRUE) {
+extractNONMEMBlock <- function(x, name, first=TRUE, raise_error=TRUE) {
   lines <- strsplit(x, split="\n")[[1]]
   blockIndexes <- grepl(pattern="^\\s*\\$([A-Z]+)", x=lines)
   
@@ -38,7 +40,15 @@ extractNONMEMBlock <- function(x, name, first=TRUE) {
       endIndex <- blockIndexes[specificBlockIndex + 1]-1
     }
     content <- lines[startIndex:endIndex]
-    content[1] <- gsub(pattern="^\\s*\\$([A-Z]+)", replacement="", x=content[1])
+    firstLine <- gsub(pattern="^\\s*\\$([A-Z]+)", replacement="", x=content[1]) %>%
+      trimws()
+    if (firstLine == "") {
+      content <- content[-1] # Remove the first line if it is empty
+      content_on_first_line <- FALSE
+    } else {
+      content[1] <- firstLine # Remove the $NAME from the first line
+      content_on_first_line <- TRUE
+    }
     
     # Trim white spaces
     content <- content %>%
@@ -51,15 +61,67 @@ extractNONMEMBlock <- function(x, name, first=TRUE) {
       append(new("nonmem_block", name=name,
                  startIndex=as.integer(startIndex),
                  endIndex=as.integer(endIndex),
-                 content=content))
+                 content=content,
+                 content_on_first_line=content_on_first_line))
   }
-  if (length(list)==0) {
-    stop(sprintf("No NONMEM block '%s' found", name))
+  if (length(retValue)==0) {
+    if (raise_error) {
+      stop(sprintf("No NONMEM block '%s' found", name))
+    } else {
+      return(retValue)
+    }
   }
   if (first) {
     retValue <- retValue[[1]]
   }
   
+  return(retValue)
+}
+
+#' Remove NONMEM block.
+#' 
+#' @param x NONMEM control stream as a character string
+#' @param name name of the NONMEM block to extract
+#' @param first if TRUE, only the first block will be removed, otherwise all blocks will be removed
+#' @return control stream as a character string
+#' @export
+removeNONMEMBlock <- function(x, name, first=TRUE) {
+  blocks <- extractNONMEMBlock(x=x, name=name, first=first)
+  lines <- strsplit(x, split="\n")[[1]]
+  for (block in rev(blocks)) {
+    startIndex <- block@startIndex
+    endIndex <- block@endIndex
+    lines <- lines[-(startIndex:endIndex)]
+  }
+  retValue <- paste0(lines, collapse="\n")
+  return(retValue)
+}
+
+#' Replace NONMEM block.
+#' 
+#' @param x NONMEM control stream as a character string
+#' @param name name of the NONMEM block to replace
+#' @param content updated content, character vector
+#' @return control stream as a character string
+#' @export
+replaceNONMEMBlock <- function(x, name, content) {
+  block <- extractNONMEMBlock(x=x, name=name, first=TRUE)
+  lines <- strsplit(x, split="\n")[[1]]
+  startIndex <- block@startIndex
+  endIndex <- block@endIndex
+  
+  # Remove the block
+  lines <- lines[-(startIndex:endIndex)]
+  
+  # Append new content
+  if (block@content_on_first_line) {
+    content[1] <- paste0("$", name, " ", content[1])
+  } else {
+    content <- c(paste0("$", name), content)
+  }
+  lines <- lines %>% append(content, after=startIndex-1)
+  
+  retValue <- paste0(lines, collapse="\n")
   return(retValue)
 }
 
@@ -104,7 +166,10 @@ getNONMEMBlockRegex <- function(name) {
     retValue <- "OMEGA"
     
   } else if (name=="ESTIMATION") {
-    what <- "ESTIMATION | ESTIMATE | EST"
+    retValue <- "ESTIMATION | ESTIMATE | EST"
+  
+  } else if (name=="COVARIANCE") {
+    retValue <- "COVARIANCE | COV"
     
   } else if (name=="TABLE") {
     retValue <- "TABLE | TAB"

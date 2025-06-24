@@ -2,30 +2,36 @@
 % Please edit documentation in R/nonmem_qualification_prep.R
 \name{executeSimulationCtl}
 \alias{executeSimulationCtl}
-\title{Prepare simulation control stream and execute it with NONMEM.}
+\title{Prepare simulation control stream for qualification and execute it with NONMEM.}
 \usage{
 executeSimulationCtl(
-  campsistrans,
+  file,
+  updateInits = TRUE,
+  model,
   dataset,
   variables,
   folder,
-  reexecuteNONMEM = T
+  reexecuteNONMEM = TRUE
 )
 }
 \arguments{
-\item{campsistrans}{campsistrans object}
+\item{file}{path to control stream file}
+
+\item{updateInits}{update initial conditions in the control stream, default is TRUE (lst required)}
+
+\item{model}{Campsis model that was previously imported (used for mapping the ETAs)}
 
 \item{dataset}{simulation dataset, data frame}
 
-\item{variables}{variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)}
+\item{variables}{variables to output}
 
-\item{folder}{where to execute the simulation control stream}
+\item{folder}{where to write the control stream}
 
-\item{reexecuteNONMEM}{force re-execute NONMEM}
+\item{run_nonmem}{function to execute NONMEM, default is TRUE}
 }
 \value{
-a data frame with NONMEM results
+the path to the simulation control stream
 }
 \description{
-Prepare simulation control stream and execute it with NONMEM.
+Prepare simulation control stream for qualification and execute it with NONMEM.
 }

@@ -4,7 +4,7 @@
 \alias{extractNONMEMBlock}
 \title{Extract NONMEM block.}
 \usage{
-extractNONMEMBlock(x, name, first = TRUE)
+extractNONMEMBlock(x, name, first = TRUE, raise_error = TRUE)
 }
 \arguments{
 \item{x}{NONMEM control stream as a character string}
@@ -12,6 +12,8 @@ extractNONMEMBlock(x, name, first = TRUE)
 \item{name}{name of the NONMEM block to extract}
 
 \item{first}{if TRUE, return only the first block found, otherwise return all blocks}
+
+\item{raise_error}{if TRUE, raise an error if no block is found, otherwise return an empty list}
 }
 \value{
 a list of nonmem_block objects, or a single nonmem_block object if first=TRUE
