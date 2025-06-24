@@ -46,17 +46,16 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
   }
   
   datasetZCP <- getDataset(excludeCMT=4) # PK
-  ipredZCP <- executeSimulationCtl(campsistrans=campsistrans, dataset=datasetZCP,
+  ipredZCP <- executeSimulationCtl(file=modelPath(modelFolder, filename), updateInits=FALSE, model=model, dataset=datasetZCP,
                                    variables="ZCP", folder=file.path(qualFolder, paste0(modelFolder, "_zcp")),
                                    reexecuteNONMEM=reexecuteNONMEM)
   
   # 3 PD values at TIME 0, only keep 1...
   datasetZNB <- getDataset(excludeCMT=2) %>% dplyr::distinct(ID, TIME, EVID, .keep_all=TRUE) # PD
-  ipredZNB <- executeSimulationCtl(campsistrans=campsistrans, dataset=datasetZNB,
+  ipredZNB <- executeSimulationCtl(file=modelPath(modelFolder, filename), updateInits=FALSE, model=model, dataset=datasetZNB,
                                    variables="ZNB", folder=file.path(qualFolder, paste0(modelFolder, "_znb")),
                                    reexecuteNONMEM=reexecuteNONMEM)
 
-  
   # Qualify ZCP
   qual <- qualify(model=model %>% disable("RUV"), ipred=ipredZCP, dest=dest, dataset=datasetZCP, variables="ZCP", settings=settings)
   expect_true(qual %>% passed())

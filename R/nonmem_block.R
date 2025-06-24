@@ -86,7 +86,7 @@ extractNONMEMBlock <- function(x, name, first=TRUE, raise_error=TRUE) {
 #' @return control stream as a character string
 #' @export
 removeNONMEMBlock <- function(x, name, first=TRUE) {
-  blocks <- extractNONMEMBlock(x=x, name=name, first=first)
+  blocks <- extractNONMEMBlock(x=x, name=name, first=first, raise_error=FALSE)
   lines <- strsplit(x, split="\n")[[1]]
   for (block in rev(blocks)) {
     startIndex <- block@startIndex

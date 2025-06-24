@@ -81,14 +81,6 @@ loadCtl <- function(path, estimate) {
 #' @return the path to the simulation control stream
 #' @export
 executeSimulationCtl <- function(file, updateInits=TRUE, model, dataset, variables, folder, reexecuteNONMEM=TRUE) {
-  # dataset <- data.frame(ID=numeric(0), AMT=numeric(0))
-  # file <- "C:/Calvagone/Clients/Kynexis/24PXC0289_PKPD/runPKPMPD007/NONMEM/runPKPMPD007.mod"
-  # variables <- "CONC"
-  # updateInits <- "TRUE"
-  # folder <- "C:/Calvagone/Clients/Kynexis/24PXC0289_PKPD/runPKPMPD007/Import/QUAL_NM_TEST/"
-  # reexecuteNONMEM <- TRUE
-  # model <- read.campsis(file="C:/Calvagone/Clients/Kynexis/24PXC0289_PKPD/runPKPMPD007/Model")
-  # 
   # Create fresh folder if NONMEM is to be re-executed
   if (reexecuteNONMEM) {
     if (dir.exists(folder)) {
@@ -221,7 +213,7 @@ setEtasAsCovariates <- function(model, content) {
   for (omega in omegas@list) {
     etaName <- campsismod::getNameInModel(omega)
     index <- omega@index
-    content <- gsub(pattern=sprintf("\\bETA\\(%i\\)\\b", index), replacement=etaName, x=content)
+    content <- gsub(pattern=sprintf("(?<![A-Z0-9_])ETA\\(%i\\)", index), replacement=etaName, x=content, perl=TRUE)
   }
   
   temp <- strsplit(content, split="=")
