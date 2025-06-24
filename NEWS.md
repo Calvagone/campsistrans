@@ -1,6 +1,13 @@
-# campsistrans 1.3.1
+# campsistrans 1.4.0
 
 * Error when importing some rxode2 models #92
+* Rework installation of Pharmpy #93
+* Update method 'prepareNONMEMFiles' for Pharmpy v1.7.2 (removed) #94
+* Update NONMEM import with Pharmpy v1.7.2 #95
+* Fix R CMD Check #96
+* Rework importDataset method to get rid of Pharmpy #97
+* Implement method 'importPredictions' #98
+* Rework method executeSimulationCtl to get rid of pharmpy #99
 
 # campsistrans 1.3.0
 
