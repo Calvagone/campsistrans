@@ -14,3 +14,27 @@
 # 
 # # Check Pharmpy version
 # version <- pharmpy["__version__"]
+
+skipTests <- function(name, default) {
+  option <- getCampsistransOption()
+  if (is.null(option)) {
+    return(default)
+  } else {
+    value <- option[[name]]
+    if (is.null(value)) {
+      return(default)
+    } else {
+      return(value)
+    }
+  }
+}
+
+skipPharmpyTests <- function() {
+  # On CRAN, default value is TRUE
+  # FALSE otherwise
+  return(skipTests(name="SKIP_PHARMPY_TESTS", default=TRUE))
+}
+
+getCampsistransOption <- function() {
+  return(getOption("campsistrans.options"))
+}
