@@ -3,15 +3,15 @@ library(campsismod)
 
 context("Test NONMEM import on a few models coming from the literature")
 
-testFolder <<- ""
+testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
-  return(paste0(testFolder, "literature_models/", folder, "/", filename))
+  return(file.path(testFolder, "literature_models", folder, filename))
 }
 
 nonRegressionFolderPath <- function(folder) {
-  return(paste0(testFolder, "non_regression/literature/", folder, "/"))
+  return(file.path(testFolder, "non_regression", "literature", folder))
 }
 
 generateModel <- function(filename, folder, mapping=NULL, modelfun=NULL) {

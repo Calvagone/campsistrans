@@ -14,13 +14,13 @@ modelPath <- function(folder, filename) {
   return(normalizePath(file.path(testFolder, "ddmore_models", folder, filename)))
 }
 
-test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be simulated well", {
+test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported and simulated well", {
 
   filename <- "Executable_simulated_GCSF_dataset.ctl"
   modelFolder <- "filgrastim"
 
-  # Pharmpy import
-  campsistrans <- importNONMEM(modelPath(modelFolder, filename), mapping(auto=TRUE), estimate=FALSE, copy_dir=TRUE)
+  # Nonmem2rx import (note: Pharmpy can also be used)
+  campsistrans <- importNONMEM2(modelPath(modelFolder, filename))
   
   # Campsis export
   model <- campsistrans %>% export(dest="campsis")
