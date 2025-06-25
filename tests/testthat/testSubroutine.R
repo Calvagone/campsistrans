@@ -32,9 +32,6 @@ generateModel <- function(advan, trans, mapping=NULL) {
 
 generateModel2 <- function(advan, trans) {
   ctl <- normalizePath(campsistrans::getNONMEMModelTemplate(advan, trans))
-  lines <- readLines(ctl)
-  lines <- lines[lines!="$INPUT"]
-  writeLines(lines, ctl)
   # print(gsub(pattern="\\\\", replacement="/", x=ctl))
   object <- importNONMEM2(ctlFile=ctl)
   model <- object@campsis
