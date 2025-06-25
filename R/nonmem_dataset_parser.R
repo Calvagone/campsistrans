@@ -182,23 +182,6 @@ extractOptions <- function(input) {
   return(options)
 }
 
-#' Get indexed NONMEM record from the NONMEM control stream for the given section name.
-#'
-#' @param pharmpy pharmpy model
-#' @param name NONMEM section name
-#' @param index index of the record, default is 1
-#' @param stop_if_not_found throw an error if no section was found
-#' @return a record
-#' 
-getRecordAt <- function(pharmpy, name, index=1, stop_if_not_found=TRUE) {
-  records <- pharmpy$internals$control_stream$get_records(name)
-  if (records %>% length() == 0) {
-    stop(paste0("No ", name, " section in control stream"))
-  }
-  record <- records[[index]]
-  return(record)
-}
-
 #' Import ETA's.
 #'
 #' @param x imported NONMEM dataset

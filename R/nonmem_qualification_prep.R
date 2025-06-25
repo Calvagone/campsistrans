@@ -30,18 +30,6 @@ standardiseDataset <- function(dataset) {
   return(dataset)
 }
 
-updateCtl <- function(model, control_stream) {
-  # Replace control stream with updated one
-  internals <- model$internals$replace(control_stream=control_stream)
-  model <- model$replace(
-    internals = internals
-  )
-  
-  # Update source
-  model <- model$update_source()
-  
-  return(model)
-}
 
 #' Load control stream with Pharmpy.
 #' 
