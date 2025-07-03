@@ -14,7 +14,7 @@ nonRegressionFolderPath <- function(regFolder) {
   return(file.path(testFolder, "non_regression", "custom", regFolder))
 }
 
-test_that("Custom model 1 can be imported well (nonmem2rx)", {
+test_that("Custom model 1 can be imported well", {
   # Note: with nonmem2rx, 'same' column is not imported
   modelDir <- "model1"
   modelName <- "model1.mod"
@@ -31,18 +31,22 @@ test_that("Custom model 1 can be imported well (nonmem2rx)", {
   expect_equal(model, read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
-# test_that("Model 2 (duplicate variables in model)", {
-#   modelDir <- "model2"
-#   modelName <- "model2.mod"
-#   regFolder <- "model2_auto_mapping"
-# 
-#   # Also map OMEGA names because 'SAME' OMEGAS related to IOV not listed in Pharmpy parameter set
-#   mapping <- mapping(auto=TRUE)
-# 
-#   model <- generateModel(modelDir=modelDir, modelName=modelName, regFolder=regFolder, mapping=mapping, copy_dir=TRUE, rem_rate=TRUE)
-#   expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
-# })
-# 
+test_that("Custom model 2 can be imported well (duplicate variables in model)", {
+  modelDir <- "model2"
+  modelName <- "model2.mod"
+  regFolder <- modelDir
+
+  object <- importNONMEM2(modelPath(modelDir, modelName))
+  model <- object %>%
+    export(dest="campsis")
+  
+  if (overwriteNonRegressionFiles) {
+    model %>% write(nonRegressionFolderPath(regFolder))
+  }
+  
+  expect_equal(model, read.campsis(nonRegressionFolderPath(regFolder)))
+})
+
 # test_that("Duplicate equations are well replaced", {
 # 
 #   regFolder <- "duplicate_equation_names"

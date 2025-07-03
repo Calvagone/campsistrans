@@ -1,7 +1,7 @@
 "name","index","value","fix"
-"BIO",1,1,TRUE
-"LAG",2,0,TRUE
-"KA",3,1.412,TRUE
+"BIO",1,1,FALSE
+"LAG",2,0,FALSE
+"KA",3,1.412,FALSE
 "CLMAX",4,10,FALSE
 "VC",5,1000,FALSE
 "T50",6,40,FALSE
