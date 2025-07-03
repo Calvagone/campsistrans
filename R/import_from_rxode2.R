@@ -164,6 +164,10 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
     for (cmtName in c("depot", "central")) {
       code <- renameCompartmentProperties(code=code, occurrence=cmtName,
                                           replacement=toupper(cmtName), prefix="")
+      # E.g. dur(central) -> dur(A_CENTRAL)
+      # This way, compartment properties are well detected
+      code <- replaceAll(object=code, pattern=Pattern(sprintf("\\(%s\\)", cmtName)),
+                         replacement=sprintf("(A_%s)", toupper(cmtName)))
     }
   }
   
@@ -624,6 +628,7 @@ getSubroutineModelForRxode2 <- function(advan, trans) {
 }
 
 replaceLinCmt <- function(model, subroutineModel) {
+  # browser()
   subroutineOde <- subroutineModel %>%
     campsismod::find(OdeRecord()) %>%
     delete(Equation("F"))

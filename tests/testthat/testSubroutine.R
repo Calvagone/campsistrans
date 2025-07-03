@@ -64,7 +64,7 @@ test_that(getTestName("ADVAN1 TRANS1"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN1 TRANS2"), {
@@ -78,7 +78,7 @@ test_that(getTestName("ADVAN1 TRANS2"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN2 TRANS1"), {
@@ -92,7 +92,7 @@ test_that(getTestName("ADVAN2 TRANS1"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN2 TRANS2"), {
@@ -106,7 +106,7 @@ test_that(getTestName("ADVAN2 TRANS2"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN3 TRANS1"), {
@@ -120,7 +120,7 @@ test_that(getTestName("ADVAN3 TRANS1"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN3 TRANS3"), {
@@ -134,7 +134,7 @@ test_that(getTestName("ADVAN3 TRANS3"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN3 TRANS4"), {
@@ -148,7 +148,7 @@ test_that(getTestName("ADVAN3 TRANS4"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN3 TRANS5"), {
@@ -162,7 +162,7 @@ test_that(getTestName("ADVAN3 TRANS5"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN4 TRANS1"), {
@@ -176,7 +176,7 @@ test_that(getTestName("ADVAN4 TRANS1"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN4 TRANS3"), {
@@ -190,7 +190,7 @@ test_that(getTestName("ADVAN4 TRANS3"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN4 TRANS4"), {
@@ -204,7 +204,7 @@ test_that(getTestName("ADVAN4 TRANS4"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN4 TRANS5"), {
@@ -218,7 +218,7 @@ test_that(getTestName("ADVAN4 TRANS5"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN11 TRANS4"), {
@@ -232,7 +232,7 @@ test_that(getTestName("ADVAN11 TRANS4"), {
   }
 
   model2 <- generateModel2(advan, trans)
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
 
 test_that(getTestName("ADVAN12 TRANS4"), {
@@ -246,5 +246,5 @@ test_that(getTestName("ADVAN12 TRANS4"), {
   }
 
   model2 <- expect_warning(generateModel2(advan, trans), regexp="ODEs are not available for the given subroutine")
-  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(advan, trans))))
+  expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })
