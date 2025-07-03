@@ -44,7 +44,7 @@ VignetteBuilder:
     knitr
 Remotes: 
     github::Calvagone/campsismod,
-    github::Calvagone/campsisqual
+    github::Calvagone/campsisqual@develop
 Encoding: UTF-8
 Language: en-US
 LazyData: true
