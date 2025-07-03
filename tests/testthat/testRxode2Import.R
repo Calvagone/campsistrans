@@ -203,8 +203,9 @@ test_that("Unsupported error models are ignored (warning raised)", {
   }
 
   model <- expect_warning(importRxode2(rxmod()), regexp="Syntax error in error model code. Error model ignored.")
-  error <- model %>% find(ErrorRecord())
-  expect_true(is.null(error)) # No error model
+  error <- model %>%
+    find(ErrorRecord())
+  expect_true(length(error)==0) # Error model empty
 })
 
 test_that("thetaMat in rxode2 is automatically converted to a variance-covariance matrix in Campsis", {
