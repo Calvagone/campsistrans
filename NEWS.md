@@ -8,10 +8,15 @@
 * Rework importDataset method to get rid of Pharmpy #97
 * Implement method 'importPredictions' #98
 * Rework method executeSimulationCtl to get rid of pharmpy #99
+* Add option to exclude tests relying on Pharmpy engine #101
+* Issue in conversion from rxode2 when no ODE (e.g. $PRED in NONMEM) #102
+* Add GPL license #103
+* Scale factors to uppercase when importing NONMEM via nonmem2rx #104
+* TIME and T both converted to t with nonmem2rx #105
 
 # campsistrans 1.3.0
 
-* Translator for Monolix #51
+* Translator for rxode2 #51
 * Translator for Monolix #52
 * Test monolix importer based on the monolix tutorial #67
 * Translate initial conditions from rxode2 to Campsis #68

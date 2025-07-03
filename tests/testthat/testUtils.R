@@ -30,9 +30,7 @@ skipTests <- function(name, default) {
 }
 
 skipPharmpyTests <- function() {
-  # On CRAN, default value is TRUE
-  # FALSE otherwise
-  return(skipTests(name="SKIP_PHARMPY_TESTS", default=FALSE))
+  return(skipTests(name="SKIP_PHARMPY_TESTS", default=campsis::onCI()))
 }
 
 getCampsistransOption <- function() {
