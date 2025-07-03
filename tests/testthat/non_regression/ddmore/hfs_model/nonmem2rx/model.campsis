@@ -20,8 +20,7 @@ if (t == 0) SWM1=0
 VC=1
 d/dt(A_CENTRAL)=-K*A_CENTRAL
 d/dt(A_OUTPUT)=K*A_CENTRAL
-rxLinCmt1=A_CENTRAL
-F=rxLinCmt1
+F=A_CENTRAL
 
 [ERROR]
 IPRED=F
