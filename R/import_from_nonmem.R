@@ -22,6 +22,9 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Copy control stream file to temporary directory
   ctl <- copyAndRename(file=ctlFile, tempDir=tempDir, newName="model.mod") # mod default in nonmem2rx
   
+  # Replace TIME by DATASET_TIME in the control stream
+  replaceDatasetTime(file=ctl)
+  
   # Copy ext file to temporary directory if provided
   estimate <- !is.null(extFile) && file.exists(extFile)
   if (estimate) {
@@ -41,6 +44,10 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
     
   # Conversion to Campsis
   model <- importRxode2(rxmod=rxmod, subroutine=subroutine, cov=FALSE)
+  
+  # DATASET_TIME back to TIME
+  model <- model %>%
+    replaceAll("DATASET_TIME", "TIME")
   
   # Post-process scale factors
   model <- postProcessScaleFactors(model)
@@ -229,4 +236,12 @@ postProcessScaleFactors <- function(model) {
   }
   
   return(model)
+}
+
+replaceDatasetTime <- function(file) {
+  fileConn = file(file)
+  lines <- readLines(con=fileConn)
+  lines <- replaceAll(object=lines, pattern=VariablePattern("TIME"), replacement="DATASET_TIME")
+  writeLines(text=lines, con=fileConn)
+  close(fileConn)
 }
