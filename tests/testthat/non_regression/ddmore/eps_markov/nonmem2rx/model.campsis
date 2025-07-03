@@ -1,18 +1,16 @@
 [MAIN]
 K12=THETA_K12
 K21=0
-
-[ODE]
-if (t <= 16) K21=THETA_K21_1
-if (t > 16) K21=THETA_K21_2
+if (TIME <= 16) K21=THETA_K21_1
+if (TIME > 16) K21=THETA_K21_2
 K23=0
-if (t <= 16) K23=THETA_K23
-if (t > 16) K23=THETA_K21_2
+if (TIME <= 16) K23=THETA_K23
+if (TIME > 16) K23=THETA_K21_2
 K32=THETA_K21_1 * exp(ETA_K32)
 FOR1=THETA_FOR1
 FOR2=0
-if (t <= 16) FOR2=THETA_FOR2
-if (t > 16) FOR2=THETA_FOR1
+if (TIME <= 16) FOR2=THETA_FOR2
+if (TIME > 16) FOR2=THETA_FOR1
 BACK=THETA_BACK
 CSS=0
 if (TRT == 3) CSS=(FR * DOSR/(CLR * 24)) * 1000
@@ -34,6 +32,8 @@ if (TRT == 3) FEFF=HAL
 if (TRT == 4) FEFF=PAL
 if (TRT == 5) FEFF=ZIP
 if (TRT == 6) FEFF=JJ6
+
+[ODE]
 KF12=(K12 * exp(-FOR1 * t)) * (1 + FEFF)
 KB21=K21 * exp(-BACK * t) * (1 + CTY1)
 KF23=(K23 * exp(-FOR2 * t)) * (1 + FEFF)

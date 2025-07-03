@@ -37,11 +37,11 @@ A_TUMOUR=INIT_A1
 DELX=1e-06
 XTUM=A_TUMOUR
 XTSR=(XTUM - MMBAS)/MMBAS
-if (t == 0) XWTS=0
-if (t == 0) XTM12=0
+if (TIME == 0) XWTS=0
+if (TIME == 0) XTM12=0
 CHZ=A_HDEATH
 SUR=exp(-CHZ)
-HAZN=LAM * SHP * pow((LAM * (t + DELX)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
+HAZN=LAM * SHP * pow((LAM * (TIME + DELX)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) IPRED=SUR
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) Y=IPRED
 

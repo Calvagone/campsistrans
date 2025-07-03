@@ -240,7 +240,7 @@ postProcessScaleFactors <- function(model) {
 
 replaceDatasetTime <- function(file) {
   fileConn = file(file)
-  lines <- readLines(con=fileConn)
+  lines <- suppressWarnings(readLines(con=fileConn))
   lines <- replaceAll(object=lines, pattern=VariablePattern("TIME"), replacement="DATASET_TIME")
   writeLines(text=lines, con=fileConn)
   close(fileConn)
