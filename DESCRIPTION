@@ -4,7 +4,8 @@ Title: Campsis Transformation Package (NONMEM/Monolix/rxode2 -> Campsis)
 Version: 1.4.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
-Description: Imports pharmacometric models from various sources (NONMEM/Monolix/rxode2) into Campsis.
+Description: Imports pharmacometric models from various sources
+    (NONMEM/Monolix/rxode2) into Campsis.
 License: GPL (>= 3)
 URL: https://github.com/Calvagone/campsistrans
 BugReports: https://github.com/Calvagone/campsistrans/issues
@@ -41,6 +42,9 @@ Suggests:
     testthat
 VignetteBuilder: 
     knitr
+Remotes: 
+    github::Calvagone/campsismod,
+    github::Calvagone/campsisqual
 Encoding: UTF-8
 Language: en-US
 LazyData: true
@@ -76,4 +80,3 @@ Collate:
     'import_from_rxode2.R'
     'import_from_monolix.R'
     'import_from_nonmem.R'
-Remotes: github::Calvagone/campsismod
