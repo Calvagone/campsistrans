@@ -189,7 +189,6 @@ convertRecord <- function(record, emptyRecord, parameters) {
 #' @return ODE record (CAMPSIS domain)
 #' @export
 convertCompartmentSystem <- function(model) {
-  # s
   # explicitSystem <- system$to_explicit_system()
   ode_system <- model$statements$ode_system
   odes <- ode_system$eqs

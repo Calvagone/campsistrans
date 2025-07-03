@@ -18,6 +18,7 @@ test_that("Import NONMEM model with variance-covariance matrix and export it to 
   object <- importNONMEM2(ctlFile=ctlFile, 
                           extFile=extFile, 
                           covFile=covFile)
+  
   model <- object %>%
     export(dest="campsis")
   

@@ -42,6 +42,9 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Conversion to Campsis
   model <- importRxode2(rxmod=rxmod, subroutine=subroutine, cov=FALSE)
   
+  # Post-process scale factors
+  model <- postProcessScaleFactors(model)
+  
   # Remove default names given by nonmem2rx importer before auto renaming
   updatedParameters <- Parameters()
   for (x in model@parameters@list) {
@@ -192,4 +195,38 @@ detectSubroutine <- function(x) {
     trans <- 1
   }
   return(c(advan, trans))
+}
+
+postProcessScaleFactors <- function(model) {
+  main <- model %>%
+    campsismod::find(MainRecord())
+  if (is.null(main)) {
+    return(model)
+  }
+  scaleEqs <- main@statements@list %>%
+    purrr::keep(.p=function(x) {
+      if (is(x, "equation")) {
+        return(grepl(pattern="^scale[0-9]+$", x@lhs))
+      }
+      return(FALSE)
+    })
+  for (eq in scaleEqs) {
+    original <- eq@lhs
+    replacement <- toupper(original)
+    model <- model %>%
+      campsismod::replaceAll(original, replacement)
+    
+    # Delete scaleX_ if any
+    model <- model %>%
+      campsismod::delete(Equation(paste0(original, "_")))
+  }
+  
+  # If the model contains rxLinCmt1, replace it with F
+  if (model %>% campsismod::contains(Equation("rxLinCmt1"))) {
+    model <- model %>%
+      campsismod::delete(Equation("F")) %>%
+      replaceAll("rxLinCmt1", "F")
+  }
+  
+  return(model)
 }
