@@ -1,7 +1,7 @@
 library(testthat)
 library(campsismod)
 
-context("Test NONMEM import on a few DDMoRE models")
+context("Test NONMEM import on some models from DDMoRe or litterature")
 
 testFolder <-  file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
@@ -109,7 +109,7 @@ test_that(getTestName("Rifampin PK can be imported well"), {
   if (!skipPharmpyTests()) {
     model <- generateModel(filename=filename, folder=folder, mapping=mapping)
     nonreg_model <- suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder)))
-    
+
     expect_equal(model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[1]]),
                  nonreg_model %>% campsismod::replace(discardLastRifampinODE(model, nonreg_model)[[2]]))
   }
@@ -175,7 +175,7 @@ test_that(getTestName("Midazolam PK in newborns can be imported well"), {
 
   filename <- "Executable_Midazolam_PK.mod"
   folder <- "midazolam"
-  
+
   # Pharmpy
   if (!skipPharmpyTests()) {
     model <- generateModel(filename=filename, folder=folder)
@@ -208,7 +208,7 @@ test_that(getTestName("Filgrastim PK/PD model from Krzyzanski et al. can be impo
       delete(IfStatement("CMT == 4", Equation("Y")))
     return(model)
   }
-  
+
   # Pharmpy
   if (!skipPharmpyTests()) {
     model <- generateModel(filename=filename, folder=folder, mapping=mapping, modelfun=modelfun)
@@ -417,3 +417,25 @@ test_that(getTestName("CPHPC model can be imported well"), {
   model2 <- generateModel2(filename=filename, folder=folder, ctlExt="ctl", unknownStatements=TRUE)
   expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
 })
+
+test_that(getTestName("EPS markov model can be imported well"), {
+  # This model comes from a paper:
+  # Pharmacokinetic–Pharmacodynamic Modeling of Severity Levels of Extrapyramidal Side Effects with Markov Elements
+  # V Pilla Reddy
+  
+  filename="eps_markov_pilla_et_al.ctl"
+  folder <- "eps_markov"
+  mapping <- mapping(auto=TRUE, theta=c("K12"=1, "K21_K32"=2, "K21_K23_GT16"=3, "K23"=4, "PCB_GT16"=5, "PCB_LT16"=6, "PCB_BACK"=7,
+                                        "EFF_HALO"=8, "EFF_PALI"=9, "EFF_ZIPRA"=10, "EFF_JJ681"=11, "COUNTRY_EFF"=12))
+  
+  # Pharmpy
+  if (!skipPharmpyTests()) {
+    model1 <- generateModel(filename=filename, folder=folder, mapping=mapping(auto=TRUE))
+    expect_equal(model1, suppressWarnings(read.campsis(nonRegressionPharmpyPath(folder))))
+  }
+  
+  # Same with nonmem2rx
+  model2 <- generateModel2(filename=filename, folder=folder, ctlExt="ctl", unknownStatements=TRUE)
+  expect_equal(model2, suppressWarnings(read.campsis(nonRegressionNonmem2rxPath(folder))))
+})
+

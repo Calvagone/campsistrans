@@ -3,7 +3,12 @@ library(rxode2)
 
 context("Test conversion from Pharmpy to nlxmir")
 
-test_that("Conversion to nlxmir works as expected", {
+testFolder <-  file.path(getwd(), test_path())
+source(file.path(testFolder, "testUtils.R"))
+
+test_that("Conversion to nlxmir works as expected (Pharmpy)", {
+  if (skipPharmpyTests()) return(TRUE)
+  
   campsistrans <- importNONMEM(getNONMEMModelTemplate(4, 4), mapping=mapping(auto=TRUE))
   pharmpy <- importPharmpyPackage()
   
