@@ -38,6 +38,13 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          
+      - run: |
+          python -m pip install --upgrade pip
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
