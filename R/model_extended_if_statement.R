@@ -58,32 +58,32 @@ setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "charact
 
 setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
   dest <- processExtraArg(args=list(...), name="dest", default="campsis")
-  
+  indent <- "  "
   statementsStr <- object@statements@list %>% 
     purrr::map_chr(.f=function(statement) {
-      return(statement %>% campsismod::toString(dest=dest, init=FALSE))
+      return(paste0(indent, statement %>% campsismod::toString(dest=dest, init=FALSE)))
     }) %>% 
     paste0(collapse="\n")
 
   if (is(object, "else_if_statement")) {
-    condition <- sprintf("(%s)", object@condition)
+    condition <- sprintf(" (%s)", object@condition)
     ifStr <- "else if"
   } else if(is(object, "else_statement")) {
     condition <- ""
     ifStr <- "else"
   } else if (is(object, "extended_if_statement")) {
-    condition <- sprintf("(%s)", object@condition)
+    condition <- sprintf(" (%s)", object@condition)
     ifStr <- "if"
   } else {
-    UnsupportedClassException(object)
+    stop("Should never occur")
   }
   
-  if (dest=="campsis" || isRxODE(dest) || dest=="mrgsolve") {
+  if (dest=="campsis" || campsismod::isRxODE(dest) || dest=="mrgsolve") {
     retValue <- sprintf("%s%s {\n%s\n}", ifStr, condition, statementsStr)
   } else if (dest=="NONMEM") {
     retValue <- sprintf("%s%s {\n%s\n}", toupper(ifStr), condition, statementsStr)
   } else {
-    UnsupportedDestException()
+    campsismod::UnsupportedDestException()
   }
   
   return(retValue)
