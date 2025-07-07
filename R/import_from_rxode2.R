@@ -628,7 +628,6 @@ getSubroutineModelForRxode2 <- function(advan, trans) {
 }
 
 replaceLinCmt <- function(model, subroutineModel) {
-  # browser()
   subroutineOde <- subroutineModel %>%
     campsismod::find(OdeRecord()) %>%
     delete(Equation("F"))
@@ -678,10 +677,14 @@ replaceLinCmt <- function(model, subroutineModel) {
   ode <- ode %>%
     replace(equation) %>%
     delete(Equation("central"))
-  
+
   # Replace in original model
   model <- model %>%
     replace(ode)
+  
+  # Replace all occurrences of central by A_CENTRAL
+  model <- model %>%
+    replaceAll("central", "A_CENTRAL")
   
   return(model)
 }

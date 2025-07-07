@@ -10,12 +10,12 @@ qualFolder <- file.path(testFolder, "integration_tests", "nonmem_qualification")
 reportFolder <- file.path(testFolder, "integration_tests", "qualification_reports")
 reexecuteNONMEM <- FALSE
 
-modelPath <- function(folder, filename) {
-  return(normalizePath(file.path(testFolder, "ddmore_models", folder, filename)))
-}
-
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported and simulated well", {
 
+  modelPath <- function(folder, filename) {
+    return(normalizePath(file.path(testFolder, "ddmore_models", folder, filename)))
+  }
+  
   filename <- "Executable_simulated_GCSF_dataset.ctl"
   modelFolder <- "filgrastim"
 
@@ -62,5 +62,36 @@ test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported and simula
 
   # Qualify ZNB
   qual <- qualify(model=model %>% disable("RUV"), ipred=ipredZNB, dest=dest, dataset=datasetZNB, variables="ZNB", settings=settings)
+  expect_true(qual %>% passed())
+})
+
+test_that("Custom model '2cpt_zo_foce_full' can be imported and simulated well", {
+  
+  modelPath <- function(folder, filename) {
+    return(normalizePath(file.path(testFolder, "custom_models", folder, filename)))
+  }
+  
+  filename <- "model.ctl"
+  modelFolder <- "2cpt_zo_foce_full"
+  
+  ctlFile <- modelPath(modelFolder, "model.ctl")
+  extFile <- modelPath(modelFolder, "model.ext")
+  covFile <- modelPath(modelFolder, "model.cov")
+  
+  # Nonmem2rx import (note: Pharmpy can also be used)
+  campsistrans <- importNONMEM2(ctlFile=ctlFile, extFile=extFile, covFile=covFile)
+  
+  # Campsis export
+  model <- campsistrans %>% export(dest="campsis")
+
+  dest <- "rxode2"
+  covariates <- c("WT", "METAB")
+  settings <- Settings(Declare(covariates))
+  dataset <- importDataset(file=ctlFile, covariates=covariates, etas=TRUE, campsis=campsistrans@campsis, campsis_id=TRUE) %>%
+    dplyr::mutate(AMT=ifelse(AMT==".", "0", AMT) %>% as.numeric())
+  ipred <- importPredictions(file=ctlFile, output="IPRED")
+  
+  # Qualify
+  qual <- qualify(model=model, ipred=ipred, dest=dest, dataset=dataset, variables="IPRED", settings=settings)
   expect_true(qual %>% passed())
 })
