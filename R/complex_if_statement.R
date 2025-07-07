@@ -35,6 +35,17 @@ setMethod("getName", signature = c("complex_if_else_statement"), definition = fu
 })
 
 #_______________________________________________________________________________
+#----                             replaceAll                                ----
+#_______________________________________________________________________________
+
+setMethod("replaceAll", signature=c("complex_if_else_statement", "pattern", "character"),
+          definition=function(object, pattern, replacement, ...) {
+  object@list <- object@list %>%
+    purrr::map(~campsismod::replaceAll(object=.x, pattern=pattern, replacement=replacement, ...))
+  return(object)
+})
+
+#_______________________________________________________________________________
 #----                                add                                    ----
 #_______________________________________________________________________________
 

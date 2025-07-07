@@ -58,6 +58,7 @@ test_that("Test the rxode2 parser (complex if statements, equations, line breaks
   
   expect_equal(res, expected)
   
+  # Do a few more tests with the complex if statement
   complexIfStatement <- expected[[7]]
   complexIfStatementStrA <- campsismod::toString(complexIfStatement) # Default destination
   complexIfStatementStrB <- campsismod::toString(complexIfStatement, dest="NONMEM") # Test the dest attribute
@@ -68,8 +69,14 @@ test_that("Test the rxode2 parser (complex if statements, equations, line breaks
   expect_equal(complexIfStatementStrB,
                c("IF (A==0 || (A==1 && A==3)) {\n  OUTPUT=1\n}", "ELSE IF (A==1) {\n  OUTPUT=2\n}", "ELSE {\n  OUTPUT=3\n}"))
   
+  # Test the replaceAll method
+  complexIfStatement <- complexIfStatement %>%
+    campsismod::replaceAll(pattern=VariablePattern("OUTPUT"), replacement="OUTPUT2")
+  complexIfStatementStrA <- campsismod::toString(complexIfStatement) # Default destination
+  expect_equal(complexIfStatementStrA,
+               c("if (A==0 || (A==1 && A==3)) {\n  OUTPUT2=1\n}", "else if (A==1) {\n  OUTPUT2=2\n}", "else {\n  OUTPUT2=3\n}"))
   
-  # Test the parser with a non-regression example
+  # Test a 1-line complex if statement
   complexIfElse <- "if (NbCibleEH == 0) {     tNbCibleEH = \"G_0\" } else if (NbCibleEH == 1 || NbCibleEH == 2 || NbCibleEH == 3 || NbCibleEH == 4 || NbCibleEH == 5) {     tNbCibleEH = \"G_1_2_3_4_5\" } else {     tNbCibleEH = \"G_0\" }\n"
   
   res <- parser$parse(complexIfElse, lexer) %>%

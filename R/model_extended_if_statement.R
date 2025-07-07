@@ -47,8 +47,10 @@ setMethod("getName", signature = c("extended_if_statement"), definition = functi
 #_______________________________________________________________________________
 
 setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
-  object@condition <- object@condition %>% replaceAll(pattern=pattern, replacement=replacement, ...)
-  object@statements <- object@statements %>% replaceAll(pattern=pattern, replacement=replacement, ...)
+  object@condition <- object@condition %>%
+    campsismod::replaceAll(pattern=pattern, replacement=replacement, ...)
+  object@statements@list <- object@statements@list %>%
+    purrr::map(~campsismod::replaceAll(object=.x, pattern=pattern, replacement=replacement, ...))
   return(object)
 })
 
@@ -56,8 +58,9 @@ setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "charact
 #----                             toString                                  ----
 #_______________________________________________________________________________
 
+#'@importFrom campsismod isRxODE
 setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
-  dest <- processExtraArg(args=list(...), name="dest", default="campsis")
+  dest <- campsismod::processExtraArg(args=list(...), name="dest", default="campsis")
   indent <- "  "
   statementsStr <- object@statements@list %>% 
     purrr::map_chr(.f=function(statement) {
@@ -83,7 +86,7 @@ setMethod("toString", signature=c("extended_if_statement"), definition=function(
   } else if (dest=="NONMEM") {
     retValue <- sprintf("%s%s {\n%s\n}", toupper(ifStr), condition, statementsStr)
   } else {
-    campsismod::UnsupportedDestException()
+    stop("Only rxode2 (previously RxODE), mrgsolve or campsis are supported")
   }
   
   return(retValue)
