@@ -16,6 +16,7 @@
 * Set up CI with github actions #106
 * Issue if multiple (and successive) complex if statements when parsing from rxode2 #107
 * Improve code coverage on Codecov #108
+* Nonmem2rx: newind and nmdvid back to original names #109
 
 # campsistrans 1.3.0
 

@@ -1,5 +1,5 @@
 [MAIN]
-if (newind <= 1) CHLAST=0
+if (NEWIND <= 1) CHLAST=0
 MEDIANCL=39.4
 if (TIME == 0) PREVSCOR=0
 B01=THETA_B01
@@ -69,12 +69,12 @@ P1M=PC1M - PC2M
 P0M=PC0M - PC1M
 NSIM=THETA_NSIM
 Y=-1
-if (nmdvid == 2 && DV == 0) Y=P0
-if (nmdvid == 2 && DV == 1 || DV == 2) Y=P1
-if (nmdvid == 2 && DV >= 3) Y=P2
+if (DVID == 2 && DV == 0) Y=P0
+if (DVID == 2 && DV == 1 || DV == 2) Y=P1
+if (DVID == 2 && DV >= 3) Y=P2
 CUMHAZ=A_c_CUMHAZ
-if (nmdvid == 5) Y=exp(-CUMHAZ)
-if (nmdvid == 5) CHLAST=CUMHAZ
-if (nmdvid == 4) HAZARD=LAMBDA * ALPHA * pow(TIME, (ALPHA - 1)) * exp(BETA1 * DOSE)
-if (nmdvid == 4) Y=exp(-CUMHAZ) * HAZARD
+if (DVID == 5) Y=exp(-CUMHAZ)
+if (DVID == 5) CHLAST=CUMHAZ
+if (DVID == 4) HAZARD=LAMBDA * ALPHA * pow(TIME, (ALPHA - 1)) * exp(BETA1 * DOSE)
+if (DVID == 4) Y=exp(-CUMHAZ) * HAZARD
 

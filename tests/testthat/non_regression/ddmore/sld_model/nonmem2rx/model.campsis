@@ -5,8 +5,8 @@ KD1=THETA_KD1 * exp(ETA_KD0)
 IBASE=THETA_IBASE * exp(ETA_IBASE)
 FADD=THETA_FADD
 INIT_A1=IBASE * 1000
-if (newind != 2) OCB=CB
-if (newind != 2) OG=G
+if (NEWIND != 2) OCB=CB
+if (NEWIND != 2) OG=G
 E0=OCB
 E1=OG
 OCB=CB

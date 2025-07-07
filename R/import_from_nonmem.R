@@ -81,6 +81,11 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Heuristic move to error
   model <- heuristicMoveToError(model)
   
+  # Special NONMEM variables back to original names
+  model <- model %>%
+    replaceAll("newind", "NEWIND") %>%
+    replaceAll("nmdvid", "DVID")
+  
   # Add variance-covariance matrix
   if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
     model <- processRxode2Varcov(model=model, varcov=rxmod$thetaMat)
