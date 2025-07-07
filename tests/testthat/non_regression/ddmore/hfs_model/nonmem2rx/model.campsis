@@ -33,6 +33,10 @@ A1=0
 SPREC=SWM1
 if (SWM1 == 0) A0=B00
 if (SWM1 == 0) A1=A0 + B01
+if (SWM1 == 1) A0=B10
+if (SWM1 == 1) A1=A0 + B11
+if (SWM1 == 2) A0=B20
+if (SWM1 == 2) A1=A0 + B21
 A0_=A0 - EFF + IIV
 A1_=A1 - EFF + IIV
 SWM1=GHFS

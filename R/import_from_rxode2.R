@@ -180,9 +180,9 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   # Parse code using campsismod
   lexer  <- rly::lex(Rxode2Lexer)
   parser <- rly::yacc(Rxode2Parser)
-  
-  # browser()
-  list <- parser$parse(paste0(code, collapse="\n"), lexer)
+
+  list <- parser$parse(paste0(code, collapse="\n"), lexer) %>%
+    unlist()
   
   # Create raw Campsis model, put all statements in ODE record, and update compartments
   model <- CampsisModel()

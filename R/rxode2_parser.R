@@ -204,11 +204,22 @@ Rxode2Parser <- R6::R6Class(
         ifStatement <- p$get(2)
         complexIfElseStatement <- ComplexIfElseStatement()
         complexIfElseStatement@list <- list(ifStatement)
-        p$set(1, complexIfElseStatement)
+        p$set(1, list(complexIfElseStatement)) # Should always return a list
       } else {
-        complexIfElseStatement <- p$get(2)
-        complexIfElseStatement@list <- append(complexIfElseStatement@list, list(p$get(3)))
-        p$set(1, complexIfElseStatement)
+        complexIfElseStatement1 <- p$get(2) # Already a list
+        lastElem <- length(complexIfElseStatement1)
+        ifStatement <- p$get(3)
+        # Append else-if or else statements
+        if (is(ifStatement, "else_if_statement") || is(ifStatement, "else_statement")) {
+          complexIfElseStatement1[[lastElem]]@list <- append(complexIfElseStatement1[[lastElem]]@list, list(ifStatement))
+          p$set(1, complexIfElseStatement1)
+        } else {
+          # Or create new complex if statement
+          # Object 2 appended in list
+          complexIfElseStatement2 <- ComplexIfElseStatement()
+          complexIfElseStatement2@list <- list(ifStatement)
+          p$set(1, complexIfElseStatement1 %>% append(complexIfElseStatement2))
+        }
       }
     },
     
@@ -308,7 +319,8 @@ buildIfStatement <- function(condition, content, type) {
     # 5 spaces or more = new line in nonmem2rx export
     # E.g.: if (FLAG == 5) {     IPRED <- log(COMP1 + DEL)     W <- theta14     Y <- IPRED + W * eps1 }
     content_ <- gsub(pattern="\\s{5,}", replacement="\n", x=content) 
-    statements@list <- parser$parse(content_, lexer)
+    statements@list <- parser$parse(content_, lexer) %>%
+      unlist()
     
     if (type == "if") {
       retValue <- new("extended_if_statement", condition=condition, statements=statements)

@@ -75,4 +75,6 @@ if (nmdvid == 2 && DV >= 3) Y=P2
 CUMHAZ=A_c_CUMHAZ
 if (nmdvid == 5) Y=exp(-CUMHAZ)
 if (nmdvid == 5) CHLAST=CUMHAZ
+if (nmdvid == 4) HAZARD=LAMBDA * ALPHA * pow(TIME, (ALPHA - 1)) * exp(BETA1 * DOSE)
+if (nmdvid == 4) Y=exp(-CUMHAZ) * HAZARD
 

@@ -91,3 +91,15 @@ setClass(
 ElseStatement <- function(statements) {
   return(new("else_statement", condition="", statements=statements))
 }
+
+#_______________________________________________________________________________
+#----                             toString                                  ----
+#_______________________________________________________________________________
+
+setMethod("toString", signature=c("complex_if_else_statement"), definition=function(object, ...) {
+  retValue <- NULL
+  for (elem in object@list) {
+    retValue <- retValue %>% append(campsismod::toString(elem, ...))
+  }
+  return(retValue)
+})

@@ -57,5 +57,34 @@ setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "charact
 #_______________________________________________________________________________
 
 setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
-  stop("Unsupported yet")
+  dest <- processExtraArg(args=list(...), name="dest", default="campsis")
+  
+  statementsStr <- object@statements@list %>% 
+    purrr::map_chr(.f=function(statement) {
+      return(statement %>% campsismod::toString(dest=dest, init=FALSE))
+    }) %>% 
+    paste0(collapse="\n")
+
+  if (is(object, "else_if_statement")) {
+    condition <- sprintf("(%s)", object@condition)
+    ifStr <- "else if"
+  } else if(is(object, "else_statement")) {
+    condition <- ""
+    ifStr <- "else"
+  } else if (is(object, "extended_if_statement")) {
+    condition <- sprintf("(%s)", object@condition)
+    ifStr <- "if"
+  } else {
+    UnsupportedClassException(object)
+  }
+  
+  if (dest=="campsis" || isRxODE(dest) || dest=="mrgsolve") {
+    retValue <- sprintf("%s%s {\n%s\n}", ifStr, condition, statementsStr)
+  } else if (dest=="NONMEM") {
+    retValue <- sprintf("%s%s {\n%s\n}", toupper(ifStr), condition, statementsStr)
+  } else {
+    UnsupportedDestException()
+  }
+  
+  return(retValue)
 })

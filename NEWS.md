@@ -14,6 +14,7 @@
 * Scale factors to uppercase when importing NONMEM via nonmem2rx #104
 * TIME and T both converted to t with nonmem2rx #105
 * Set up CI with github actions #106
+* Issue if multiple (and successive) complex if statements when parsing from rxode2 #107
 
 # campsistrans 1.3.0
 

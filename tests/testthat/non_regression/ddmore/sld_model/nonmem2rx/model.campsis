@@ -28,6 +28,8 @@ DUM=(LLOQ - IPRED)/W
 DUM2=phi(DUM)
 if (BQL == 1) F_FLAG=1
 if (BQL == 1) Y=DUM2
+if (BQL == 0) F_FLAG=0
+if (BQL == 0) Y=IPRED + EPS_RUV1 * W
 IRES=IPRED - DV
 IWRES=IRES/W
 

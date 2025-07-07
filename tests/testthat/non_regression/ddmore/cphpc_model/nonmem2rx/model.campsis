@@ -108,6 +108,7 @@ Y1=IPRED * (1 + W * ER1) + W2 * ER2
 if (CMT == 1) W=THETA_W_1
 if (CMT == 1) W2=THETA_W2_1
 if (CMT == 1) Y1=IPRED * (1 + W * ER1) + W2 * ER2
+if (IPRED == 0) IPRED=0.01
 Y=Y1
 IRES=DV - IPRED
 IWRES=IRES/(IPRED * W)
