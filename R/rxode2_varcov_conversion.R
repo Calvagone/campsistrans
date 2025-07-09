@@ -54,10 +54,15 @@ processRxode2Varcov <- function(model, varcov) {
       warning(sprintf("Removing non-zero row/column '%s' from variance-covariance matrix", varcovNames[index]))
     }
   }
-  varcov <- varcov[-indexes, -indexes]
-  row.names(varcov) <- updatedVarcovNames[-indexes]
-  colnames(varcov) <- updatedVarcovNames[-indexes]
   
+  # Remove empty rows/columns (make sure indexes is not empty!)
+  if (length(indexes) > 0) {
+    varcov <- varcov[-indexes, -indexes]
+    updatedVarcovNames <- updatedVarcovNames[-indexes]
+  }
+  row.names(varcov) <- updatedVarcovNames
+  colnames(varcov) <- updatedVarcovNames
+
   # Deduce fixed parameters and remove zeroes from variance-covariance matrix
   fixIndexes <- NULL
   for (index in seq_len(nrow(varcov))) {

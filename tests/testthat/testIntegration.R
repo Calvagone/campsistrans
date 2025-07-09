@@ -82,7 +82,8 @@ test_that("Custom model '2cpt_zo_foce_full' can be imported and simulated well",
   campsistrans <- importNONMEM2(ctlFile=ctlFile, extFile=extFile, covFile=covFile)
   
   # Campsis export
-  model <- campsistrans %>% export(dest="campsis")
+  model <- campsistrans %>%
+    export(dest="campsis")
 
   dest <- "rxode2"
   covariates <- c("WT", "METAB")
