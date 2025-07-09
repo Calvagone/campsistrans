@@ -17,6 +17,8 @@
 * Issue if multiple (and successive) complex if statements when parsing from rxode2 #107
 * Improve code coverage on Codecov #108
 * Nonmem2rx: newind and nmdvid back to original names #109
+* Issue in processRxode2Varcov: no variance-covariance matrix returned in some cases #110
+* Standardise name given to off-diagonal OMEGAs after nonmem2rx import #111
 
 # campsistrans 1.3.0
 

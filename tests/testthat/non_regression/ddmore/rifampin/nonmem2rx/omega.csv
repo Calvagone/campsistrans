@@ -1,6 +1,6 @@
 "name","index","index2","value","fix","type"
 "IIVCL",1,1,0.279,FALSE,"var"
-"eta1_eta2",1,2,0.217,FALSE,"covar"
+"IIVCL_V2",1,2,0.217,FALSE,"covar"
 "V2",2,2,0.188,FALSE,"var"
 "KA",3,3,0.439,FALSE,"var"
 "IIVMT",4,4,0.361,FALSE,"var"

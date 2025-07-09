@@ -2,7 +2,7 @@
 "CL",1,1,0.03,FALSE,"var"
 "F_A1",2,2,0.21,FALSE,"var"
 "KA",3,3,0.14,FALSE,"var"
-"eta3_eta4",3,4,0.07,FALSE,"covar"
+"KA_W",3,4,0.07,FALSE,"covar"
 "W",4,4,0.05,FALSE,"var"
 "IOVF1A_1",5,5,0.08,FALSE,"var"
 "IOVF1A_2",6,6,0.08,FALSE,"var"
