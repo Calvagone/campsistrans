@@ -10,6 +10,10 @@ qualFolder <- file.path(testFolder, "integration_tests", "nonmem_qualification")
 reportFolder <- file.path(testFolder, "integration_tests", "qualification_reports")
 reexecuteNONMEM <- FALSE
 
+# Import test utils
+source(file.path(testFolder, "testUtils.R"))
+
+
 test_that("Filgrastim PK/PD model (Krzyzanski et al.) can be imported and simulated well", {
 
   modelPath <- function(folder, filename) {
@@ -71,6 +75,14 @@ test_that("Custom model '2cpt_zo_foce_full' can be imported and simulated well",
     return(normalizePath(file.path(testFolder, "custom_models", folder, filename)))
   }
   
+  modelNonRegNonmem2rxPath <- function(folder) {
+    return(normalizePath(file.path(testFolder, "non_regression", "custom", folder, "nonmem2rx")))
+  }
+  
+  modelNonRegPharmpyPath <- function(folder) {
+    return(normalizePath(file.path(testFolder, "non_regression", "custom", folder, "pharmpy")))
+  }
+  
   filename <- "model.ctl"
   modelFolder <- "2cpt_zo_foce_full"
   
@@ -84,15 +96,36 @@ test_that("Custom model '2cpt_zo_foce_full' can be imported and simulated well",
   # Campsis export
   model <- campsistrans %>%
     export(dest="campsis")
-
+  
+  # Check against non-reg model
+  #model %>% write(modelNonRegNonmem2rxPath(folder=modelFolder))
+  expect_equal(model, read.campsis(modelNonRegNonmem2rxPath(folder=modelFolder)))
+  
   dest <- "rxode2"
   covariates <- c("WT", "METAB")
   settings <- Settings(Declare(covariates))
-  dataset <- importDataset(file=ctlFile, covariates=covariates, etas=TRUE, campsis=campsistrans@campsis, campsis_id=TRUE) %>%
+  dataset <- importDataset(file=ctlFile, covariates=covariates, etas=TRUE, campsis=model, campsis_id=TRUE) %>%
     dplyr::mutate(AMT=ifelse(AMT==".", "0", AMT) %>% as.numeric())
   ipred <- importPredictions(file=ctlFile, output="IPRED")
   
-  # Qualify
-  qual <- qualify(model=model, ipred=ipred, dest=dest, dataset=dataset, variables="IPRED", settings=settings)
-  expect_true(qual %>% passed())
+  # Qualify with nonmem2rx
+  qual1 <- qualify(model=model, ipred=ipred, dest=dest, dataset=dataset, variables="IPRED", settings=settings)
+  expect_true(qual1 %>% passed())
+  
+  # Import using Pharmpy
+  # Also test the covar_name argument in Pharmpy (not tested elsewhere)
+  if (!skipPharmpyTests()) {
+    campsistrans2 <- importNONMEM(file=ctlFile, estimate=TRUE, uncertainty=TRUE, mapping=mapping(auto=TRUE), covar_name=TRUE)
+    model2 <- campsistrans2 %>%
+      export(dest="campsis") %>%
+      replaceAll("A_1", "A_CENTRAL")
+    
+    # Check against non-reg model
+    #model2 %>% write(modelNonRegPharmpyPath(folder=modelFolder))
+    expect_equal(model2, read.campsis(modelNonRegPharmpyPath(folder=modelFolder)))
+    
+    # Qualify with Pharmpy
+    qual2 <- qualify(model=model2, ipred=ipred, dest=dest, dataset=dataset, variables="IPRED", settings=settings)
+    expect_true(qual2 %>% passed())
+  }
 })

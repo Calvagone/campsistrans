@@ -158,13 +158,9 @@ nameCovariance <- function(model) {
     parameter <- parameters@list[[listIndex]]
     if (is(parameter, "omega") && !parameter %>% campsismod::isDiag()) {
       oldName <- parameter %>% getName()
-      covName <- getCovarianceName(parameters=parameters, index1=parameter@index, index2=parameter@index2)
-      if (!is.na(covName)) {
-        parameter@name <- covName
-        updatedName <- parameter %>% getName()
-        if (hasVarcov) {
-          colnamesVarcov[colnamesVarcov==oldName] <- updatedName
-        }
+      parameter <- standardiseCovarianceParameterName(parameters=parameters, parameter=parameter)
+      if (hasVarcov) {
+        colnamesVarcov[colnamesVarcov==oldName] <- parameter %>% getName()
       }
     }
     retValue@list[[listIndex]] <- parameter
@@ -176,18 +172,32 @@ nameCovariance <- function(model) {
   return(model)
 }
 
-getCovarianceName <- function(parameters, index1, index2) {
-  omega1 <- parameters %>% campsismod::getByIndex(Omega(index=index1, index2=index1))
-  omega2 <- parameters %>% campsismod::getByIndex(Omega(index=index2, index2=index2))
+standardiseCovarianceParameterName <- function(parameters, parameter) {
+  type <- as.character(class(parameter))
+  if (type=="omega" && !campsismod::isDiag(parameter)) {
+    find1 <- Omega(index=parameter@index, index2=parameter@index)
+    find2 <- Omega(index=parameter@index2, index2=parameter@index2)
+  } else if (type=="sigma" && !campsismod::isDiag(parameter)) {
+    find1 <- Sigma(index=parameter@index, index2=parameter@index)
+    find2 <- Sigma(index=parameter@index2, index2=parameter@index2)
+  } else {
+    return(parameter)
+  }
+  param1 <- parameters %>%
+    campsismod::getByIndex(find1)
+  param2 <- parameters %>%
+    campsismod::getByIndex(find2)
   
-  name1 <- omega1@name
-  name2 <- omega2@name
+  name1 <- param1@name
+  name2 <- param2@name
   
   if (is.na(name1) || is.na(name2)) {
-    return(as.character(NA))
+    standardName <- as.character(NA)
   } else {
-    return(paste0(name1, "_", name2))
+    standardName <- paste0(name1, "_", name2)
   }
+  parameter@name <- standardName
+  return(parameter)
 }
 
 #'

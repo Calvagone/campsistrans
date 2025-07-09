@@ -86,6 +86,10 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
     replaceAll("newind", "NEWIND") %>%
     replaceAll("nmdvid", "DVID")
   
+  # Name covariance parameters properly
+  model@parameters@list <- model@parameters@list %>%
+    purrr::map(~standardiseCovarianceParameterName(parameters=model@parameters, parameter=.x))
+  
   # Add variance-covariance matrix
   if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
     model <- processRxode2Varcov(model=model, varcov=rxmod$thetaMat)
