@@ -38,7 +38,7 @@ replaceSymbolAuto <- function(expression, symbol, parameters) {
 #' @importFrom reticulate dict
 #' @export
 replaceSymbol <- function(expression, symbol, replacementSymbol) {
-  expression <- expression$xreplace(rule=reticulate::dict(symbol=replacementSymbol))
+  expression <- expression$subs(reticulate::dict(symbol=replacementSymbol))
   return(expression)
 }
 

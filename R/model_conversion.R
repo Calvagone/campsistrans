@@ -12,38 +12,34 @@
 #' @return the CAMPSIS model
 #' @importFrom reticulate iterate
 #' @importFrom campsismod autoDetectNONMEM updateCompartments
+#' @export
 #' 
 exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   statements <- reticulate::iterate(pharmpyModel$statements)
-
-  model <- CodeRecords()
+  records <- CodeRecords()
   
   emptyRecord <- MainRecord()
-  record <- pharmpyModel$control_stream$get_records("PK")
-  model <- addconvertRecord(model, record, emptyRecord, parameters)
-  
-  emptyRecord <- MainRecord()
-  record <- pharmpyModel$control_stream$get_records("PRED")
-  model <- addconvertRecord(model, record, emptyRecord, parameters)
+  record <- pharmpyModel$internals$control_stream$get_pred_pk_record()
+  records <- addconvertRecord(records, record, emptyRecord, parameters)
   
   emptyRecord <- OdeRecord()
-  record <- pharmpyModel$control_stream$get_records("DES")
+  record <- pharmpyModel$internals$control_stream$get_des_record()
   if (length(record)==0) {
     system <- statements %>%
-      purrr::keep(~("pharmpy.statements.CompartmentalSystem" %in% class(.x)))
+      purrr::keep(~("pharmpy.model.statements.CompartmentalSystem" %in% class(.x)))
     if (length(system) > 0) {
-      model@list <- c(model@list, convertCompartmentSystem(system[[1]]))
+      records@list <- c(records@list, convertCompartmentSystem(pharmpyModel))
     }
   } else {
-    model <- addconvertRecord(model, record, emptyRecord, parameters)
+    records <- addconvertRecord(records, record, emptyRecord, parameters)
   }
   
   emptyRecord <- ErrorRecord()
-  record <- pharmpyModel$control_stream$get_records("ERROR")
-  model <- addconvertRecord(model, record, emptyRecord, parameters)
+  record <- pharmpyModel$internals$control_stream$get_error_record()
+  records <- addconvertRecord(records, record, emptyRecord, parameters)
   
   # Instantiate initial CAMPSIS model
-  retValue <- new("campsis_model", model=model, parameters=parameters)
+  retValue <- new("campsis_model", model=records, parameters=parameters)
   
   # Update compartments list before returning the CAMPSIS model
   retValue <- retValue %>% campsismod::updateCompartments()
@@ -80,6 +76,7 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
 #' @return updated CAMPSIS model
+#' @export
 addconvertRecord <- function(model, record, emptyRecord, parameters) {
   if (length(record) > 0) {
     campsisRecord <- convertRecord(record, emptyRecord, parameters)
@@ -111,79 +108,90 @@ convertStatement <- function(statement, parameters) {
   dadtPattern <- "^DADT\\(.*\\)$"
   isODE <- grepl(pattern=dadtPattern, x=symbol_chr, ignore.case=TRUE)
   
-  if ("sympy.functions.elementary.piecewise.Piecewise" %in% class(expression)) {
-    return(convertPiecewise(symbol, expression))
-  
+  if (expression$is_piecewise()) {
+    exprCondPair <- expression$args[[1]]
+    expression <- exprCondPair[[1]]
+    condition <- exprCondPair[[2]]
+    return(IfStatement(printSymPy(condition, simplify=TRUE),
+                       Equation(symbol_chr, printSymPy(expression, simplify=FALSE))))
+
+  } else if (expression %>% as.character() %>% startsWith("forward(")) {
+    what <- expression$args[[1]]
+    condition <- expression$args[[2]]
+    return(IfStatement(printSymPy(condition, simplify=TRUE),
+                       Equation(symbol_chr, printSymPy(what, simplify=FALSE))))
+    
   } else if (isODE){
     cmtNumber <- extractValueInParentheses(symbol_chr)
-    return(Ode(paste0("A_", cmtNumber), printSymPy(expression)))
+    # browser()
+    return(Ode(paste0("A_", cmtNumber), printSymPy(expression, simplify=FALSE)))
 
   } else {
-    return(Equation(symbol_chr, printSymPy(expression)))
+    equation <- Equation(symbol_chr, printSymPy(expression, simplify=FALSE))
+    return(checkNewindStatement(equation))
   }
 }
 
-#' SymPy piecewise conversion to CAMPSIS model.
+#' Check if the equation is a newind statement.
+#' E.g. if Equation("OCB", "first(CB, ID)"),
+#' we return an if-statement.
 #' 
-#' @param symbol SymPy statement symbol
-#' @param piecewise SymPy piecewise
-#' @return C code
-#' @export
-convertPiecewise <- function(symbol, piecewise) {
-  symbol_chr <- as.character(symbol)
+#' @param equation equation to check
+#' @return IfStatement or Equation
+#' 
+checkNewindStatement <- function(equation) {
+  newindPattern <- "^first\\((.+), ID\\)$"
   
-  exprCondPair <- piecewise$args[[1]]
-  
-  if (! ("sympy.functions.elementary.piecewise.ExprCondPair" %in% class(exprCondPair))) {
-    stop(paste("Class can only be", class(exprCondPair), "for now..."))  
-  } 
-  
-  expression <- exprCondPair$args[[1]]
-  condition <- exprCondPair$args[[2]]
-  
-  return(IfStatement(printSymPy(condition), Equation(symbol_chr, printSymPy(expression))))
-}
+  if (grepl(pattern=newindPattern, x=equation@rhs)) {
+    rhs_ <- gsub(pattern=newindPattern, replacement="\\1", x=equation@rhs)
+    return(IfStatement("NEWIND != 2", 
+                       Equation(equation@lhs, rhs_)))
+  } else {
+    return(equation)
+  }
+} 
 
 #' NONMEM record (pharmpy) to CAMPSIS model.
 #' 
-#' @param records one or more NONMEM record
+#' @param record one or more NONMEM record
 #' @param emptyRecord empty code record, already instantiated with the right type
 #' @param parameters parameters
 #' @return a CAMPSIS record
 #' @export
-convertRecord <- function(records, emptyRecord, parameters) {
+convertRecord <- function(record, emptyRecord, parameters) {
   retValue <- emptyRecord
   
-  for (record in records) {
-    if (! ("pharmpy.plugins.nonmem.records.code_record.CodeRecord" %in% class(record))) {
-      stop("Not a DES record")  
-    }
-    # Retrieve statements list in R
-    statements <- record$statements["_statements"]
-    
-    # Retrieve all equations
-    for (index in (seq_along(statements))) {
-      statement <- statements[[index]]
-      campsisStatement <- convertStatement(statement, parameters)
-      
-      # Don't add statement using Campsis add function (on model) since it checks for duplicates
-      # Use append on list
-      retValue@statements@list <- retValue@statements@list %>%
-        append(campsisStatement)
-    }
+  if (! ("pharmpy.model.external.nonmem.records.code_record.CodeRecord" %in% class(record))) {
+    stop("Not a DES record")  
   }
+  # Retrieve statements list in R
+  statements <- record$statements
+  
+  # Retrieve all equations
+  for (index in (seq_along(statements) - 1)) {
+    # print(index)
+    statement <- statements[[index]]
+    campsisStatement <- convertStatement(statement, parameters)
+    
+    # Don't add statement using Campsis add function (on model) since it checks for duplicates
+    # Use append on list
+    retValue@statements@list <- retValue@statements@list %>%
+      append(campsisStatement)
+  }
+  
   return(retValue)
 }
 
 #' Pharmpy compartment system conversion to PMX model.
 #' 
-#' @param system Pharmpy compartment system
+#' @param model Pharmpy model
 #' @importFrom campsismod OdeRecord
 #' @return ODE record (CAMPSIS domain)
 #' @export
-convertCompartmentSystem <- function(system) {
-  explicitSystem <- system$to_explicit_system()
-  odes <- explicitSystem$odes
+convertCompartmentSystem <- function(model) {
+  # explicitSystem <- system$to_explicit_system()
+  ode_system <- model$statements$ode_system
+  odes <- ode_system$eqs
   
   cptNames <- NULL
   odeRecord <- OdeRecord()
@@ -208,8 +216,8 @@ convertCompartmentSystem <- function(system) {
   }
   
   # Add F equation
-  central <- system$central_compartment
-  centralIndex <- which(system$names==central$name)
+  central <- ode_system$central_compartment
+  centralIndex <- which(ode_system$compartment_names==central$name)
   odeRecord <- odeRecord %>% add(Equation("F", paste0("A_", central$name, "/S", centralIndex)))
   return(odeRecord)
 }

@@ -1,0 +1,7 @@
+"name","index","index2","value","fix","type"
+"CL",1,1,0.0409476,FALSE,"var"
+"CL_VC",1,2,-0.00516769,FALSE,"covar"
+"CL_DUR",1,3,0.0067534,FALSE,"covar"
+"VC",2,2,0.0456615,FALSE,"var"
+"VC_DUR",2,3,0.00225816,FALSE,"covar"
+"DUR",3,3,0.00606489,FALSE,"var"

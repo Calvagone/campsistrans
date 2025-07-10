@@ -4,22 +4,22 @@
 $SIZES LIM6=2000
 $PROBLEM OS-IPP
 
-$INPUT CCOM,
-ID,
-TIME, ;day
-DV, ;0 if censored, 1 if death 
-CB, ;exposure to carboplatin (per-cycle average AUC)
-G, ;exposure to gemcitabine (per-cycle average AUC)
-EVID,
-FLG, ;FLG=9 for OS data, FLG=1 for covariates-related entries
-CMT, ;CMT=1 for SLD, CMT=2 for hazard of death
-NWLS, ;dichotomous time-varying covariate indicating the presence of new lesions with respect to enrolment
-KG, ;subjec specific tumour growth rate constant (estimated previously)
-KD0, ;subjec specific carboplatin related tumour death rate constant (estimated previously)
-KD1, ;subjec specific gemcitabine-related tumour death rate constant (estimated previously)
-IBASE, ;subjec specific SLD at baseline (estimated previously)
-SLD0, ;measured SLD at enrolment
-ECOG, ;measured ECOG status at enrolment
+$INPUT CCOM
+ID
+TIME ;day
+DV ;0 if censored, 1 if death 
+CB ;exposure to carboplatin (per-cycle average AUC)
+G ;exposure to gemcitabine (per-cycle average AUC)
+EVID
+FLG ;FLG=9 for OS data, FLG=1 for covariates-related entries
+CMT ;CMT=1 for SLD, CMT=2 for hazard of death
+NWLS ;dichotomous time-varying covariate indicating the presence of new lesions with respect to enrolment
+KG ;subjec specific tumour growth rate constant (estimated previously)
+KD0 ;subjec specific carboplatin related tumour death rate constant (estimated previously)
+KD1 ;subjec specific gemcitabine-related tumour death rate constant (estimated previously)
+IBASE ;subjec specific SLD at baseline (estimated previously)
+SLD0 ;measured SLD at enrolment
+ECOG ;measured ECOG status at enrolment
 OSCENS ;OSCENS=0 if patient died, OSCENS=1 if censoring occured
 
 $DATA Simulated_OS.csv IGNORE=C 

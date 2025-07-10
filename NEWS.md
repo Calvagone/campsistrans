@@ -1,6 +1,29 @@
+# campsistrans 1.4.0
+
+* Error when importing some rxode2 models #92
+* Rework installation of Pharmpy #93
+* Update method 'prepareNONMEMFiles' for Pharmpy v1.7.2 (removed) #94
+* Update NONMEM import with Pharmpy v1.7.2 #95
+* Fix R CMD Check #96
+* Rework importDataset method to get rid of Pharmpy #97
+* Implement method 'importPredictions' #98
+* Rework method executeSimulationCtl to get rid of pharmpy #99
+* Add option to exclude tests relying on Pharmpy engine #101
+* Issue in conversion from rxode2 when no ODE (e.g. $PRED in NONMEM) #102
+* Add GPL license #103
+* Scale factors to uppercase when importing NONMEM via nonmem2rx #104
+* TIME and T both converted to t with nonmem2rx #105
+* Set up CI with github actions #106
+* Issue if multiple (and successive) complex if statements when parsing from rxode2 #107
+* Improve code coverage on Codecov #108
+* Nonmem2rx: newind and nmdvid back to original names #109
+* Issue in processRxode2Varcov: no variance-covariance matrix returned in some cases #110
+* Standardise name given to off-diagonal OMEGAs after nonmem2rx import #111
+* Update README #112
+
 # campsistrans 1.3.0
 
-* Translator for Monolix #51
+* Translator for rxode2 #51
 * Translator for Monolix #52
 * Test monolix importer based on the monolix tutorial #67
 * Translate initial conditions from rxode2 to Campsis #68

@@ -1,28 +1,22 @@
 ---
-pagetitle: "campsistrans"
-date: ""
-author: ""
 output: github_document
 ---
 
-# campsistrans
-A library dedicate to drug model conversion in pharmacometrics.
+# campsistrans <img src='man/figures/r_package_campsistrans.png' align="right" width="120"/>
 
-## Requirements
-
-* Python framework and Pharmpy package must be installed beforehand
-* R package campsis must also be installed
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/Calvagone/campsistrans/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsistrans/actions)
+[![Codecov test coverage](https://codecov.io/gh/Calvagone/campsistrans/graph/badge.svg)](https://app.codecov.io/gh/Calvagone/campsistrans)
+<!-- badges: end -->
 
 ## Installation
-Install the current development version:
+Install the latest version:
   
 ```{r, eval=FALSE}
-devtools::install_github("Calvagone/campsistrans", ref="main", auth_token="AUTH_TOKEN", force=TRUE)
+devtools::install_github("Calvagone/campsistrans")
 ```
 
 ## Some examples
-
-### Import NONMEM control stream
 
 First import the `campsistrans` package:
 
@@ -33,40 +27,61 @@ library(campsistrans)
 Let's have a quick look at the NONMEM control stream we're going to import:
 
 ```{r comment=''}
-cat(readLines("data-raw/advan4_trans4"), sep = "\n")
+path <- getNONMEMModelTemplate(4,4)
+cat(readLines(con=file(path)), sep="\n")
 ```
 
-Let's name our model parameters first by defining a mapping object.
+### Import NONMEM control stream (Pharmpy)
 
-```{r}
-mapping <- mapping(
-    theta = c(KA=1, CL=2, V2=3, V3=4, Q=5),
-    omega = c(KA=1, CL=2, V2=3, V3=4, Q=5),
-    sigma = c(PROP=1))
-```
-
-Let's then import this model using `campsistrans`.
+Let's import this model using `campsistrans` with `Pharmpy` (config.yml file is needed with the path to Python).
 By default, the initial values are used as reference values in the model.
 
 ```{r}
-object <- importNONMEM("data-raw/advan4_trans4", mapping, estimate=FALSE)
+object <- importNONMEM(file=path, mapping=mapping(auto=TRUE), estimate=FALSE)
 ```
 
-Convert this object to a CAMPSIS model:
+Convert this object to a Campsis model:
 
 ```{r}
 model <- object %>% export(dest="campsis")
 show(model)
 ```
 
-Simulate it using CAMPSIS:
+Simulate it using Campsis:
 
-```{r campsis_simulation, message=F}
+```{r campsis_simulation_pharmpy, message=F}
 library(campsis)
-dataset <- Dataset(10)%>%
-  add(Bolus(time=0, amount=1000)) %>%
+dataset <- Dataset(10) %>%
+  add(Bolus(time=0, amount=1000, compartment="DEPOT")) %>%
   add(Observations(times=seq(0,24, by=0.5)))
 
 results <- simulate(model, dataset, dest="rxode2", seed=1)
-spaghettiPlot(results, "CP")
+spaghettiPlot(results, "CONC")
+```
+
+### Import NONMEM control stream (nonmem2rx)
+
+The same model can also be imported with `nonmem2rx`, which does not need Python to work.
+
+```{r, message=FALSE}
+object <- importNONMEM2(ctlFile=path)
+```
+
+Convert this object to a Campsis model:
+
+```{r}
+model <- object %>% export(dest="campsis")
+show(model)
+```
+
+Simulate it using Campsis:
+
+```{r campsis_simulation_nonmem2rx, message=F}
+library(campsis)
+dataset <- Dataset(10) %>%
+  add(Bolus(time=0, amount=1000, compartment="DEPOT")) %>%
+  add(Observations(times=seq(0,24, by=0.5)))
+
+results <- simulate(model, dataset, dest="rxode2", seed=1)
+spaghettiPlot(results, "CONC")
 ```

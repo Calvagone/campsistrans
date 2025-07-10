@@ -30,14 +30,16 @@ standardiseNMDataset <- function(dataset) {
 
 #' Import a NONMEM dataset and prepare it for the qualification.
 #'
-#' @param campsistrans campsistrans object
+#' @param file path to NONMEM control stream (dataset path will be automatically extracted)
 #' @param covariates covariates vector. If provided, only these covariates are kept in dataset.
 #'  NULL is default (all covariates are kept)
-#' @param etas import estimated ETA's that were output by $TABLE in control stream.
-#' By default, ETA's are not imported. Please set it to TRUE to enable this feature.
+#' @param etas import estimated ETAs that were output by $TABLE in control stream.
+#' By default, ETAs are not imported. Please set it to TRUE to enable this feature.
 #' @param etas_zero if previous argument is set to FALSE, etas_zero set to TRUE will
-#' all ETA's from model to 0 (useful to simulate model without IIV)
-#' @param campsis_id rework ID column for simulation with CAMPSIS (ID must start at 1 and must be consecutive).
+#' all ETAs from model to 0 (useful to simulate model without IIV)
+#' @param table_no table number to look for the ETAs, if NULL, first table with ETAS(1:LAST) occurrence will be used
+#' @param campsis Campsis model object, if provided, ETAs in the dataset will be renamed according to the Campsis model
+#' @param campsis_id rework ID column for simulation with Campsis (ID must start at 1 and must be consecutive).
 #' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 #' preserved in column 'ORIGINAL_ID'.
 #' @return a data frame
@@ -45,68 +47,102 @@ standardiseNMDataset <- function(dataset) {
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=FALSE, campsis_id=FALSE) {
-  pharmpy <- campsistrans@model[[1]]
+importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas_zero=FALSE, campsis=NULL, campsis_id=FALSE) {
   
-  # Looking at DATA section
-  data <- getFirstRecord(pharmpy, name="DATA")
-  dataset <- read.csv(file=paste0(campsistrans@dirname, "/", data$filename))
+  # NONMEM directory
+  nmDir <- dirname(file)
+  
+  # Read control stream
+  ctlLines <- readLines(file) %>%
+    removeNONMEMComments()
+  ctl <- paste0(ctlLines, collapse="\n")
+
+  # Looking at DATA block
+  data <- extractNONMEMBlock(x=ctl, name="DATA")
+  datasetFilename <- gsub(pattern="^(.*?\\.(CSV|csv)).*", replacement="\\1", x=data@content[1])
+  datasetPath <- file.path(nmDir, datasetFilename)
+  if (!file.exists(datasetPath)) {
+    stop(paste0("Dataset file '", datasetFilename, "' not found in directory: ", nmDir))
+  }
+  dataset <- read.csv(file=datasetPath)
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
   
-  # Looking at INPUT section
-  input <- getFirstRecord(pharmpy, name="INPUT")
-  
-  # All options in INPUT
-  options <- input$all_options
+  # Looking at INPUT block
+  input <- extractNONMEMBlock(x=ctl, name="INPUT")
+  options <- extractOptions(input)
   optionsLength <- options %>% length()
   
   if (optionsLength != columnNamesLength) {
     stop(paste0("INPUT has ", optionsLength, " entries while dataset has ", columnNamesLength, " columns."))
   }
   
-  optionKeys <- options %>% purrr::map_chr(~.x$key)
-  optionValues <- options %>% purrr::map_chr(~ifelse(is.null(.x$value), NA, .x$value))
-  
   # Overwrite column headers with the keys
-  colnames(dataset) <- optionKeys
+  colnames(dataset) <- names(options)
   
   # DROP column indexes
-  optionsToDrop <- options %>% purrr::keep(~(!is.null(.x$value) && .x$value == "DROP"))
-  for (optionToDrop in optionsToDrop) {
-    dataset <- dataset %>% dplyr::select(-dplyr::all_of(optionToDrop$key))
-  }
+  optionsToDrop <- options %>%
+    purrr::keep(~(!is.na(.x) && .x == "DROP"))
+  dataset <- dataset %>%
+    dplyr::select(!dplyr::all_of(names(optionsToDrop)))
   
   # Rename necessary columns
-  optionsToRename <- options %>% purrr::keep(~(!is.null(.x$value) && .x$value != "DROP"))
-  for (optionToRename in optionsToRename) {
-    dataset <- dataset %>% dplyr::rename_at(.vars=optionToRename$key, .funs=~optionToRename$value)
-  }
-  
+  optionsToRename <- options %>%
+    purrr::keep(~(!is.na(.x) && .x != "DROP"))
+  dataset <- dataset %>%
+    dplyr::rename_at(.vars=names(optionsToRename), .funs=~as.character(optionsToRename))
+
   # First standardise NONMEM dataset
   dataset <- standardiseNMDataset(dataset)
   
   # NONMEM important variables
-  nmVariables <- c("ID","TIME","DV","MDV","EVID", "AMT", "CMT", "RATE")
+  nmVariables <- c("ID","TIME","DV","MDV","EVID","AMT","CMT","RATE")
   
   # Remove unnecessary columns
   if (!is.null(covariates)) {
-    dataset <- dataset %>% dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
+    dataset <- dataset %>%
+      dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
   }
   
   # Standardise dataset
-  dataset <- dataset %>% dplyr::relocate(dplyr::any_of(nmVariables))
+  dataset <- dataset %>%
+    dplyr::relocate(dplyr::any_of(nmVariables))
   
   # Import ETAs if it was required (default is FALSE)
   if (etas) {
-    table <- getFirstRecord(pharmpy, name="TABLE")
-    tabFilename <- table$path %>% as.character()
-    dataset <- dataset %>% importETAs(file=paste0(campsistrans@dirname, "/", tabFilename),
-                                      model=campsistrans@campsis)
+    tables <- extractNONMEMBlock(x=ctl, name="TABLE", first=FALSE)
+    etaTable <- NULL
+    if (is.null(table_no)) {
+      for (table in tables) {
+        options <- extractOptions(table)
+        keys <- names(options)
+        if (("ID" %in% keys) && ("ETAS(1:LAST)" %in% keys)) {
+          etaTable <- table
+          break
+        }
+      }
+    } else {
+      etaTable <- tables[[table_no]]
+    }
+    if (is.null(etaTable)) {
+      stop("No appropriate table found in control stream with ETAS(1:LAST) option. Please provide argument 'table_no'.")
+    }
+    options <- extractOptions(etaTable)
+    etaFileFilename <- options$FILE
+    if (is.null(etaFileFilename)) {
+      stop("No FILE option in TABLE section with ETAS(1:LAST) option.")
+    }
+    etaFilePath <- file.path(nmDir, etaFileFilename)
+    if (!file.exists(etaFilePath)) {
+      stop(paste0("File with ETAs '", etaFileFilename, "' not found in directory: ", nmDir))
+    }
+
+    dataset <- dataset %>%
+      importETAs(file=etaFilePath, model=campsis)
   } else {
     # If etas_zero, all ETAs are added to dataset and set to 0
-    if (etas_zero) {
-      for (omega in campsistrans@campsis@parameters %>% campsismod::select("omega") %>% .@list) {
+    if (etas_zero && !is.null(campsis)) {
+      for (omega in campsis@parameters %>% campsismod::select("omega") %>% .@list) {
         if (campsismod::isDiag(omega)) {
           dataset[omega %>% campsismod::getNameInModel()] <- 0
         }
@@ -122,20 +158,28 @@ importDataset <- function(campsistrans, covariates=NULL, etas=FALSE, etas_zero=F
   return(dataset)
 }
 
-#' Get first NONMEM record from the NONMEM control stream for the given section name.
+#' Extract options from NONMEM block.
 #'
-#' @param pharmpy pharmpy model
-#' @param name NONMEM section name
-#' @param stop_if_not_found throw an error if no section was found
-#' @return a record
+#' @param input input NONMEM block (i.e. INPUT, TABLE, etc.)
+#' @return a list of options (key/value form, value=NA if no value is provided)
+#' @export
 #' 
-getFirstRecord <- function(pharmpy, name, stop_if_not_found=TRUE) {
-  records <- pharmpy$control_stream$get_records(name)
-  if (records %>% length() == 0) {
-    stop(paste0("No ", name, " section in control stream"))
+extractOptions <- function(input) {
+  inputs <- paste0(input@content, collapse=" ") %>%
+    strsplit(split="\\s+")
+  inputs <- inputs[[1]]
+  options <- list()
+  for (tmpInput in inputs) {
+    if (grepl("=", tmpInput)) {
+      parts <- strsplit(tmpInput, split="=")[[1]]
+      key <- parts[1] %>% trimws()
+      value <- parts[2] %>% trimws()
+      options[[key]] <- value
+    } else {
+      options[[tmpInput]] <- NA
+    }
   }
-  record <- records[[1]]
-  return(record)
+  return(options)
 }
 
 #' Import ETA's.
@@ -159,20 +203,25 @@ importETAs <- function(x, file, model, id="ID") {
     dplyr::filter(dplyr::row_number()==1) %>%
     dplyr::ungroup()
   
-  # Standardise ETA names
+  # Detect ETAs
   tabNames <- colnames(tab)
   etaNames <- tabNames[grep("^(ET\\d+)|(ETA\\d+)$", tabNames)]
-  tab <- tab %>% dplyr::select_at(c(mappingIDName, etaNames))
-  tab <- tab %>% dplyr::rename_at(.vars=etaNames, .funs=function(etaName) {
-    etaNumber <- as.numeric(sub(pattern = "(ET|ETA)", replacement = "", etaName))
-    retValue <- etaNumber %>% purrr::map_chr(.f = function(eta) {
-      omega <- model@parameters %>% getByIndex(Omega(index=eta, index2=eta))
-      paste0("ETA_", omega@name)
-    })
-    return(retValue)
-  })
+  tab <- tab %>%
+    dplyr::select_at(c(mappingIDName, etaNames))
   
-  # Left join
+  # Standardise ETA names thanks to Campsis model
+  if (!is.null(model)) {
+    tab <- tab %>% dplyr::rename_at(.vars=etaNames, .funs=function(etaName) {
+      etaNumber <- as.numeric(sub(pattern = "(ET|ETA)", replacement = "", etaName))
+      retValue <- etaNumber %>% purrr::map_chr(.f = function(eta) {
+        omega <- model@parameters %>% getByIndex(Omega(index=eta, index2=eta))
+        paste0("ETA_", omega@name)
+      })
+      return(retValue)
+    })
+  }
+
+  # Left join with dataset
   uniqueIDs <- unique(tab %>% dplyr::pull(mappingIDName))
   x_ <- x %>% dplyr::filter_at(.vars=mappingIDName, .vars_predicate=~.x %in% uniqueIDs) %>%
     dplyr::left_join(tab, by=mappingIDName)
@@ -195,12 +244,15 @@ addSimulationIDColumn <- function(dataset, id="ID") {
   }
   # Current ID is renamed into ORIGINAL_ID
   if (!("ORIGINAL_ID" %in% colnames(dataset))) {
-    dataset <- dataset %>% dplyr::rename_at(.vars=id, .funs=function(x){"ORIGINAL_ID"})
+    dataset <- dataset %>%
+      dplyr::rename_at(.vars=id, .funs=function(x){"ORIGINAL_ID"})
   }
   # Arrange rows by ORIGINAL_ID
-  dataset <- dataset %>% dplyr::arrange(ORIGINAL_ID)
+  dataset <- dataset %>%
+    dplyr::arrange(ORIGINAL_ID)
   # Add simulation ID column
-  dataset <- dataset %>% tibble::add_column(ID=dataset %>% dplyr::group_by(ORIGINAL_ID) %>%
+  dataset <- dataset %>%
+    tibble::add_column(ID=dataset %>% dplyr::group_by(ORIGINAL_ID) %>%
                                               dplyr::group_indices(), .before="ORIGINAL_ID")
   # Arrange rows by ID
   dataset <- dataset %>% dplyr::arrange(ID) 

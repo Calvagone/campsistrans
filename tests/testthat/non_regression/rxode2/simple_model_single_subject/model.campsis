@@ -1,3 +1,5 @@
+[MAIN]
+
 [ODE]
 C2=A_centr/THETA_V2
 C3=A_peri/THETA_V3
@@ -8,4 +10,6 @@ d/dt(A_eff)=THETA_Kin - THETA_Kout * (1 - C2/(THETA_EC50 + C2)) * A_eff
 
 [INIT]
 A_eff=1
+
+[ERROR]
 

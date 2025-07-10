@@ -30,197 +30,188 @@ standardiseDataset <- function(dataset) {
   return(dataset)
 }
 
-#' Export campsistrans object to NONMEM control stream for qualification.
-#' If NONMEM results are provided, they will replace the previous original values in the control stream.
-#' OMEGA and SIGMA initial values will then be fixed and set to 0.
-#' ETA arrays in control stream will be replaced by ETA covariates (e.g. ETA(1) -> ETA_1)
+
+#' Load control stream with Pharmpy.
 #' 
-#' @param x campsistrans object
-#' @param dataset dataframe or tibble
-#' @param variables variables to output (note: ID, ARM, TIME, EVID, MDV, DV, AMT, CMT, DOSENO are output by default)
-#' @param compartments compartment indexes to output, numeric vector
-#' @param outputFolder output folder to export the qualification control stream and CSV dataset
-#' @return the updated campsistrans object
-#' @importFrom tibble add_column as_tibble
+#' @param path path to original control stream
+#' @param estimate reuse estimated parameters from the model fit, default is TRUE
+#' @return the pharmpy model
 #' @export
-prepareNONMEMFiles <- function(x, dataset, variables, compartments=NULL, outputFolder) {
+loadCtl <- function(path, estimate) {
+  pharmpy <- importPharmpyPackage(UpdatedPharmpyConfig())
+  model <- pharmpy$modeling$read_model(path)
   
-  # Load module Pharmpy
-  pharmpy <- reticulate::import("pharmpy")
+  # Retrieve the parameter estimates
+  if (estimate) {
+    results <- pharmpy$tools$read_modelfit_results(path)
+    parameter_estimates <- results$parameter_estimates
+    
+    # Replace initial estimates with the parameter estimates
+    parameters <- model$parameters
+    parameters <- parameters$set_initial_estimates(as.list(parameter_estimates))
+    
+    # Replace parameters in original model
+    model <- model$replace(parameters=parameters)
+  }
   
-  # Standardise NONMEM dataset
-  dataset <- standardiseDataset(dataset)
+  return(model)
+}
+
+#' Prepare simulation control stream for qualification and execute it with NONMEM.
+#' 
+#' @param file path to control stream file
+#' @param updateInits update initial conditions in the control stream, default is TRUE (lst required)
+#' @param model Campsis model that was previously imported (used for mapping the ETAs)
+#' @param dataset simulation dataset, data frame
+#' @param variables variables to output
+#' @param folder where to write the control stream
+#' @param reexecuteNONMEM re-execute NONMEM if results already exist, default is TRUE
+#' @return the path to the simulation control stream
+#' @export
+executeSimulationCtl <- function(file, updateInits=TRUE, model, dataset, variables, folder, reexecuteNONMEM=TRUE) {
+  # Create fresh folder if NONMEM is to be re-executed
+  if (reexecuteNONMEM) {
+    if (dir.exists(folder)) {
+      unlink(folder, recursive=TRUE)
+    }
+    dir.create(folder, recursive=TRUE)
+  }
   
-  # Pharmpy model
-  pharmpyModel <- x@model[[1]]
+  # Update inits
+  if (updateInits) {
+    path <- updateInitsNONMEM(ctl=file)
+  } else {
+    path <- file
+  }
   
-  # First update all initial estimates of a model from its own results
-  if (x@estimate) {
-    pharmpyModel <- pharmpy$modeling$update_inits(pharmpyModel)
+  # Read estimation control stream
+  ctl <- readLines(path) %>%
+    removeNONMEMComments() %>%
+    paste0(collapse="\n")
+  
+  # Remove all tables
+  ctl <- removeNONMEMBlock(x=ctl, name="TABLE", first=FALSE)
+  
+  # Remove all estimation blocks
+  ctl <- removeNONMEMBlock(x=ctl, name="ESTIMATION", first=FALSE)
+  
+  # Remove all covariance blocks
+  ctl <- removeNONMEMBlock(x=ctl, name="COVARIANCE", first=FALSE)
+  
+  # Retrieve equations block and adapt
+  for (blockName in c("PK", "ERROR")) {
+    currentBlock <- extractNONMEMBlock(x=ctl, name=blockName, first=TRUE, raise_error=FALSE)
+    if (length(currentBlock) > 0) {
+      ctl <- replaceNONMEMBlock(x=ctl, name=blockName, content=setEtasAsCovariates(model, currentBlock@content))
+    }
   }
 
-  # OMEGA and SIGMA initial values to 0
-  x <- omegaSigmaToZero(x)
-  
-  # Update source
-  # This will update the 'model' with the new values from the generic model
-  pharmpyModel$update_source()
-  
-  # Replace INPUT record
-  oldInput <- pharmpyModel$control_stream$get_records("INPUT")
-  if (length(oldInput) == 0) {
-    stop("No INPUT record available")
-  }
-  colnamesDatasetStr <- paste0(colnames(dataset), collapse=" ")
-  input <- pharmpy$plugins$nonmem$nmtran_parser$create_record(paste0("$INPUT ", colnamesDatasetStr , "\n"))
-  pharmpyModel$control_stream$replace_records(oldInput, list(input))
-  
-  # Replace DATA record
-  oldData <- pharmpyModel$control_stream$get_records("DATA")
-  if (length(oldData) == 0) {
-    stop("No DATA record available")
-  }
-  data <- pharmpy$plugins$nonmem$nmtran_parser$create_record("$DATA dataset.csv IGNORE=I\n")
-  pharmpyModel$control_stream$replace_records(oldData, list(data))
-  
-  # Update ERROR record
-  compartmentNames <- NULL
-  if (length(compartments) > 0) {
-    oldError <- pharmpyModel$control_stream$get_records("ERROR")
-    if (length(oldError) == 0) {
-      stop("No ERROR record available")
-    }
-    statements <- oldError[[1]]$statements["_statements"]
-    copy <- list()
-    for (index in (seq_along(statements))) {
-      statement <- statements[[index]]
-      copy <- c(copy, statement)
-    }
-    for (compartment in compartments) {
-      compartmentName <- paste0("A_", compartment)
-      compartmentNames <- c(compartmentNames, compartmentName)
-      equation <- pharmpy$statements$Assignment(compartmentName, paste0("A(", compartment, ")"))
-      copy <- c(copy, equation)
-    }
-    oldError[[1]]$statements <- pharmpy$statements$ModelStatements(copy)
-  }
-  
-  # Remove ESTIMATION record
-  estimation <- pharmpyModel$control_stream$get_records("ESTIMATION")
-  pharmpyModel$control_stream$remove_records(estimation)
-  
-  # Remove COVARIANCE record ($SIMULATE: CAN'T USE ONLYSIMULATION WITH $EST, $COV, $NONP)
-  covariance <- pharmpyModel$control_stream$get_records("COVARIANCE")
-  pharmpyModel$control_stream$remove_records(covariance)
-  
-  # Remove SIMULATION record
-  simulation <- pharmpyModel$control_stream$get_records("SIMULATION")
-  pharmpyModel$control_stream$remove_records(simulation)
-  
-  # Remove TABLE record
-  table <- pharmpyModel$control_stream$get_records("TABLE")
-  pharmpyModel$control_stream$remove_records(table)
-  
-  # Create SIMULATION record
-  simulation <- pharmpyModel$control_stream$append_record("\n$SIMULATION (1234) ONLYSIM NSUB=1\n")
-  
-  # Preparing variables to output
+  # Prepare single TABLE to output
   variablesDataset <- colnames(dataset)
-  defaultVariables <- c("ID", "ARM", "TIME", "EVID", "MDV", "DV", "AMT", "CMT", "DOSENO")
+  defaultVariables <- c("ID", "TIME", "EVID")
   defaultVariables <- defaultVariables[defaultVariables %in% variablesDataset]
-  allVariables <- unique(c(defaultVariables, variables, compartmentNames))
-
-  # Create TABLE record
-  table <- pharmpyModel$control_stream$append_record(paste0("$TABLE ", paste0(allVariables, collapse=" "),
-                                                             " FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n"))
-
-  # Make ETA's as covariates
-  pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PRED", x@campsis@parameters)
-  pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "PK", x@campsis@parameters)
-  pharmpyModel <- updateETAinNONMEMRecord(pharmpyModel, "ERROR", x@campsis@parameters)
+  allVariables <- unique(c(defaultVariables, variables))
+  tableStr <- sprintf("$TABLE %s FILE=output.tab ONEHEADER NOAPPEND NOPRINT\n", paste0(allVariables, collapse=" "))
+  ctl <- paste0(ctl, "\n", tableStr)
   
-  # Write NONMEM dataset
-  write.csv(dataset, file=paste0(outputFolder, "/", "dataset.csv"), quote=FALSE, row.names=FALSE)
+  # Add SIMULATION block
+  ctl <- paste0(ctl, "\n", "$SIMULATION (1234) SUBPROBLEMS=1 ONLYSIMULATION")
   
-  # Write qualification control stream
-  ctl <- as.character(pharmpyModel$control_stream)
-  fileConn <- file(paste0(outputFolder, "/", "model.mod"))
+  # Replace INPUT
+  ctl <- replaceNONMEMBlock(x=ctl, name="INPUT", content=colnames(dataset) %>% paste0(collapse=" "))
+  
+  # Replace DATA
+  ctl <- replaceNONMEMBlock(x=ctl, name="DATA", content="dataset.csv IGNORE=@")
+
+  # Write control stream
+  ctlFile <- file.path(folder, "model.mod")
+  fileConn <- file(ctlFile)
   writeLines(text=ctl, fileConn)
   close(fileConn)
   
-  return(paste0(outputFolder, "/", "model.mod"))
+  # Write NONMEM dataset
+  write.csv(dataset, file=file.path(folder, "dataset.csv"), quote=FALSE, row.names=FALSE)
+  
+  # Execute NONMEM
+  results <- executeNONMEM(folder=folder, reexecuteNONMEM=reexecuteNONMEM)
+  
+  return(results)
 }
 
-#' Update ETA's in NONMEM record.
+
+#' Execute NONMEM. PsN will be called automatically by R. 
+#' Prepared control stream 'model.mod' is executed automatically and NONMEM results
+#' are returned in the form of a data frame.
 #' 
-#' @param pharmpyModel pharmpy model
-#' @param recordType record type to adapt
-#' @param params CAMPSIS parameters
-#' @importFrom reticulate import iterate py_has_attr
+#' @param folder qualification folder where the control stream is
+#' @param reexecuteNONMEM force re-execute NONMEM if results already exist
+#' @param ctl_name control stream name, default is 'model.mod'
 #' @export
-#' 
-updateETAinNONMEMRecord <- function(pharmpyModel, recordType, params) {
-  record <- pharmpyModel$control_stream$get_records(recordType)
-
-  if (record %>% length() > 0) {
-    record_ <- record[[1]]
-    
-    # Statements
-    statements <- record_$statements["_statements"]
-    sympy <- reticulate::import("sympy")
-    replacementStatements <- list()
-    
-    # Replace all ETA's
-    for (index in (seq_along(statements))) {
-      statement <- statements[[index]]
-
-      # Only if expression is present
-      if (reticulate::py_has_attr(statement, name="expression")) {
-        free_symbols <- reticulate::iterate(statement$expression$free_symbols)
-        
-        for (symbolIndex in seq_along(free_symbols)) {
-          freeSymbol <- free_symbols[[symbolIndex]]
-          symbol_chr <- as.character(freeSymbol)
-          type <- getNMParameterType(symbol_chr)
-          
-          if (!is.null(type) && type$type=="ETA") {
-            replacementSymbol <- sympy$symbols(nameParameter(type, params))
-            statement$expression <- replaceSymbol(statement$expression, freeSymbol, replacementSymbol)
-          }
-        }
-        # After ETA's replacement, if left = right (e.g. ETA_CL=ETA_CL)
-        # -> the current statement is omitted
-        if (statement$symbol %>% as.character() != statement$expression %>% as.character()) {
-          replacementStatements <- c(replacementStatements, statement)
-        }
-      } else {
-        replacementStatements <- c(replacementStatements, statement)
-      }
-      
-    }
-    record_$statements <- replacementStatements
-    pharmpyModel$control_stream$replace_records(record, list(record_))
+executeNONMEM <- function(folder, reexecuteNONMEM=T, ctl_name="model.mod") {
+  tabFile <- paste0(folder, "/", "output.tab")
+  if (!file.exists(tabFile) || reexecuteNONMEM) {
+    system("cmd.exe", input=paste0("cd ","\"", folder, "\"", " & ", "execute ", ctl_name))
+    unlink(paste0(folder, "/", "modelfit_dir1"), recursive=TRUE)
   }
-  return(pharmpyModel)
+  nonmem <- read.nonmem(tabFile)[[1]] %>% as.data.frame()
+  return(nonmem)
 }
 
-#' Set OMEGA and SIGMA initial values to 0 and fix them.
+#' Execute NONMEM. PsN will be called automatically by R. 
+#' Prepared control stream 'model.mod' is executed automatically and NONMEM results
+#' are returned in the form of a data frame.
 #' 
-#' @param x campsistrans object
-#' @return the updated campsistrans object
-#' @importFrom purrr map
-#' @importFrom campsismod getNONMEMName
+#' @param ctl path to control stream
+#' @return output path to PsN output
 #' @export
+updateInitsNONMEM <- function(ctl) {
+  if (!file.exists(ctl)) {
+    stop("Control stream file does not exist: ", ctl)
+  }
+  ctl <- normalizePath(ctl, winslash="/")
+  folder <- dirname(ctl)
+  ctlName <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(ctl))
+  lst <- file.path(folder, paste0(ctlName, ".lst"))
+  
+  if (!file.exists(lst)) {
+    stop("Control stream file does not contain results: ", lst) 
+  }
+  output <- sprintf("%s_updated.mod", ctlName)
+  system("cmd.exe", input=sprintf("cd \"%s\" & update_inits %s %s -output_model=\"%s\"", 
+                                  folder, basename(ctl), basename(lst), output))
+  output <- file.path(folder, output)
+  if (!file.exists(output)) {
+    stop("Control stream file was not updated: ", output)
+  }
+  return(output)
+}
+
+#' Set ETAs as covariates in NONMEM block.
 #' 
-omegaSigmaToZero <- function(x) {
-  parset <- x@model[[1]]$parameters
-  pharmpyList <- retrieveInitialValues(parset)
-  pharmpyList@list %>% purrr::map(.f=function(parameter) {
-    name <- parameter %>% campsismod::getNONMEMName()
-    if (as.character(class(parameter)) != "theta" && length(parset$inits[[name]]) > 0) {
-      parset$inits[[name]] <<- 0
-      parset$fix[[name]] <<- TRUE
+#' @param model Campsis parameters
+#' @param content NONMEM content
+#' @return updated content with ETAs replaced by their names
+#' 
+setEtasAsCovariates <- function(model, content) {
+  omegas <- model@parameters %>%
+    campsismod::select("omega")
+  omegas@list <- omegas@list %>%
+    purrr::keep(~campsismod::isDiag(.x))
+  
+  for (omega in omegas@list) {
+    etaName <- campsismod::getNameInModel(omega)
+    index <- omega@index
+    content <- gsub(pattern=sprintf("(?<![A-Z0-9_])ETA\\(%i\\)", index), replacement=etaName, x=content, perl=TRUE)
+  }
+  
+  temp <- strsplit(content, split="=")
+  lhsRhsSame <- temp %>% purrr::map_lgl(.f=function(x) {
+    if (length(x) == 2) {
+      return(trimws(x[1]) == trimws(x[2]))
+    } else {
+      return(FALSE)
     }
   })
-  return(x)
+  
+  return(content[!lhsRhsSame])
 }

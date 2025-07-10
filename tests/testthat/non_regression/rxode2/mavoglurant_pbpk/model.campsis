@@ -1,0 +1,75 @@
+[MAIN]
+KbBR=exp(THETA_lKbBR)
+KbMU=exp(THETA_lKbMU)
+KbAD=exp(THETA_lKbAD)
+CLint=exp(THETA_lCLint + ETA_eta_LClint)
+KbBO=exp(THETA_lKbBO)
+KbRB=exp(THETA_lKbRB)
+CO=(187 * pow(WT, 0.81)) * 60/1000
+QHT=4 * CO/100
+QBR=12 * CO/100
+QMU=17 * CO/100
+QAD=5 * CO/100
+QSK=5 * CO/100
+QSP=3 * CO/100
+QPA=1 * CO/100
+QLI=25.5 * CO/100
+QST=1 * CO/100
+QGU=14 * CO/100
+QHA=QLI - (QSP + QPA + QST + QGU)
+QBO=5 * CO/100
+QKI=19 * CO/100
+QRB=CO - (QHT + QBR + QMU + QAD + QSK + QLI + QBO + QKI)
+QLU=QHT + QBR + QMU + QAD + QSK + QLI + QBO + QKI + QRB
+VLU=(0.76 * WT/100)/1.051
+VHT=(0.47 * WT/100)/1.03
+VBR=(2 * WT/100)/1.036
+VMU=(40 * WT/100)/1.041
+VAD=(21.42 * WT/100)/0.916
+VSK=(3.71 * WT/100)/1.116
+VSP=(0.26 * WT/100)/1.054
+VPA=(0.14 * WT/100)/1.045
+VLI=(2.57 * WT/100)/1.04
+VST=(0.21 * WT/100)/1.05
+VGU=(1.44 * WT/100)/1.043
+VBO=(14.29 * WT/100)/1.99
+VKI=(0.44 * WT/100)/1.05
+VAB=(2.81 * WT/100)/1.04
+VVB=(5.62 * WT/100)/1.04
+VRB=(3.86 * WT/100)/1.04
+BP=0.61
+fup=0.028
+fub=fup/BP
+KbLU=exp(0.8334)
+KbHT=exp(1.1205)
+KbSK=exp(-0.5238)
+KbSP=exp(0.3224)
+KbPA=exp(0.3224)
+KbLI=exp(1.7604)
+KbST=exp(0.3224)
+KbGU=exp(1.2026)
+KbKI=exp(1.3171)
+S15=VVB * BP/1000
+
+[ODE]
+C15=A_Venous_Blood/S15
+d/dt(A_Lungs)=QLU * (A_Venous_Blood/VVB - A_Lungs/KbLU/VLU)
+d/dt(A_Heart)=QHT * (A_Arterial_Blood/VAB - A_Heart/KbHT/VHT)
+d/dt(A_Brain)=QBR * (A_Arterial_Blood/VAB - A_Brain/KbBR/VBR)
+d/dt(A_Muscles)=QMU * (A_Arterial_Blood/VAB - A_Muscles/KbMU/VMU)
+d/dt(A_Adipose)=QAD * (A_Arterial_Blood/VAB - A_Adipose/KbAD/VAD)
+d/dt(A_Skin)=QSK * (A_Arterial_Blood/VAB - A_Skin/KbSK/VSK)
+d/dt(A_Spleen)=QSP * (A_Arterial_Blood/VAB - A_Spleen/KbSP/VSP)
+d/dt(A_Pancreas)=QPA * (A_Arterial_Blood/VAB - A_Pancreas/KbPA/VPA)
+d/dt(A_Liver)=QHA * A_Arterial_Blood/VAB + QSP * A_Spleen/KbSP/VSP + QPA * A_Pancreas/KbPA/VPA + QST * A_Stomach/KbST/VST + QGU * A_Gut/KbGU/VGU - CLint * fub * A_Liver/KbLI/VLI - QLI * A_Liver/KbLI/VLI
+d/dt(A_Stomach)=QST * (A_Arterial_Blood/VAB - A_Stomach/KbST/VST)
+d/dt(A_Gut)=QGU * (A_Arterial_Blood/VAB - A_Gut/KbGU/VGU)
+d/dt(A_Bones)=QBO * (A_Arterial_Blood/VAB - A_Bones/KbBO/VBO)
+d/dt(A_Kidneys)=QKI * (A_Arterial_Blood/VAB - A_Kidneys/KbKI/VKI)
+d/dt(A_Arterial_Blood)=QLU * (A_Lungs/KbLU/VLU - A_Arterial_Blood/VAB)
+d/dt(A_Venous_Blood)=QHT * A_Heart/KbHT/VHT + QBR * A_Brain/KbBR/VBR + QMU * A_Muscles/KbMU/VMU + QAD * A_Adipose/KbAD/VAD + QSK * A_Skin/KbSK/VSK + QLI * A_Liver/KbLI/VLI + QBO * A_Bones/KbBO/VBO + QKI * A_Kidneys/KbKI/VKI + QRB * A_Rest_of_Body/KbRB/VRB - QLU * A_Venous_Blood/VVB
+d/dt(A_Rest_of_Body)=QRB * (A_Arterial_Blood/VAB - A_Rest_of_Body/KbRB/VRB)
+
+[ERROR]
+C15_err=C15 + THETA_add_err*EPS_FIX1 + THETA_prop_err*C15*EPS_FIX2
+

@@ -296,7 +296,7 @@ if (REPL == 4) AAD=1
 if (BLOQ == 0) F_FLAG=0
 if (BLOQ == 0) Y=IPRED + (AAA*EPS_RSV_2 + AAB*EPS(3) + AAC*EPS(4) + AAD*EPS(5) + EPS_RSV_1)*M_LN10
 if (BLOQ == 1) DUM=(-IPRED + LLOQ)/W
-if (BLOQ == 1) DUM2=(1.0/4.0)*M_SQRT2*erf(DUM) + 1.0/2.0
+if (BLOQ == 1) DUM2=PHI(DUM)
 if (BLOQ == 1) F_FLAG=1
 if (BLOQ == 1) Y=DUM2
 

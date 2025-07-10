@@ -2,15 +2,13 @@
 KA=THETA_KA * exp(ETA_KA)
 CL=THETA_CL * exp(ETA_CL)
 V=THETA_V * exp(ETA_V)
-scale2=V
+SCALE2=V
 
 [ODE]
 d/dt(A_DEPOT)=-KA*A_DEPOT
 d/dt(A_CENTRAL)=-CL*A_CENTRAL/V + KA*A_DEPOT
 d/dt(A_OUTPUT)=CL*A_CENTRAL/V
-rxLinCmt1=A_CENTRAL/scale2
-scale2_=scale2/V
-F=rxLinCmt1/scale2_
+F=A_CENTRAL/SCALE2
 
 [ERROR]
 CONC=F

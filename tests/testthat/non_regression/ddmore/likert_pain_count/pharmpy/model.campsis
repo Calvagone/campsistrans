@@ -1,6 +1,6 @@
 [MAIN]
-NFLG=0
-NFLG_=NFLG + 1
+if (NEWIND != 2) NFLG=0
+NFLG=NFLG + 1
 TVBAS=(1.0/10.0)*THETA_BAS
 PHI=ETA_PHI + log(TVBAS/(1 - TVBAS))
 BAS=10*exp(PHI)/(exp(PHI) + 1)
@@ -74,9 +74,9 @@ if (ICALL == 4) DV=N
 if (ICALL == 4) PSDV=DV
 if (ICALL == 4) TRA=DV + 100*PDV
 if (ICALL == 4) MEA=DV + MEA
-if (ICALL == 4) MEAN=MEA/NFLG_
+if (ICALL == 4) MEAN=MEA/NFLG
 if (ICALL == 4) MES=pow(DV, 2) + MES
-if (ICALL == 4) MEAS=MES/NFLG_
+if (ICALL == 4) MEAS=MES/NFLG
 if (ICALL == 4) VAR=-pow(MEAN, 2) + MEAS
 if (ICALL == 4) RATI=VAR/MEAN
 

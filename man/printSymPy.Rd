@@ -4,12 +4,14 @@
 \alias{printSymPy}
 \title{Print symbolic expressions or conditions.}
 \usage{
-printSymPy(x, output = "C")
+printSymPy(x, output = "C", simplify = TRUE)
 }
 \arguments{
 \item{x}{SymPy expression or condition}
 
 \item{output}{type of desired output}
+
+\item{simplify}{whether to simplify the expression before printing, default is TRUE}
 }
 \value{
 code

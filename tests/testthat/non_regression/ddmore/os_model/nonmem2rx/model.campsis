@@ -7,13 +7,13 @@ BNWLS=THETA_BNWLS
 BECOG=THETA_BECOG
 INIT_A1=IBASE * 1000
 MMBAS=IBASE * 1000
-if (newind != 2) OCB=CB
-if (newind != 2) OG=G
+if (NEWIND != 2) OCB=CB
+if (NEWIND != 2) OG=G
 E0=OCB
 E1=OG
 OCB=CB
 OG=G
-if (newind != 2) ONWLS=NWLS
+if (NEWIND != 2) ONWLS=NWLS
 INWLS=ONWLS
 ONWLS=NWLS
 TVSLD0=70
@@ -26,6 +26,8 @@ TUM=A_TUMOUR
 TSR=(TUM - MMBAS)/MMBAS
 if (t == 0) WTS=0
 if (t == 0) TM12=0
+if (t <= 84) WTS=TSR
+if (t <= 84) TM12=WTS
 DEL=1e-06
 d/dt(A_HDEATH)=LAM * SHP * pow((LAM * (t + DEL)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * WTS + BNWLS * INWLS + BECOG * IECOG)
 F=A_TUMOUR
@@ -37,11 +39,15 @@ A_TUMOUR=INIT_A1
 DELX=1e-06
 XTUM=A_TUMOUR
 XTSR=(XTUM - MMBAS)/MMBAS
-if (t == 0) XWTS=0
-if (t == 0) XTM12=0
+if (TIME == 0) XWTS=0
+if (TIME == 0) XTM12=0
+if (TIME <= 84) XWTS=XTSR
+if (TIME <= 84) XTM12=XWTS
 CHZ=A_HDEATH
 SUR=exp(-CHZ)
-HAZN=LAM * SHP * pow((LAM * (t + DELX)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
+HAZN=LAM * SHP * pow((LAM * (TIME + DELX)), (SHP - 1)) * exp(BSLD0 * NSLD0 + BTSR * XWTS + BNWLS * INWLS + BECOG * IECOG)
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) IPRED=SUR
 if (FLG == 9 && nmevid == 0 && OSCENS == 1) Y=IPRED
+if (FLG == 9 && nmevid == 0 && OSCENS == 0) IPRED=SUR * HAZN
+if (FLG == 9 && nmevid == 0 && OSCENS == 0) Y=IPRED
 

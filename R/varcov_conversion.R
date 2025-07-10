@@ -2,7 +2,7 @@
 #' Convert raw variance-covariance matrix for campsis model.
 #' 
 #' @param varcov raw variance-covariance matrix
-#' @param parameters CAMPSIS model parameters
+#' @param parameters Campsis model parameters
 #' @importFrom campsismod getNONMEMName
 #' @return an updated variance-covariance matrix
 convertVarcov <- function(varcov, parameters) {
@@ -67,4 +67,37 @@ convertVarcov <- function(varcov, parameters) {
   rownames(varcov) <- names
   colnames(varcov) <- names
   return(varcov)
+}
+
+#' Convert NONMEM parameter (string form) to campsismod parameter.
+#' 
+#' @param name NONMEM parameter name, character value
+#' @param value parameter value
+#' @param fix is fixed or not, logical value
+#' @return S4 parameters object
+#' @importFrom campsismod Theta Omega Sigma
+#' @export
+convertNONMEMParameter <- function(name, value, fix) {
+  index <- extractValueInParentheses(name)
+  isTheta <- isNMThetaParameter(name)
+  isOmega <- isNMOmegaParameter(name)
+  isSigma <- isNMSigmaParameter(name)
+  
+  if (isTheta) {
+    param <- campsismod::Theta(index=index, value=value, fix=fix)
+    
+  } else if (isOmega || isSigma) {
+    indexes <- strsplit(index, ",")
+    index1 <- indexes[[1]][1]
+    index2 <- indexes[[1]][2]
+    className <- if(isOmega) {"omega"} else {"sigma"}
+    if (isOmega) {
+      param <- campsismod::Omega(index=index1, index2=index2, value=value, fix=fix)
+    } else {
+      param <- campsismod::Sigma(index=index1, index2=index2, value=value, fix=fix)
+    }
+  } else {
+    stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
+  }
+  return(param)
 }

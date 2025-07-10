@@ -164,6 +164,10 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
     for (cmtName in c("depot", "central")) {
       code <- renameCompartmentProperties(code=code, occurrence=cmtName,
                                           replacement=toupper(cmtName), prefix="")
+      # E.g. dur(central) -> dur(A_CENTRAL)
+      # This way, compartment properties are well detected
+      code <- replaceAll(object=code, pattern=Pattern(sprintf("\\(%s\\)", cmtName)),
+                         replacement=sprintf("(A_%s)", toupper(cmtName)))
     }
   }
   
@@ -176,9 +180,9 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   # Parse code using campsismod
   lexer  <- rly::lex(Rxode2Lexer)
   parser <- rly::yacc(Rxode2Parser)
-  
-  # browser()
-  list <- parser$parse(paste0(code, collapse="\n"), lexer)
+
+  list <- parser$parse(paste0(code, collapse="\n"), lexer) %>%
+    unlist()
   
   # Create raw Campsis model, put all statements in ODE record, and update compartments
   model <- CampsisModel()
@@ -374,7 +378,7 @@ extractInitialConditionsFromRxode <- function(model) {
       lhs <- extractLhs(.x@line)
       compartmentNameWithA <- sub("\\(.*\\)", "", lhs) %>% trimws()
       rhs <- extractRhs(.x@line) %>% trimws()
-      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
+      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="^A_", replacement="", x=compartmentNameWithA))
       return(InitialCondition(compartment=compartmentIndex, rhs=rhs))
     })
   model@compartments@properties@list <- c(model@compartments@properties@list, initialConditions)
@@ -673,10 +677,14 @@ replaceLinCmt <- function(model, subroutineModel) {
   ode <- ode %>%
     replace(equation) %>%
     delete(Equation("central"))
-  
+
   # Replace in original model
   model <- model %>%
     replace(ode)
+  
+  # Replace all occurrences of central by A_CENTRAL
+  model <- model %>%
+    replaceAll("central", "A_CENTRAL")
   
   return(model)
 }

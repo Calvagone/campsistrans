@@ -3,15 +3,13 @@ K=THETA_K * exp(ETA_K)
 vc=THETA_vc * exp(ETA_vc)
 K12=THETA_K12 * exp(ETA_K12)
 K21=THETA_K21 * exp(ETA_K21)
-scale1=vc
+SCALE1=vc
 
 [ODE]
 d/dt(A_CENTRAL)=K21*A_PERIPHERAL + (-K - K12)*A_CENTRAL
 d/dt(A_PERIPHERAL)=K12*A_CENTRAL - K21*A_PERIPHERAL
 d/dt(A_OUTPUT)=K*A_CENTRAL
-rxLinCmt1=A_CENTRAL/scale1
-scale1_=scale1/vc
-F=rxLinCmt1/scale1_
+F=A_CENTRAL/SCALE1
 
 [ERROR]
 CONC=F

@@ -83,13 +83,12 @@ processParameters <- function(parameters) {
 #' @param model Pharmpy model
 #' @param mapping PMX mapping
 #' @return parameters definition table
-#' @param estimate if TRUE, estimated values are used, if FALSE, initial values are used
 #' @importFrom purrr map map2
 #' @importFrom campsismod add getByIndex getNONMEMName Parameters sort
 #' @export
-convertParameters <- function(model, mapping, estimate) {
+convertParameters <- function(model, mapping) {
   
-  assertthat::assert_that(inherits(model, "pharmpy.plugins.nonmem.model.Model"),
+  assertthat::assert_that(inherits(model, "pharmpy.model.model.Model"),
                           msg="model is not a Pharmpy model")
   if (!is.null(mapping)) {
     assertthat::assert_that(inherits(mapping, "pmxmapping"),
@@ -124,38 +123,6 @@ convertParameters <- function(model, mapping, estimate) {
     }
   })
   
-  if (!estimate) {
-    return(processParameters(parameters))
-  }
-  
-  # Reading estimated values with pharmpy
-  estimates <- model$modelfit_results$parameter_estimates
-  
-  if (is.null(estimates)) {
-    stop("No NONMEM results are available through Pharmpy")
-  }
-  
-  list <- parameters@list %>% purrr::map(.f=function(param) {
-    name <- param %>% campsismod::getNONMEMName()
-    estimateIndex <- which(names(estimates)==name)
-    if (length(estimateIndex) == 0) {
-      if (!is.na(param@fix) && !param@fix) {
-        warning(paste0("No estimate for parameter ", name))
-      }
-    } else if (length(estimateIndex) == 1){
-      param@value <- estimates[[estimateIndex]]
-      
-    } else {
-      warning(paste0("Several values corresponding to ", name))
-    }
-    
-    return(param)
-  })
-  
-  # Skip parameters validation here
-  parameters <- Parameters()
-  parameters@list <- list
-  
   return(processParameters(parameters))
 }
 
@@ -167,12 +134,12 @@ convertParameters <- function(model, mapping, estimate) {
 #' @importFrom assertthat assert_that
 #' @export
 retrieveInitialValues <- function(parset) {
-  assertthat::assert_that(inherits(parset, "pharmpy.parameter.Parameters"),
+  assertthat::assert_that(inherits(parset, "pharmpy.model.parameters.Parameters"),
                           msg="parset is not a parameter set")
   
   paramsList <- purrr::map2(parset$inits, names(parset$inits), .f=function(initialValue, name) {
     fix <- as.logical(parset$fix[name])
-    return(convertNONMEMParameter(name=name, value=initialValue, fix=fix))
+    return(convertPharmpyParameter(name=name, value=initialValue, fix=fix))
   })
   
   # Skip parameters validation because SAME omegas are not returned!
@@ -190,25 +157,21 @@ retrieveInitialValues <- function(parset) {
 #' @return S4 parameters object
 #' @importFrom campsismod Theta Omega Sigma
 #' @export
-convertNONMEMParameter <- function(name, value, fix) {
-  index <- extractValueInParentheses(name)
-  isTheta <- isNMThetaParameter(name)
-  isOmega <- isNMOmegaParameter(name)
-  isSigma <- isNMSigmaParameter(name)
+convertPharmpyParameter <- function(name, value, fix) {
+  type <- getPharmpyParameterType(name)
+  if (is.null(type)) {
+    stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
+  }
   
-  if (isTheta) {
-    param <- campsismod::Theta(index=index, value=value, fix=fix)
+  if (type$type=="THETA") {
+    param <- campsismod::Theta(index=type$index, value=value, fix=fix)
     
-  } else if (isOmega || isSigma) {
-    indexes <- strsplit(index, ",")
-    index1 <- indexes[[1]][1]
-    index2 <- indexes[[1]][2]
-    className <- if(isOmega) {"omega"} else {"sigma"}
-    if (isOmega) {
-      param <- campsismod::Omega(index=index1, index2=index2, value=value, fix=fix)
-    } else {
-      param <- campsismod::Sigma(index=index1, index2=index2, value=value, fix=fix)
-    }
+  } else if (type$type=="OMEGA") {
+    param <- campsismod::Omega(index=type$index[1], index2=type$index[2], value=value, fix=fix)
+    
+  } else if (type$type=="SIGMA") {
+    param <- campsismod::Sigma(index=type$index[1], index2=type$index[2], value=value, fix=fix)
+    
   } else {
     stop(paste0("Unknown parameter ", name, ": estimated parameter type must be THETA, OMEGA or SIGMA."))
   }

@@ -6,7 +6,22 @@
 #' @export
 substituteDuplicateEquationNames <- function(model) {
   
+  # Initialise empty Campsis model
   retValue <- CampsisModel()
+  
+  # Preserve main, ode, and error records
+  if (!is.null(model %>% campsismod::find(MainRecord()))) {
+    retValue <- retValue %>%
+      add(MainRecord())
+  }
+  if (!is.null(model %>% campsismod::find(OdeRecord()))) {
+    retValue <- retValue %>%
+      add(OdeRecord())
+  }
+  if (!is.null(model %>% campsismod::find(ErrorRecord()))) {
+    retValue <- retValue %>%
+      add(ErrorRecord())
+  }
   notDone <- TRUE
   
   while (notDone) {

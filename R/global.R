@@ -4,7 +4,7 @@
 #' @return no return value
 #' @importFrom methods is new show validObject
 #' @importFrom utils read.csv write.csv
-#' @importFrom campsismod find replace
+#' @importFrom campsismod find replace replaceAll delete add processExtraArg toString
 #' @keywords internal
 globalImportsFunction <- function() {
   

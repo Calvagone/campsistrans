@@ -32,16 +32,16 @@ KOUTS=1/MRTS
 KIN2=BM02 * KOUT2
 KIN3=BM03 * KOUT3
 AUC=DOS/CL
-
-[ODE]
-DP1=BM0 * (1 + DPSLO * t)
-DPS=BM0S * (1 + DPSLOS * t)
+DP1=BM0 * (1 + DPSLO * TIME)
+DPS=BM0S * (1 + DPSLOS * TIME)
 KIN=DP1 * KOUT
 KINS=DPS * KOUTS
 EFF=IMAX1 * pow(AUC, HILL)/(pow(IC50, HILL) + pow(AUC, HILL))
 EFF2=IMAX2 * pow(AUC, HILL2)/(pow(IC502, HILL2) + pow(AUC, HILL2))
 EFF3=IMAX3 * AUC/(IC503 + AUC)
 EFFS=IMAXS * AUC/(IC50S + AUC)
+
+[ODE]
 d/dt(A_COMP1)=KIN - KOUT * (1 - EFF) * A_COMP1
 d/dt(A_COMP2)=KIN2 * (1 - EFF2) - KOUT2 * A_COMP2
 d/dt(A_COMP3)=KIN3 * (1 - EFF3) - KOUT3 * A_COMP3
@@ -68,8 +68,18 @@ if (A_COMP2 == 0) DEL=1
 if (A_COMP3 == 0) DEL=1
 if (A_COMP4 == 0) DEL=1
 if (FLAG == 5) IPRED=log(A_COMP1 + DEL)
-if (FLAG == 5) W=THETA_W
+if (FLAG == 5) W=THETA_W_1
 if (FLAG == 5) Y=IPRED + W * EPS_RUV1
+if (FLAG == 6) IPRED=log(A_COMP2 + DEL)
+if (FLAG == 6) W=sqrt(pow(THETA_W_2, 2) + pow((THETA_W_3/A_COMP2), 2))
+if (FLAG == 6) Y=IPRED + W * EPS_RUV1
+if (FLAG == 7) IPRED=log(A_COMP3 + DEL)
+if (FLAG == 7) W=THETA_W_4
+if (FLAG == 7) Y=IPRED + W * EPS_RUV1
+if (FLAG == 8) IPRED=log(A_COMP4 + DEL)
+if (FLAG == 8) W=THETA_W_5
+if (FLAG == 8) Y=IPRED + W * EPS_RUV1
+if (W == 0) W=1
 IRES=DV - IPRED
 IWRES=IRES/W
 

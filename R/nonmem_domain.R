@@ -118,6 +118,48 @@ getNMParameterType <- function(str) {
   return(retValue)
 }
 
+#' Get type of NONMEM parameter.
+#' 
+#' @param str string
+#' @return the type of NONMEM parameter
+#' @export
+getPharmpyParameterType <- function(str) {
+  
+  retValue <- structure(list(
+    type=NULL,
+    index=NULL
+  ), class="parameter_type")
+  
+  if (grepl("^THETA_\\d+$", str)) {
+    retValue$type <- "THETA"
+    retValue$index <- as.numeric(gsub("^THETA_(\\d+)$", "\\1", str))
+    
+  } else if (grepl("^ETA_\\d+$", str)) {
+    retValue$type <- "ETA"
+    retValue$index <- as.numeric(gsub("^ETA_(\\d+)$", "\\1", str))
+    
+  } else if (grepl("^EPS_\\d+$", str)) {
+    retValue$type <- "EPS"
+    retValue$index <- as.numeric(gsub("^EPS_(\\d+)$", "\\1", str))
+    
+  } else if (grepl("^OMEGA_\\d+_\\d+$", str)) {
+    retValue$type <- "OMEGA"
+    retValue$index <- c(as.numeric(gsub("^OMEGA_(\\d+)_(\\d+)$", "\\1", str)),
+                        as.numeric(gsub("^OMEGA_(\\d+)_(\\d+)$", "\\2", str)))
+    
+  } else if (grepl("^SIGMA_\\d+_\\d+$", str)) {
+    retValue$type <- "SIGMA"
+    retValue$index <- c(as.numeric(gsub("^SIGMA_(\\d+)_(\\d+)$", "\\1", str)),
+                        as.numeric(gsub("^SIGMA_(\\d+)_(\\d+)$", "\\2", str)))
+  } 
+  
+  if (is.null(retValue$type)) {
+    retValue <- NULL
+  }
+  
+  return(retValue)
+}
+
 #' Extract value between parentheses.
 #' 
 #' @param str string

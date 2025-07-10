@@ -3,13 +3,37 @@
 #' 
 #' @param x SymPy expression or condition
 #' @param output type of desired output
+#' @param simplify whether to simplify the expression before printing, default is TRUE
 #' @return code
 #' @importFrom reticulate import py_capture_output
 #' @export
-printSymPy <- function(x, output = "C") {
+printSymPy <- function(x, output="C", simplify=TRUE) {
   sympy <- reticulate::import("sympy")
   if (output == "C") {
-    print <- reticulate::py_capture_output(sympy$print_ccode(x))
+    expr <- x # sympy$parse_expr(as.character(x))
+    # print(class(expr))
+    # print(expr)
+    if (reticulate::py_has_attr(expr, name="subs")) {
+      # expr <- expr$subs(sympy$Function("newind")(), sympy$Symbol("NEWIND"))
+    }
+    if (simplify) {
+      expr <- tryCatch({
+        sympy$simplify(expr)
+      }, error = function(e) {
+        return(expr)
+      })
+    }
+    # Note: when not supported in C
+    # Message
+    # /* Not supported in C: */
+    # /* A_0 */
+    # is deleted automatically
+    print <- tryCatch({
+      gsub(pattern="^/\\*.*\\*/\\s*", replacement="",
+           x=reticulate::py_capture_output(sympy$print_ccode(expr, strict=FALSE)))
+    }, error = function(e) {
+      return(as.character(x))
+    })
     print <- gsub("[\r\n]", "", print)
   } else {
     print <- as.character(x)
@@ -17,13 +41,23 @@ printSymPy <- function(x, output = "C") {
 }
 
 getNumberOfEtas <- function(model) {
-  pharmpyOmegas <- model$control_stream$get_records("OMEGA")
-  etas <- 0
-  for (index in seq_along(pharmpyOmegas)) {
-    map <- pharmpyOmegas[[index]]$eta_map
-    etas <- etas + length(map)
+  retValue <- 0
+  rvs <- model$random_variables
+  for (index in seq_along(rvs)) {
+    rv <- rvs[[index - 1]]
+    level <- rv$level
+    if (level=="IIV" || level=="IOV") {
+      matrix <- rv$variance
+      if ("pharmpy.basic.matrix.Matrix" %in% class(matrix)) {
+        retValue <- retValue + matrix$cols
+      } else if ("pharmpy.basic.expr.Expr" %in% class(matrix)) {
+        retValue <- retValue + 1
+      } else {
+        stop(sprintf("Unexpected matrix class"))
+      }
+    }
   }
-  return(etas)
+  return(retValue)
 }
 
 #'
@@ -47,6 +81,23 @@ removeRateFromString <- function(x) {
 }
 
 #'
+#' Remove NONMEM comments. 
+#' 
+#' @param lines lines
+#' @return lines without any comment
+#' @export
+#' 
+removeNONMEMComments <- function(lines) {
+  retValue <- lines
+  
+  # Any comment
+  retValue <- gsub(pattern="^([^;]*)(;.*)", replacement="\\1", x=retValue)
+  retValue <- trimws(x=retValue, which="right")
+  
+  return(retValue)
+}
+
+#'
 #' Adapt NONMEM control stream by manipulating the source file. 
 #' 
 #' @param file control stream file name
@@ -58,7 +109,10 @@ removeRateFromString <- function(x) {
 #' 
 adaptNONMEMControlStream <- function(file, rem_rate, rem_abbr_replace) {
   fileConn = file(file)
-  retValue <- paste0(readLines(con=fileConn), collapse="\n")
+  lines <- readLines(con=fileConn)
+  lines <- removeNONMEMComments(lines)
+  
+  retValue <- paste0(lines, collapse="\n")
   
   if (rem_rate) {
     retValue <- removeRateFromString(retValue)
@@ -104,13 +158,9 @@ nameCovariance <- function(model) {
     parameter <- parameters@list[[listIndex]]
     if (is(parameter, "omega") && !parameter %>% campsismod::isDiag()) {
       oldName <- parameter %>% getName()
-      covName <- getCovarianceName(parameters=parameters, index1=parameter@index, index2=parameter@index2)
-      if (!is.na(covName)) {
-        parameter@name <- covName
-        updatedName <- parameter %>% getName()
-        if (hasVarcov) {
-          colnamesVarcov[colnamesVarcov==oldName] <- updatedName
-        }
+      parameter <- standardiseCovarianceParameterName(parameters=parameters, parameter=parameter)
+      if (hasVarcov) {
+        colnamesVarcov[colnamesVarcov==oldName] <- parameter %>% getName()
       }
     }
     retValue@list[[listIndex]] <- parameter
@@ -122,18 +172,32 @@ nameCovariance <- function(model) {
   return(model)
 }
 
-getCovarianceName <- function(parameters, index1, index2) {
-  omega1 <- parameters %>% campsismod::getByIndex(Omega(index=index1, index2=index1))
-  omega2 <- parameters %>% campsismod::getByIndex(Omega(index=index2, index2=index2))
+standardiseCovarianceParameterName <- function(parameters, parameter) {
+  type <- as.character(class(parameter))
+  if (type=="omega" && !campsismod::isDiag(parameter)) {
+    find1 <- Omega(index=parameter@index, index2=parameter@index)
+    find2 <- Omega(index=parameter@index2, index2=parameter@index2)
+  } else if (type=="sigma" && !campsismod::isDiag(parameter)) {
+    find1 <- Sigma(index=parameter@index, index2=parameter@index)
+    find2 <- Sigma(index=parameter@index2, index2=parameter@index2)
+  } else {
+    return(parameter)
+  }
+  param1 <- parameters %>%
+    campsismod::getByIndex(find1)
+  param2 <- parameters %>%
+    campsismod::getByIndex(find2)
   
-  name1 <- omega1@name
-  name2 <- omega2@name
+  name1 <- param1@name
+  name2 <- param2@name
   
   if (is.na(name1) || is.na(name2)) {
-    return(as.character(NA))
+    standardName <- as.character(NA)
   } else {
-    return(paste0(name1, "_", name2))
+    standardName <- paste0(name1, "_", name2)
   }
+  parameter@name <- standardName
+  return(parameter)
 }
 
 #'

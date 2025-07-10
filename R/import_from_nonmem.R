@@ -22,6 +22,9 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   # Copy control stream file to temporary directory
   ctl <- copyAndRename(file=ctlFile, tempDir=tempDir, newName="model.mod") # mod default in nonmem2rx
   
+  # Replace TIME by DATASET_TIME in the control stream
+  replaceDatasetTime(file=ctl)
+  
   # Copy ext file to temporary directory if provided
   estimate <- !is.null(extFile) && file.exists(extFile)
   if (estimate) {
@@ -41,6 +44,13 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
     
   # Conversion to Campsis
   model <- importRxode2(rxmod=rxmod, subroutine=subroutine, cov=FALSE)
+  
+  # DATASET_TIME back to TIME
+  model <- model %>%
+    replaceAll("DATASET_TIME", "TIME")
+  
+  # Post-process scale factors
+  model <- postProcessScaleFactors(model)
   
   # Remove default names given by nonmem2rx importer before auto renaming
   updatedParameters <- Parameters()
@@ -70,6 +80,15 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   
   # Heuristic move to error
   model <- heuristicMoveToError(model)
+  
+  # Special NONMEM variables back to original names
+  model <- model %>%
+    replaceAll("newind", "NEWIND") %>%
+    replaceAll("nmdvid", "DVID")
+  
+  # Name covariance parameters properly
+  model@parameters@list <- model@parameters@list %>%
+    purrr::map(~standardiseCovarianceParameterName(parameters=model@parameters, parameter=.x))
   
   # Add variance-covariance matrix
   if (!is.null(rxmod$thetaMat) && nrow(rxmod$thetaMat) > 0) {
@@ -192,4 +211,46 @@ detectSubroutine <- function(x) {
     trans <- 1
   }
   return(c(advan, trans))
+}
+
+postProcessScaleFactors <- function(model) {
+  main <- model %>%
+    campsismod::find(MainRecord())
+  if (is.null(main)) {
+    return(model)
+  }
+  scaleEqs <- main@statements@list %>%
+    purrr::keep(.p=function(x) {
+      if (is(x, "equation")) {
+        return(grepl(pattern="^scale[0-9]+$", x@lhs))
+      }
+      return(FALSE)
+    })
+  for (eq in scaleEqs) {
+    original <- eq@lhs
+    replacement <- toupper(original)
+    model <- model %>%
+      campsismod::replaceAll(original, replacement)
+    
+    # Delete scaleX_ if any
+    model <- model %>%
+      campsismod::delete(Equation(paste0(original, "_")))
+  }
+  
+  # If the model contains rxLinCmt1, replace it with F
+  if (model %>% campsismod::contains(Equation("rxLinCmt1"))) {
+    model <- model %>%
+      campsismod::delete(Equation("F")) %>%
+      replaceAll("rxLinCmt1", "F")
+  }
+  
+  return(model)
+}
+
+replaceDatasetTime <- function(file) {
+  fileConn = file(file)
+  lines <- suppressWarnings(readLines(con=fileConn))
+  lines <- replaceAll(object=lines, pattern=VariablePattern("TIME"), replacement="DATASET_TIME")
+  writeLines(text=lines, con=fileConn)
+  close(fileConn)
 }

@@ -4,16 +4,14 @@ K=THETA_K * exp(ETA_K)
 vc=THETA_vc * exp(ETA_vc)
 K23=THETA_K23 * exp(ETA_K23)
 K32=THETA_K32 * exp(ETA_K32)
-scale2=vc
+SCALE2=vc
 
 [ODE]
 d/dt(A_DEPOT)=-KA*A_DEPOT
 d/dt(A_CENTRAL)=K32*A_PERIPHERAL + KA*A_DEPOT + (-K - K23)*A_CENTRAL
 d/dt(A_PERIPHERAL)=K23*A_CENTRAL - K32*A_PERIPHERAL
 d/dt(A_OUTPUT)=K*A_CENTRAL
-rxLinCmt1=A_CENTRAL/scale2
-scale2_=scale2/vc
-F=rxLinCmt1/scale2_
+F=A_CENTRAL/SCALE2
 
 [ERROR]
 CONC=F

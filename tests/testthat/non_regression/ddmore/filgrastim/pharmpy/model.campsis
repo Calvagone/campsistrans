@@ -43,7 +43,7 @@ ADR0=AC0*RTOT0/(CP0 + KD)
 KIN=AC0*KEL + ADR0*KINT
 
 [ODE]
-ABS=A_1
+ABSO=A_1
 ATOT=A_2
 BM1=A_5
 BM2=A_6
@@ -64,8 +64,8 @@ ADR=AC*RTOT/(CP + KD)
 H1=CP*SM1/(CP + SC1) + 1
 H2=CP*SM2/(CP + SC1) + 1
 H3=CP*SM3/(CP + SC1) + 1
-d/dt(A_1)=-ABS*KA
-d/dt(A_2)=ABS*KA - AC*KEL - ADR*KINT + KIN
+d/dt(A_1)=-ABSO*KA
+d/dt(A_2)=ABSO*KA - AC*KEL - ADR*KINT + KIN
 d/dt(A_3)=0
 d/dt(A_4)=0
 d/dt(A_5)=-BM1*H2*KTT - BM1*H3*KBB1 + BM1*H1*KINB/BM10

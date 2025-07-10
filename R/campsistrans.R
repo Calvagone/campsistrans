@@ -6,7 +6,7 @@
 setClass(
   "campsistrans",
   representation(
-    model = "list", # TODO, should be any in the future
+    model = "ANY",
     estimate = "logical",
     mapping = "ANY",
     dirname = "character",
@@ -27,8 +27,7 @@ setClass(
 #' @param covar_name give a name to each covariance value
 #' @param covar_as_cor transform covariance values to correlation values
 #' @param auto_install auto install pharmpy and dependencies if not installed yet
-#' @param envname virtual python environment name, can be configured in config.yml
-#' @param python path to python, can be configured in config.yml
+#' @param pharmpy_config a Pharmpy configuration object, see \link{OldPharmpyConfig} for details
 #' @param copy_dir copy directory in which the control stream is
 #' @param rem_rate remove RATE in control stream automatically to avoid issues with Pharmpy.
 #'  Otherwise, it will look for the dataset and possibly adapt the ODE's to add the rates, default is FALSE
@@ -38,12 +37,13 @@ setClass(
 #' @export
 importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
                          covar_name=FALSE, covar_as_cor=FALSE,
-                         auto_install=TRUE, envname=getPythonEnvName(), python=getPythonPath(),
+                         auto_install=TRUE, pharmpy_config=UpdatedPharmpyConfig(),
                          copy_dir=FALSE, rem_rate=FALSE, rem_abbr_replace=TRUE) {
-  pharmpy <- importPythonPackage("pharmpy")
+  
+  pharmpy <- importPharmpyPackage(pharmpy_config)
   if (is.null(pharmpy)) {
     if (auto_install) {
-      installPython(envname=envname, python=python)
+      installPharmpy(pharmpy_config)
     }
     pharmpy <- reticulate::import("pharmpy")
   }
@@ -74,7 +74,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   adaptNONMEMControlStream(file=ctlPath, rem_rate=rem_rate, rem_abbr_replace=rem_abbr_replace)
 
   # Create model with Pharmpy
-  model <- pharmpy$Model$create_model(ctlPath)
+  model <- loadCtl(path=ctlPath, estimate=estimate)
   
   if (uncertainty) {
     fileNoExt <- sub(pattern = "(.*)\\..*$", replacement = "\\1", ctlBasename)
@@ -87,13 +87,6 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
     varcov <- matrix(numeric(0), nrow=0, ncol=0)
   }
   
-  # Line needed! Otherwise pharmpyOmegas[[index]]$eta_map not working in getNumberOfEtas()
-  # Probably due to lazy instantiation
-  # Problem: only there when estimated parameters are provided
-  if (estimate) {
-    pharmpyEstimates <- model$modelfit_results$parameter_estimates
-  }
-  
   # Always provide OMEGA mapping if unset
   mapping <- if (is.null(mapping)) {mapping(NULL, NULL, NULL)} else {mapping}
   if (estimate && (mapping$params %>% campsismod::select("omega") %>% length() == 0)) {
@@ -103,7 +96,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   }
   
   # Convert parameters from NONMEM to Campsis
-  parameters <- convertParameters(model, mapping=mapping, estimate=estimate)
+  parameters <- convertParameters(model, mapping=mapping)
   
   # Export CAMPSIS model
   campsis <-  exportCampsisModel(model, parameters, varcov, mapping)
@@ -111,6 +104,10 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # Substitute duplicate equation names
   campsis <- campsis %>%
     substituteDuplicateEquationNames()
+  
+  # Newind() to NEWIND
+  campsis <- campsis %>%
+    replaceAll(pattern=Pattern("newind\\(\\)"), replacement="NEWIND")
   
   # In case parameters are not valid (e.g. because of the SAME omega's)
   # Try to make it valid using auto-extraction
@@ -135,7 +132,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   # Create campsistrans object
   retValue <- new(
     "campsistrans",
-    model = list(model),
+    model = model,
     estimate = estimate,
     mapping = mapping,
     dirname = dirname,
@@ -163,6 +160,6 @@ setMethod("export", signature = c("campsistrans", "character"), definition = fun
 
 setMethod("write", signature=c("campsistrans", "character"), definition=function(object, file, ...) {
   pharmpy <- reticulate::import("pharmpy")
-  model <- object@model[[1]]
+  model <- object@model
   pharmpy$modeling$write_model(model=model, path=file, force=TRUE)
 })
