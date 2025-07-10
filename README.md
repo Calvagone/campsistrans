@@ -1,7 +1,12 @@
 
-# campsistrans
+# campsistrans <img src='man/figures/r_package_campsistrans.png' align="right" width="120"/>
 
-A library dedicate to drug model conversion in pharmacometrics.
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Calvagone/campsistrans/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsistrans/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/Calvagone/campsistrans/graph/badge.svg)](https://app.codecov.io/gh/Calvagone/campsistrans)
+<!-- badges: end -->
 
 ## Installation
 
