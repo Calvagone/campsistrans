@@ -19,6 +19,7 @@
 * Nonmem2rx: newind and nmdvid back to original names #109
 * Issue in processRxode2Varcov: no variance-covariance matrix returned in some cases #110
 * Standardise name given to off-diagonal OMEGAs after nonmem2rx import #111
+* Update README #112
 
 # campsistrans 1.3.0
 
