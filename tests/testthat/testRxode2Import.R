@@ -388,3 +388,16 @@ test_that("Import of the Friberg Myelosuppression model works as expected", {
   model <- generateModel(rxmod, folder, modelFun=myFun)
   expect_equal(model, read.campsis(nonRegressionRxode2Path(folder)))
 })
+
+test_that("Function caretToPow works as expected", {
+  
+  model <- model_suite$pk$`1cpt_fo` %>%
+    add(Equation("DUMMY", "2^3")) %>%
+    replace(Bioavailability(1, "BIO^1")) %>%
+    caretToPow()
+  
+  bio <- model %>% find(Bioavailability(1))
+  dummy <- model %>% find(Equation("DUMMY"))
+  expect_equal(bio@rhs, "pow(BIO, 1)")
+  expect_equal(dummy@rhs, "pow(2, 3)")
+})
