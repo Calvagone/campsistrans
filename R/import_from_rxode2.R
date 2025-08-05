@@ -675,8 +675,11 @@ replaceLinCmt <- function(model, subroutineModel) {
   # Replace linCmt equation and delete central
   equation@rhs <- sprintf("A_CENTRAL%s", scale)
   ode <- ode %>%
-    replace(equation) %>%
-    delete(Equation("central"))
+    replace(equation)
+  if (ode %>% campsismod::contains(Equation("central"))) {
+    ode <- ode %>%
+      delete(Equation("central"))
+  }
 
   # Replace in original model
   model <- model %>%
