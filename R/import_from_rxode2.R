@@ -687,6 +687,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   # Replace all occurrences of central by A_CENTRAL
   model <- model %>%
+    replaceAll("A_central", "A_CENTRAL") %>% # See #116
     replaceAll("central", "A_CENTRAL")
   
   return(model)
