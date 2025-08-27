@@ -134,8 +134,16 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   
   # Prepare subroutine model if any
   if (!is.null(subroutine)) {
+    advan <- subroutine[1]
+    trans <- subroutine[2]
     assertthat::assert_that(length(subroutine)==2L, msg="Subroutine should be a vector of 2 integers")
-    subroutineModel <- getSubroutineModelForRxode2(advan=subroutine[1], trans=subroutine[2])
+    subroutineModel <- getSubroutineModelForRxode2(advan=advan, trans=trans)
+    # Hack (see #117)
+    if (advan==12 && trans==4) {
+      code <- code[code != "d/dt(depot) = 0"]
+      code <- code[code != "d/dt(central) = 0"]
+      code <- code[code != "centralLin <- rxLinCmt1 * V2"]
+    }
     if (is.null(subroutineModel)) {
       warning("ODEs are not available for the given subroutine")
     }
@@ -616,9 +624,9 @@ isRxodeErrorEquation <- function(x) {
 getSubroutineModelForRxode2 <- function(advan, trans) {
   model <- campsismod::model_suite$nonmem[[paste0("advan", advan, "_trans", trans)]]
   
-  if (advan==12 && trans==4) {
-    return(NULL)
-  }
+  # if (advan==12 && trans==4) {
+  #   return(NULL)
+  # }
   
   if (is.null(model)) {
     return(NULL)
@@ -656,7 +664,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   equationIndex <- ode@statements@list %>%
     purrr::detect_index(.f=detectFun <- function(statement) {
     if (is(statement, "equation")) {
-      return(grepl(pattern="linCmt\\(\\)", x=statement@rhs))
+      return(grepl(pattern="(linCmt\\(\\))|(linCmtFun)", x=statement@rhs))
     } else {
       return(FALSE)
     }
