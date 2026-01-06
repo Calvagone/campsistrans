@@ -100,7 +100,7 @@ setMethod("caretToPow", signature=c("compartment_property"), definition=function
 setMethod("caretToPow", signature=c("campsis_model"), definition=function(x) {
   x@model@list <- x@model@list %>%
     purrr::map(~caretToPow(.x))
-  x@compartments@properties@list %>%
+  x@compartments@properties@list <- x@compartments@properties@list %>%
     purrr::map(~caretToPow(.x))
   return(x)
 })

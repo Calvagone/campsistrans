@@ -240,11 +240,11 @@ test_that(getTestName("ADVAN12 TRANS4"), {
   trans <- 4
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, CL=2, V1=3, V2=4, V3=5, Q2=6, Q3=7), omega=c(KA=1, CL=2, V1=3, V2=4, V3=5, Q2=6, Q3=7), sigma=c(PROP=1))
+    mapping <- mapping(theta=c(KA=1, CL=2, V2=3, V3=4, V4=5, Q3=6, Q4=7), omega=c(KA=1, CL=2, V2=3, V3=4, V4=5, Q3=6, Q4=7), sigma=c(PROP=1))
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
 
-  model2 <- expect_warning(generateModel2(advan, trans), regexp="ODEs are not available for the given subroutine")
+  model2 <- generateModel2(advan, trans)
   expect_equal(model2, read.campsis(nonRegressionNonmem2rxPath(advan, trans)))
 })

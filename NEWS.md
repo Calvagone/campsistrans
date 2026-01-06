@@ -1,3 +1,9 @@
+# campsistrans 1.4.1
+
+* Method caretToPow not doing anything on compartment properties #115
+* Update package to work with nonmem2rx 0.1.7 #116
+* Nonmem2rx: ODEs not imported when ADVAN=12 and TRANS=4 #117
+
 # campsistrans 1.4.0
 
 * Error when importing some rxode2 models #92
