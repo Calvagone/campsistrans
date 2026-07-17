@@ -49,7 +49,6 @@ Remotes:
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.3.2
 Collate:
     'global.R'
     'special_operators.R'
@@ -82,3 +81,4 @@ Collate:
     'import_from_rxode2.R'
     'import_from_monolix.R'
     'import_from_nonmem.R'
+Config/roxygen2/version: 8.0.0
