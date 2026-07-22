@@ -17,18 +17,18 @@ getParserTokens <- function() {
 }
 
 getComment <- function(x) {
-  hasComment <- hasComment(x) 
+  has_comment <- has_comment(x) 
   comment <- as.character(NA)
-  if (hasComment) {
-    comment <- extractRhs(x, split="#") %>% trimws()
+  if (has_comment) {
+    comment <- extract_rhs(x, split="#") %>% trimws()
   }
   return(comment)
 }
 
 getExpr <- function(x) {
-  hasComment <- hasComment(x) 
-  if (hasComment) {
-    return(extractLhs(x, split="#") %>% trimws())
+  has_comment <- has_comment(x) 
+  if (has_comment) {
+    return(extract_lhs(x, split="#") %>% trimws())
   } else {
     return(x) 
   }
@@ -254,8 +254,8 @@ Rxode2Parser <- R6::R6Class(
     #' @param doc doc argument
     #' @param p parser object
     p_equation = function(doc='equation : EQUATION', p) {
-      lhs <- extractLhs(p$get(2)) %>% trimws()
-      rhs <- extractRhs(p$get(2)) %>% trimws()
+      lhs <- extract_lhs(p$get(2)) %>% trimws()
+      rhs <- extract_rhs(p$get(2)) %>% trimws()
       equation <- Equation(lhs=lhs, rhs=getExpr(rhs), comment=getComment(rhs))
       p$set(1, equation)
     },
@@ -264,9 +264,9 @@ Rxode2Parser <- R6::R6Class(
     #' @param doc doc argument
     #' @param p parser object
     p_ode = function(doc='ode : ODE', p) {
-      lhs <- extractLhs(p$get(2)) %>% trimws()
-      rhs <- extractRhs(p$get(2)) %>% trimws()
-      ode <- Ode(lhs=sprintf("%s", extractTextBetweenBrackets(lhs)), rhs=getExpr(rhs), comment=getComment(rhs))
+      lhs <- extract_lhs(p$get(2)) %>% trimws()
+      rhs <- extract_rhs(p$get(2)) %>% trimws()
+      ode <- Ode(lhs=sprintf("%s", extract_text_between_brackets(lhs)), rhs=getExpr(rhs), comment=getComment(rhs))
       p$set(1, ode)
     },
     
@@ -307,8 +307,8 @@ buildIfStatement <- function(condition, content, type) {
   content <- removeBracketsAndTrim(content)
 
   if (type == "simple_if") {
-    lhs <- extractLhs(content) %>% trimws()
-    rhs <- extractRhs(content) %>% trimws()
+    lhs <- extract_lhs(content) %>% trimws()
+    rhs <- extract_rhs(content) %>% trimws()
     equation <- Equation(lhs=lhs, rhs=getExpr(rhs), comment=getComment(rhs))
     retValue <- new("if_statement", condition=condition, equation=equation, comment=as.character(NA))
   } else {

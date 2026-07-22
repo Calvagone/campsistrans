@@ -320,9 +320,9 @@ extractCompartmentPropertiesFromRxode <- function(model) {
   # Extract compartment properties
   compartmentProperties <- ode@statements@list[indexes] %>%
     purrr::map(~{
-      lhs <- extractLhs(.x@line)
-      compartmentNameWithA <- extractTextBetweenBrackets(lhs)
-      rhs <- extractRhs(.x@line) %>% trimws()
+      lhs <- extract_lhs(.x@line)
+      compartmentNameWithA <- extract_text_between_brackets(lhs)
+      rhs <- extract_rhs(.x@line) %>% trimws()
       compartmentIndex <- tryCatch({
         getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
       }, error = function(e) {
@@ -383,9 +383,9 @@ extractInitialConditionsFromRxode <- function(model) {
   # Extract initial conditions
   initialConditions <- ode@statements@list[indexes] %>%
     purrr::map(~{
-      lhs <- extractLhs(.x@line)
+      lhs <- extract_lhs(.x@line)
       compartmentNameWithA <- sub("\\(.*\\)", "", lhs) %>% trimws()
-      rhs <- extractRhs(.x@line) %>% trimws()
+      rhs <- extract_rhs(.x@line) %>% trimws()
       compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="^A_", replacement="", x=compartmentNameWithA))
       return(InitialCondition(compartment=compartmentIndex, rhs=rhs))
     })
@@ -593,27 +593,27 @@ convertRxodeErrorModel <- function(model, rxmod) {
 }
 
 isRxodeCompartmentPropertyEquation <- function(x) {
-  assertSingleCharacterString(x)
+  assert_single_character_string(x)
   parts <- strsplit(x, split="=")[[1]]
   if (length(parts) == 1) {
     return(FALSE)
   }
-  return(grepl(pattern=paste0("^(f|alag|dur|rate)\\(", campsismod:::variablePatternStr(),
+  return(grepl(pattern=paste0("^(f|alag|dur|rate)\\(", campsismod:::variable_pattern_str(),
                               "\\)$"), x=parts[1] %>% trim()))
 }
 
 isRxodeInitialConditionEquation <- function(x) {
-  assertSingleCharacterString(x)
+  assert_single_character_string(x)
   parts <- strsplit(x, split="=")[[1]]
   if (length(parts) == 1) {
     return(FALSE)
   }
-  return(grepl(pattern=sprintf("^%s\\(0\\)$", campsismod:::variablePatternStr()),
+  return(grepl(pattern=sprintf("^%s\\(0\\)$", campsismod:::variable_pattern_str()),
                x=parts[1] %>% trim()))
 }
 
 isRxodeErrorEquation <- function(x) {
-  assertSingleCharacterString(x)
+  assert_single_character_string(x)
   parts <- strsplit(x, split="~")[[1]]
   if (length(parts) == 1) {
     return(FALSE)

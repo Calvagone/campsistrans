@@ -3,7 +3,7 @@
 #' 
 #' @param varcov raw variance-covariance matrix
 #' @param parameters Campsis model parameters
-#' @importFrom campsismod getNONMEMName
+#' @importFrom campsismod get_nonmem_name
 #' @return an updated variance-covariance matrix
 convertVarcov <- function(varcov, parameters) {
   # Empty variance-covariance matrix
@@ -18,7 +18,7 @@ convertVarcov <- function(varcov, parameters) {
   colnames(varcov) <- standardNMNames
   
   # Retrieve NONMEM names from parameters
-  nmNames <- parameters@list %>% purrr::map_chr(.f=~.x %>% campsismod::getNONMEMName())
+  nmNames <- parameters@list %>% purrr::map_chr(.f=~.x %>% campsismod::get_nonmem_name())
   
   # Retrieve varcov parameters
   varcovParams <- colnames(varcov) %>% purrr::map(.f=function(.x) {
@@ -27,7 +27,7 @@ convertVarcov <- function(varcov, parameters) {
   
   # Remove unnecessary rows and columns
   for (varcovParam in varcovParams) {
-    nmName <- varcovParam %>% campsismod::getNONMEMName()
+    nmName <- varcovParam %>% campsismod::get_nonmem_name()
     parameter <- parameters %>% getByIndex(varcovParam)
     if (length(parameter)==0) {
       if (!is(varcovParam, "theta") && !varcovParam %>% campsismod::isDiag()) {

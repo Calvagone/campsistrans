@@ -84,7 +84,7 @@ processParameters <- function(parameters) {
 #' @param mapping PMX mapping
 #' @return parameters definition table
 #' @importFrom purrr map map2
-#' @importFrom campsismod add getByIndex getNONMEMName Parameters sort
+#' @importFrom campsismod add getByIndex get_nonmem_name Parameters sort
 #' @export
 convertParameters <- function(model, mapping) {
   

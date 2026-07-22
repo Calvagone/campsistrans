@@ -48,7 +48,7 @@ getRemifentanilDataset <- function() {
 fixRxODEBug <- function(campsis, model, dataset, dest) {
   if (dest %in% c("RxODE", "rxode2")) {
     if (is(dataset, "dataset")) {
-      times <- dataset %>% getTimes()
+      times <- dataset %>% get_times()
       
       # If LAG is found in model & time 0 does not exists in observations
       # We remove time 0 from the output
