@@ -11,7 +11,7 @@
 #' @param mapping initial mapping object
 #' @return the CAMPSIS model
 #' @importFrom reticulate iterate
-#' @importFrom campsismod auto_detect_nonmem updateCompartments
+#' @importFrom campsismod auto_detect_nonmem update_compartments
 #' @export
 #' 
 exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
@@ -42,7 +42,7 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   retValue <- new("campsis_model", model=records, parameters=parameters)
   
   # Update compartments list before returning the CAMPSIS model
-  retValue <- retValue %>% campsismod::updateCompartments()
+  retValue <- retValue %>% campsismod::update_compartments()
   
   # Auto-detect compartment properties from NONMEM special variables
   retValue <- retValue %>% campsismod::auto_detect_nonmem()

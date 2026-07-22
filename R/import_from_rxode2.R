@@ -211,7 +211,7 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   
   # Index compartments
   model <- model %>%
-    updateCompartments()
+    update_compartments()
   
   # Automatically convert time to t
   model <- model %>%

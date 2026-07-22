@@ -77,7 +77,7 @@ test_that("Duplicate equations are well replaced", {
   # TODO: when #74 is solved in campsismod
   # Renaming should work
   model <- model %>%
-    updateCompartments() %>%
+    update_compartments() %>%
     add(InitialCondition(compartment=1, rhs="ODE*MAIN*ERROR"))
 
   model <- substituteDuplicateEquationNames(model)

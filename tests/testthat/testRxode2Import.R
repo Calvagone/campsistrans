@@ -382,7 +382,7 @@ test_that("Import of the Friberg Myelosuppression model works as expected", {
       replaceAll("A_A_tr2", "A_tr2") %>%
       replaceAll("A_A_tr3", "A_tr3") %>%
       replaceAll("A_A_circ", "A_circ") %>%
-      updateCompartments()
+      update_compartments()
   }
   
   model <- generateModel(rxmod, folder, modelFun=myFun)
