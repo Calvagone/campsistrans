@@ -63,7 +63,7 @@ convertVarcov <- function(varcov, parameters) {
   })
   
   # Rename varcov matrix correctly according to names in model
-  names <- varcovParams %>% purrr::map_chr(.f=~.x %>% getName())
+  names <- varcovParams %>% purrr::map_chr(.f=~.x %>% get_name())
   rownames(varcov) <- names
   colnames(varcov) <- names
   return(varcov)

@@ -157,10 +157,10 @@ nameCovariance <- function(model) {
   for (listIndex in seq_len(length(parameters))) {
     parameter <- parameters@list[[listIndex]]
     if (is(parameter, "omega") && !parameter %>% campsismod::is_diag()) {
-      oldName <- parameter %>% getName()
+      oldName <- parameter %>% get_name()
       parameter <- standardiseCovarianceParameterName(parameters=parameters, parameter=parameter)
       if (hasVarcov) {
-        colnamesVarcov[colnamesVarcov==oldName] <- parameter %>% getName()
+        colnamesVarcov[colnamesVarcov==oldName] <- parameter %>% get_name()
       }
     }
     retValue@list[[listIndex]] <- parameter

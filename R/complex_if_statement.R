@@ -25,17 +25,17 @@ ComplexIfElseStatement <- function() {
 }
 
 #_______________________________________________________________________________
-#----                            getName                                    ----
+#----                            get_name                                   ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("complex_if_else_statement"), definition = function(x) {
+setMethod("get_name", signature = c("complex_if_else_statement"), definition = function(x) {
   return(sprintf("COMPLEX IF STATEMENT: %s", x@list %>% purrr::map_chr(.f=function(statement) {
-    return(statement %>% getName())
+    return(statement %>% get_name())
   }) %>% paste0(collapse=" / ")))
 })
 
 #_______________________________________________________________________________
-#----                             replace_all                                ----
+#----                            replace_all                                ----
 #_______________________________________________________________________________
 
 setMethod("replace_all", signature=c("complex_if_else_statement", "pattern", "character"),
@@ -104,13 +104,13 @@ ElseStatement <- function(statements) {
 }
 
 #_______________________________________________________________________________
-#----                             toString                                  ----
+#----                             to_string                                 ----
 #_______________________________________________________________________________
 
-setMethod("toString", signature=c("complex_if_else_statement"), definition=function(object, ...) {
+setMethod("to_string", signature=c("complex_if_else_statement"), definition=function(object, ...) {
   retValue <- NULL
   for (elem in object@list) {
-    retValue <- retValue %>% append(campsismod::toString(elem, ...))
+    retValue <- retValue %>% append(campsismod::to_string(elem, ...))
   }
   return(retValue)
 })

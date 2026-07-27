@@ -33,17 +33,17 @@ ExtendedIfStatement <- function(condition, statements) {
 }
 
 #_______________________________________________________________________________
-#----                            getName                                    ----
+#----                            get_name                                   ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("extended_if_statement"), definition = function(x) {
+setMethod("get_name", signature = c("extended_if_statement"), definition = function(x) {
   return(sprintf("EXTENDED IF (%s): %s", x@condition, x@statements@list %>% purrr::map_chr(.f=function(statement) {
-    return(statement %>% getName())
+    return(statement %>% get_name())
   }) %>% paste(collapse=", ")))
 })
 
 #_______________________________________________________________________________
-#----                             replace_all                                ----
+#----                            replace_all                                ----
 #_______________________________________________________________________________
 
 setMethod("replace_all", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
@@ -55,16 +55,16 @@ setMethod("replace_all", signature=c("extended_if_statement", "pattern", "charac
 })
 
 #_______________________________________________________________________________
-#----                             toString                                  ----
+#----                             to_string                                 ----
 #_______________________________________________________________________________
 
 #'@importFrom campsismod is_rxode
-setMethod("toString", signature=c("extended_if_statement"), definition=function(object, ...) {
-  dest <- campsismod::processExtraArg(args=list(...), name="dest", default="campsis")
+setMethod("to_string", signature=c("extended_if_statement"), definition=function(object, ...) {
+  dest <- campsismod::process_extra_arg(args=list(...), name="dest", default="campsis")
   indent <- "  "
   statementsStr <- object@statements@list %>% 
     purrr::map_chr(.f=function(statement) {
-      return(paste0(indent, statement %>% campsismod::toString(dest=dest, init=FALSE)))
+      return(paste0(indent, statement %>% campsismod::to_string(dest=dest, init=FALSE)))
     }) %>% 
     paste0(collapse="\n")
 

@@ -60,9 +60,9 @@ test_that("Test the rxode2 parser (complex if statements, equations, line breaks
   
   # Do a few more tests with the complex if statement
   complexIfStatement <- expected[[7]]
-  complexIfStatementStrA <- campsismod::toString(complexIfStatement) # Default destination
-  complexIfStatementStrB <- campsismod::toString(complexIfStatement, dest="NONMEM") # Test the dest attribute
-  expect_error(campsismod::toString(complexIfStatement, dest="unknown"))
+  complexIfStatementStrA <- campsismod::to_string(complexIfStatement) # Default destination
+  complexIfStatementStrB <- campsismod::to_string(complexIfStatement, dest="NONMEM") # Test the dest attribute
+  expect_error(campsismod::to_string(complexIfStatement, dest="unknown"))
   
   expect_equal(complexIfStatementStrA,
                c("if (A==0 || (A==1 && A==3)) {\n  OUTPUT=1\n}", "else if (A==1) {\n  OUTPUT=2\n}", "else {\n  OUTPUT=3\n}"))
@@ -72,7 +72,7 @@ test_that("Test the rxode2 parser (complex if statements, equations, line breaks
   # Test the replace_all method
   complexIfStatement <- complexIfStatement %>%
     campsismod::replace_all(pattern=VariablePattern("OUTPUT"), replacement="OUTPUT2")
-  complexIfStatementStrA <- campsismod::toString(complexIfStatement) # Default destination
+  complexIfStatementStrA <- campsismod::to_string(complexIfStatement) # Default destination
   expect_equal(complexIfStatementStrA,
                c("if (A==0 || (A==1 && A==3)) {\n  OUTPUT2=1\n}", "else if (A==1) {\n  OUTPUT2=2\n}", "else {\n  OUTPUT2=3\n}"))
   

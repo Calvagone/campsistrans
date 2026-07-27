@@ -42,7 +42,7 @@ processRxode2Varcov <- function(model, varcov) {
     if (length(parameter_)==0) {
       return("")
     } else {
-      return(parameter_ %>% getName())
+      return(parameter_ %>% get_name())
     }
   })
   
@@ -76,7 +76,7 @@ processRxode2Varcov <- function(model, varcov) {
     fixNames <- row.names(varcov)[fixIndexes]
     model@parameters@list <- model@parameters@list %>%
       purrr::map(.f=function(parameter) {
-        if (parameter %>% getName() %in% fixNames) {
+        if (parameter %>% get_name() %in% fixNames) {
           parameter@fix <- TRUE
         }
         return(parameter)
