@@ -144,8 +144,8 @@ repairParametersByType <- function(parameters, type) {
   # For each correlation, collect the 2 omegas names
   offDiagParameters_ <- offDiagParameters@list %>%
     purrr::map(~list(parameter=.x,
-                    name1=onDiagParameters %>% campsismod::getByIndex(Omega(index=.x@index, index2=.x@index)) %>% .@name,
-                    name2=onDiagParameters %>% campsismod::getByIndex(Omega(index=.x@index2, index2=.x@index2)) %>% .@name))
+                    name1=onDiagParameters %>% campsismod::get_by_index(Omega(index=.x@index, index2=.x@index)) %>% .@name,
+                    name2=onDiagParameters %>% campsismod::get_by_index(Omega(index=.x@index2, index2=.x@index2)) %>% .@name))
   
   # Collect original indexes
   originalIndexes <- onDiagParameters@list %>% purrr::map_int(~.x@index)

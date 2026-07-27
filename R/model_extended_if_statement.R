@@ -43,14 +43,14 @@ setMethod("getName", signature = c("extended_if_statement"), definition = functi
 })
 
 #_______________________________________________________________________________
-#----                             replaceAll                                ----
+#----                             replace_all                                ----
 #_______________________________________________________________________________
 
-setMethod("replaceAll", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
+setMethod("replace_all", signature=c("extended_if_statement", "pattern", "character"), definition=function(object, pattern, replacement, ...) {
   object@condition <- object@condition %>%
-    campsismod::replaceAll(pattern=pattern, replacement=replacement, ...)
+    campsismod::replace_all(pattern=pattern, replacement=replacement, ...)
   object@statements@list <- object@statements@list %>%
-    purrr::map(~campsismod::replaceAll(object=.x, pattern=pattern, replacement=replacement, ...))
+    purrr::map(~campsismod::replace_all(object=.x, pattern=pattern, replacement=replacement, ...))
   return(object)
 })
 

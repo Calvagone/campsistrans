@@ -46,7 +46,7 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
     # Replace in model code
     updatedThetaName <- sprintf("THETA_%s", replaceDotsInString(parameter@name))
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), updatedThetaName)
+      replace_all(VariablePattern(oldNameInCode), updatedThetaName)
     
     # Adapt varcov
     varcov <- adaptVarcovName(varcov=varcov, before=oldNameInCode, after=updatedThetaName)
@@ -54,7 +54,7 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
   
   # Rename ETAs in model code
   for (parameter in model@parameters@list %>% purrr::keep(~is(.x, "omega"))) {
-    if (!parameter %>% campsismod::isDiag()) {
+    if (!parameter %>% campsismod::is_diag()) {
       # corr_ appears in variance-covariance after monolix import
       # to do later, see issue
       next
@@ -70,7 +70,7 @@ importRxode2 <- function(rxmod, pop_parameter_regex=NULL, omega_parameter_regex=
     # Replace in model code
     updatedEtaName <- sprintf("ETA_%s", replaceDotsInString(parameter@name))
     model <- model %>%
-      replaceAll(VariablePattern(oldNameInCode), updatedEtaName)
+      replace_all(VariablePattern(oldNameInCode), updatedEtaName)
     
     # Adapt varcov
     updatedOmegaName <- sprintf("OMEGA_%s", replaceDotsInString(parameter@name))
@@ -174,14 +174,14 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
                                           replacement=toupper(cmtName), prefix="")
       # E.g. dur(central) -> dur(A_CENTRAL)
       # This way, compartment properties are well detected
-      code <- replaceAll(object=code, pattern=Pattern(sprintf("\\(%s\\)", cmtName)),
+      code <- replace_all(object=code, pattern=Pattern(sprintf("\\(%s\\)", cmtName)),
                          replacement=sprintf("(A_%s)", toupper(cmtName)))
     }
   }
   
   # Add A_ prefix to compartment names
   for (cmtName in cmtNames) {
-    code <- replaceAll(object=code, pattern=VariablePattern(cmtName),
+    code <- replace_all(object=code, pattern=VariablePattern(cmtName),
                        replacement=sprintf("A_%s", cmtName))
   }
 
@@ -215,7 +215,7 @@ extractModelCodeFromRxode <- function(rxmod, subroutine) {
   
   # Automatically convert time to t
   model <- model %>%
-    replaceAll("time", "t")
+    replace_all("time", "t")
   
   return(model)
 }
@@ -324,7 +324,7 @@ extractCompartmentPropertiesFromRxode <- function(model) {
       compartmentNameWithA <- extract_text_between_brackets(lhs)
       rhs <- extract_rhs(.x@line) %>% trimws()
       compartmentIndex <- tryCatch({
-        getCompartmentIndex(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
+        get_compartment_index(object=model, name=gsub(pattern="A_", replacement="", x=compartmentNameWithA))
       }, error = function(e) {
         warning(sprintf("Compartment %s not found in model, compartment property linked to first compartment.", compartmentNameWithA))
         return(1L)
@@ -386,7 +386,7 @@ extractInitialConditionsFromRxode <- function(model) {
       lhs <- extract_lhs(.x@line)
       compartmentNameWithA <- sub("\\(.*\\)", "", lhs) %>% trimws()
       rhs <- extract_rhs(.x@line) %>% trimws()
-      compartmentIndex <- getCompartmentIndex(object=model, name=gsub(pattern="^A_", replacement="", x=compartmentNameWithA))
+      compartmentIndex <- get_compartment_index(object=model, name=gsub(pattern="^A_", replacement="", x=compartmentNameWithA))
       return(InitialCondition(compartment=compartmentIndex, rhs=rhs))
     })
   model@compartments@properties@list <- c(model@compartments@properties@list, initialConditions)
@@ -506,7 +506,7 @@ heuristicMoveToMain <- function(model) {
   oldOdeTmp <- oldOde
   for (continuousVariable in continuousVariables) {
     oldOdeTmp <- oldOdeTmp %>%
-      replaceAll(pattern=VariablePattern(continuousVariable), replacement="")
+      replace_all(pattern=VariablePattern(continuousVariable), replacement="")
   }
   
   # Search for the first statement that has changed
@@ -654,7 +654,7 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   for (parameter in linParameters) {
     model <- model %>%
-      replaceAll(tolower(parameter), parameter)
+      replace_all(tolower(parameter), parameter)
   }
   
   # Detect where to insert the ODEs
@@ -695,8 +695,8 @@ replaceLinCmt <- function(model, subroutineModel) {
   
   # Replace all occurrences of central by A_CENTRAL
   model <- model %>%
-    replaceAll("A_central", "A_CENTRAL") %>% # See #116
-    replaceAll("central", "A_CENTRAL")
+    replace_all("A_central", "A_CENTRAL") %>% # See #116
+    replace_all("central", "A_CENTRAL")
   
   return(model)
 }
@@ -720,7 +720,7 @@ replaceDotsInVariableNames <- function(ode) {
   
   for (variable in variablesWithDots) {
     ode <- ode %>%
-      replaceAll(VariablePattern(variable), replaceDotsInString(variable))
+      replace_all(VariablePattern(variable), replaceDotsInString(variable))
   }
   
   return(ode)
@@ -741,19 +741,19 @@ replaceDotsInString <- function(x) {
 
 renameCompartmentProperties <- function(code, occurrence, replacement, prefix) {
   # Fractions
-  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxf\\.%s\\.", occurrence)),
+  code <- replace_all(object=code, pattern=VariablePattern(sprintf("rxf\\.%s\\.", occurrence)),
                      replacement=sprintf("F_%s%s", prefix, replacement))
   # Initial conditions
-  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxini\\.%s\\.", occurrence)),
+  code <- replace_all(object=code, pattern=VariablePattern(sprintf("rxini\\.%s\\.", occurrence)),
                      replacement=sprintf("INIT_%s%s", prefix, replacement))
   # Infusion durations
-  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxdur\\.%s\\.", occurrence)),
+  code <- replace_all(object=code, pattern=VariablePattern(sprintf("rxdur\\.%s\\.", occurrence)),
                      replacement=sprintf("DUR_%s%s", prefix, replacement))
   # Infusion rates
-  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxrate\\.%s\\.", occurrence)),
+  code <- replace_all(object=code, pattern=VariablePattern(sprintf("rxrate\\.%s\\.", occurrence)),
                      replacement=sprintf("RATE_%s%s", prefix, replacement))
   # Lag times
-  code <- replaceAll(object=code, pattern=VariablePattern(sprintf("rxalag\\.%s\\.", occurrence)),
+  code <- replace_all(object=code, pattern=VariablePattern(sprintf("rxalag\\.%s\\.", occurrence)),
                      replacement=sprintf("LAG_%s%s", prefix, replacement))
   
   return(code)

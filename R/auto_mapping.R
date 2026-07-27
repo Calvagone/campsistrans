@@ -9,7 +9,7 @@ needsAutoRenaming <- function(parameter) {
   cond1 <- is.na(parameter@name)
   cond2 <- TRUE
   if (is(parameter, "double_array_parameter")) {
-    cond2 <- parameter %>% campsismod::isDiag()
+    cond2 <- parameter %>% campsismod::is_diag()
   }
   return(cond1 && cond2)
 }
@@ -30,7 +30,7 @@ autoRenameParameters <- function(model) {
   
   # Create mapping table
   mappingTable <- unnamedParameters %>% purrr::map_df(.f=function(x) {
-    nameInModel <- x %>% getNameInModel()
+    nameInModel <- x %>% get_name_in_model()
     name_ <- searchCandidateName(model, x)
     return(tibble::tibble(NAME=nameInModel, TYPE=class(x) %>% as.character(), CANDIDATE_NAME=name_))
   })
@@ -53,11 +53,11 @@ autoRenameParameters <- function(model) {
     if (!(x %>% needsAutoRenaming())) {
       return(x)
     }
-    nameInModel <- x %>% getNameInModel()
+    nameInModel <- x %>% get_name_in_model()
     mappingRow <- mappingTable %>% dplyr::filter(NAME==nameInModel)
     candidateName <- mappingRow$CANDIDATE_NAME
     x@name <- candidateName
-    model <<- model %>% replaceAll(pattern=nameInModel, replacement=x %>% getNameInModel())
+    model <<- model %>% replace_all(pattern=nameInModel, replacement=x %>% get_name_in_model())
     return(x)
   })
  
@@ -69,10 +69,10 @@ autoRenameParameters <- function(model) {
 #' @param x any model statement
 #' @param parameter parameter to search for a name in model
 #' @return a logical value
-#' @importFrom campsismod getNameInModel replaceAll VariablePattern
+#' @importFrom campsismod get_name_in_model replace_all VariablePattern
 #' 
 containsParameter <- function(x, parameter) {
-  parameterName <- parameter %>% campsismod::getNameInModel()
+  parameterName <- parameter %>% campsismod::get_name_in_model()
   pattern <- campsismod::VariablePattern(parameterName)
   if (is(x, "equation")) {
     rhs <- x@rhs
@@ -81,7 +81,7 @@ containsParameter <- function(x, parameter) {
   } else {
     return(FALSE)
   }
-  rhs_ <- rhs %>% campsismod::replaceAll(pattern=pattern, replacement="")
+  rhs_ <- rhs %>% campsismod::replace_all(pattern=pattern, replacement="")
   hasParam <- rhs %>% nchar() != rhs_ %>% nchar()
   return(hasParam)
 }

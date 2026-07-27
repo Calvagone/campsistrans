@@ -107,7 +107,7 @@ importNONMEM <- function(file, mapping=NULL, estimate=FALSE, uncertainty=FALSE,
   
   # Newind() to NEWIND
   campsis <- campsis %>%
-    replaceAll(pattern=Pattern("newind\\(\\)"), replacement="NEWIND")
+    replace_all(pattern=Pattern("newind\\(\\)"), replacement="NEWIND")
   
   # In case parameters are not valid (e.g. because of the SAME omega's)
   # Try to make it valid using auto-extraction

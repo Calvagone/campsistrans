@@ -28,9 +28,9 @@ convertVarcov <- function(varcov, parameters) {
   # Remove unnecessary rows and columns
   for (varcovParam in varcovParams) {
     nmName <- varcovParam %>% campsismod::get_nonmem_name()
-    parameter <- parameters %>% getByIndex(varcovParam)
+    parameter <- parameters %>% get_by_index(varcovParam)
     if (length(parameter)==0) {
-      if (!is(varcovParam, "theta") && !varcovParam %>% campsismod::isDiag()) {
+      if (!is(varcovParam, "theta") && !varcovParam %>% campsismod::is_diag()) {
         # All off-diagonal OMEGA's are exported by NONMEM into the cov file
         # Even if they are NOT described in the control stream...
         # This means we can remove it from the matrix
@@ -55,7 +55,7 @@ convertVarcov <- function(varcov, parameters) {
   # Update list 
   varcovParams <- colnames(varcov) %>% purrr::map(.f=function(.x) {
     varcovParam <- convertNONMEMParameter(name=.x, value=0, fix=FALSE)
-    parameter <- parameters %>% getByIndex(varcovParam)
+    parameter <- parameters %>% get_by_index(varcovParam)
     if (length(parameter)==0) {
       stop("This should never happen because already checked above.")
     }

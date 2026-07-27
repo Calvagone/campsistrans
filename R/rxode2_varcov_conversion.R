@@ -33,7 +33,7 @@ processRxode2Varcov <- function(model, varcov) {
     
     for (parameter in parameters) {
       parameter_ <- model@parameters %>%
-        campsismod::getByIndex(parameter)
+        campsismod::get_by_index(parameter)
       if (length(parameter_) > 0) {
         break
       }

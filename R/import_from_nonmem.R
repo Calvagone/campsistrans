@@ -47,7 +47,7 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   
   # DATASET_TIME back to TIME
   model <- model %>%
-    replaceAll("DATASET_TIME", "TIME")
+    replace_all("DATASET_TIME", "TIME")
   
   # Post-process scale factors
   model <- postProcessScaleFactors(model)
@@ -57,11 +57,11 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   for (x in model@parameters@list) {
     if (is(x, "theta")) {
       model <- model %>%
-        replaceAll(sprintf("THETA_%s", x@name), sprintf("THETA_%s", x@index))
+        replace_all(sprintf("THETA_%s", x@name), sprintf("THETA_%s", x@index))
       x@name <- as.character(NA)
-    } else if (is(x, "omega") && isDiag(x)) {
+    } else if (is(x, "omega") && is_diag(x)) {
       model <- model %>%
-        replaceAll(sprintf("ETA_%s", x@name), sprintf("ETA_%s", x@index))
+        replace_all(sprintf("ETA_%s", x@name), sprintf("ETA_%s", x@index))
       x@name <- as.character(NA)
     }
     updatedParameters <- updatedParameters %>%
@@ -83,8 +83,8 @@ importNONMEM2 <- function(ctlFile, extFile=NULL, covFile=NULL) {
   
   # Special NONMEM variables back to original names
   model <- model %>%
-    replaceAll("newind", "NEWIND") %>%
-    replaceAll("nmdvid", "DVID")
+    replace_all("newind", "NEWIND") %>%
+    replace_all("nmdvid", "DVID")
   
   # Name covariance parameters properly
   model@parameters@list <- model@parameters@list %>%
@@ -181,7 +181,7 @@ includeSigmas <- function(rxmod, model) {
       # Replace occurrences in model
       if (onDiag) {
         model <- model %>%
-          replaceAll(epsName, sprintf("EPS_%s", replaceEpsInSigma(epsName)))
+          replace_all(epsName, sprintf("EPS_%s", replaceEpsInSigma(epsName)))
       }
     }
   }
@@ -230,7 +230,7 @@ postProcessScaleFactors <- function(model) {
     original <- eq@lhs
     replacement <- toupper(original)
     model <- model %>%
-      campsismod::replaceAll(original, replacement)
+      campsismod::replace_all(original, replacement)
     
     # Delete scaleX_ if any
     model <- model %>%
@@ -241,7 +241,7 @@ postProcessScaleFactors <- function(model) {
   if (model %>% campsismod::contains(Equation("rxLinCmt1"))) {
     model <- model %>%
       campsismod::delete(Equation("F")) %>%
-      replaceAll("rxLinCmt1", "F")
+      replace_all("rxLinCmt1", "F")
   }
   
   return(model)
@@ -250,7 +250,7 @@ postProcessScaleFactors <- function(model) {
 replaceDatasetTime <- function(file) {
   fileConn = file(file)
   lines <- suppressWarnings(readLines(con=fileConn))
-  lines <- replaceAll(object=lines, pattern=VariablePattern("TIME"), replacement="DATASET_TIME")
+  lines <- replace_all(object=lines, pattern=VariablePattern("TIME"), replacement="DATASET_TIME")
   writeLines(text=lines, con=fileConn)
   close(fileConn)
 }

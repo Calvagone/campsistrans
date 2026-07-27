@@ -375,13 +375,13 @@ test_that("Import of the Friberg Myelosuppression model works as expected", {
   
   myFun <- function(x) {
     x <- x %>%
-      replaceAll("A_A_centr", "A_centr") %>%
-      replaceAll("A_A_periph", "A_periph") %>%
-      replaceAll("A_A_prol", "A_prol") %>%
-      replaceAll("A_A_tr1", "A_tr1") %>%
-      replaceAll("A_A_tr2", "A_tr2") %>%
-      replaceAll("A_A_tr3", "A_tr3") %>%
-      replaceAll("A_A_circ", "A_circ") %>%
+      replace_all("A_A_centr", "A_centr") %>%
+      replace_all("A_A_periph", "A_periph") %>%
+      replace_all("A_A_prol", "A_prol") %>%
+      replace_all("A_A_tr1", "A_tr1") %>%
+      replace_all("A_A_tr2", "A_tr2") %>%
+      replace_all("A_A_tr3", "A_tr3") %>%
+      replace_all("A_A_circ", "A_circ") %>%
       update_compartments()
   }
   

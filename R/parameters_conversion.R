@@ -84,7 +84,7 @@ processParameters <- function(parameters) {
 #' @param mapping PMX mapping
 #' @return parameters definition table
 #' @importFrom purrr map map2
-#' @importFrom campsismod add getByIndex get_nonmem_name Parameters sort
+#' @importFrom campsismod add get_by_index get_nonmem_name Parameters sort
 #' @export
 convertParameters <- function(model, mapping) {
   
@@ -104,7 +104,7 @@ convertParameters <- function(model, mapping) {
   
   # Collect names from mapping list (LOOP 1)
   list <- purrr::map(pharmpyList@list, .f=function(parameter) {
-    namedParameter <- mappingList %>% campsismod::getByIndex(parameter)
+    namedParameter <- mappingList %>% campsismod::get_by_index(parameter)
     if (length(namedParameter) > 0) {
       parameter@name <- namedParameter@name
     }
@@ -117,7 +117,7 @@ convertParameters <- function(model, mapping) {
   
   # Check no parameter is missing (LOOP 2)
   purrr::map(mappingList@list, .f=function(parameter) {
-    returnedParameter <- parameters %>% campsismod::getByIndex(parameter)
+    returnedParameter <- parameters %>% campsismod::get_by_index(parameter)
     if (length(returnedParameter) == 0) {
       parameters <<- parameters %>% campsismod::add(parameter)
     }

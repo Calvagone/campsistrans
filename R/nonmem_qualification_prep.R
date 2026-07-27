@@ -196,10 +196,10 @@ setEtasAsCovariates <- function(model, content) {
   omegas <- model@parameters %>%
     campsismod::select("omega")
   omegas@list <- omegas@list %>%
-    purrr::keep(~campsismod::isDiag(.x))
+    purrr::keep(~campsismod::is_diag(.x))
   
   for (omega in omegas@list) {
-    etaName <- campsismod::getNameInModel(omega)
+    etaName <- campsismod::get_name_in_model(omega)
     index <- omega@index
     content <- gsub(pattern=sprintf("(?<![A-Z0-9_])ETA\\(%i\\)", index), replacement=etaName, x=content, perl=TRUE)
   }

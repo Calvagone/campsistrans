@@ -64,7 +64,7 @@ exportCampsisModel <- function(pharmpyModel, parameters, varcov, mapping) {
   
   # Replace NONMEM simulation time T by Campsis simulation time t
   retValue <- retValue %>%
-    replaceAll("T", "t")
+    replace_all("T", "t")
   
   return(retValue)
 }

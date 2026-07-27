@@ -43,7 +43,7 @@ standardiseNMDataset <- function(dataset) {
 #' Default is FALSE. Please set it to TRUE if you wish a simulation ID. If TRUE, original ID column is
 #' preserved in column 'ORIGINAL_ID'.
 #' @return a data frame
-#' @importFrom campsismod getNameInModel isDiag
+#' @importFrom campsismod get_name_in_model is_diag
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
@@ -143,8 +143,8 @@ importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas
     # If etas_zero, all ETAs are added to dataset and set to 0
     if (etas_zero && !is.null(campsis)) {
       for (omega in campsis@parameters %>% campsismod::select("omega") %>% .@list) {
-        if (campsismod::isDiag(omega)) {
-          dataset[omega %>% campsismod::getNameInModel()] <- 0
+        if (campsismod::is_diag(omega)) {
+          dataset[omega %>% campsismod::get_name_in_model()] <- 0
         }
       }
     }
@@ -214,7 +214,7 @@ importETAs <- function(x, file, model, id="ID") {
     tab <- tab %>% dplyr::rename_at(.vars=etaNames, .funs=function(etaName) {
       etaNumber <- as.numeric(sub(pattern = "(ET|ETA)", replacement = "", etaName))
       retValue <- etaNumber %>% purrr::map_chr(.f = function(eta) {
-        omega <- model@parameters %>% getByIndex(Omega(index=eta, index2=eta))
+        omega <- model@parameters %>% get_by_index(Omega(index=eta, index2=eta))
         paste0("ETA_", omega@name)
       })
       return(retValue)

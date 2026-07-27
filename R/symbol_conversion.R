@@ -47,7 +47,7 @@ replaceSymbol <- function(expression, symbol, replacementSymbol) {
 #' @param type parameter type
 #' @param parameters parameters
 #' @return a pretty parameter name
-#' @importFrom campsismod getNameInModel getByIndex Theta Omega Sigma
+#' @importFrom campsismod get_name_in_model get_by_index Theta Omega Sigma
 #' @export
 nameParameter <- function(type, parameters) {
   vec <- NULL
@@ -56,15 +56,15 @@ nameParameter <- function(type, parameters) {
   
   if (type$type=="THETA") {
     pType <- "theta"
-    param <- parameters %>% campsismod::getByIndex(Theta(index=index))
+    param <- parameters %>% campsismod::get_by_index(Theta(index=index))
     
   } else if (type$type=="ETA") {
     pType <- "omega"
-    param <- parameters %>% campsismod::getByIndex(Omega(index=index, index2=index))
+    param <- parameters %>% campsismod::get_by_index(Omega(index=index, index2=index))
     
   } else if (type$type=="EPS") {
     pType <- "sigma"
-    param <- parameters %>% campsismod::getByIndex(Sigma(index=index, index2=index))
+    param <- parameters %>% campsismod::get_by_index(Sigma(index=index, index2=index))
   
   } else if (type$type=="A") {
     return(paste0("A_", index))
@@ -77,7 +77,7 @@ nameParameter <- function(type, parameters) {
     stop(paste0("No parameter found for type ", pType, " and index ", index))
   }
   
-  return(param %>% campsismod::getNameInModel())
+  return(param %>% campsismod::get_name_in_model())
 }
 
 #' Retrieve compartment name based on left hand side expression.

@@ -118,7 +118,7 @@ test_that("Custom model '2cpt_zo_foce_full' can be imported and simulated well",
     campsistrans2 <- importNONMEM(file=ctlFile, estimate=TRUE, uncertainty=TRUE, mapping=mapping(auto=TRUE), covar_name=TRUE)
     model2 <- campsistrans2 %>%
       export(dest="campsis") %>%
-      replaceAll("A_1", "A_CENTRAL")
+      replace_all("A_1", "A_CENTRAL")
     
     # Check against non-reg model
     #model2 %>% write(modelNonRegPharmpyPath(folder=modelFolder))

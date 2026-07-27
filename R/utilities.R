@@ -143,7 +143,7 @@ removeAbbreviatedReplaceFromString <- function(x) {
 #' 
 #' @param model Campsis model
 #' @return updated Campsis model
-#' @importFrom campsismod isDiag
+#' @importFrom campsismod is_diag
 #' @export
 #' 
 nameCovariance <- function(model) {
@@ -156,7 +156,7 @@ nameCovariance <- function(model) {
   
   for (listIndex in seq_len(length(parameters))) {
     parameter <- parameters@list[[listIndex]]
-    if (is(parameter, "omega") && !parameter %>% campsismod::isDiag()) {
+    if (is(parameter, "omega") && !parameter %>% campsismod::is_diag()) {
       oldName <- parameter %>% getName()
       parameter <- standardiseCovarianceParameterName(parameters=parameters, parameter=parameter)
       if (hasVarcov) {
@@ -174,19 +174,19 @@ nameCovariance <- function(model) {
 
 standardiseCovarianceParameterName <- function(parameters, parameter) {
   type <- as.character(class(parameter))
-  if (type=="omega" && !campsismod::isDiag(parameter)) {
+  if (type=="omega" && !campsismod::is_diag(parameter)) {
     find1 <- Omega(index=parameter@index, index2=parameter@index)
     find2 <- Omega(index=parameter@index2, index2=parameter@index2)
-  } else if (type=="sigma" && !campsismod::isDiag(parameter)) {
+  } else if (type=="sigma" && !campsismod::is_diag(parameter)) {
     find1 <- Sigma(index=parameter@index, index2=parameter@index)
     find2 <- Sigma(index=parameter@index2, index2=parameter@index2)
   } else {
     return(parameter)
   }
   param1 <- parameters %>%
-    campsismod::getByIndex(find1)
+    campsismod::get_by_index(find1)
   param2 <- parameters %>%
-    campsismod::getByIndex(find2)
+    campsismod::get_by_index(find2)
   
   name1 <- param1@name
   name2 <- param2@name
@@ -205,15 +205,15 @@ standardiseCovarianceParameterName <- function(parameters, parameter) {
 #' 
 #' @param model Campsis model
 #' @return updated Campsis model
-#' @importFrom campsismod getByIndex replace standardise
+#' @importFrom campsismod get_by_index replace standardise
 #' @export
 #' 
 covarToCor <- function(model) {
   parameters <- model@parameters
   for (param in parameters@list) {
     if (is(param, "omega") && param@type=="covar") {
-      omega1 <- parameters %>% campsismod::getByIndex(Omega(index=param@index, index2=param@index)) %>% campsismod::standardise()
-      omega2 <- parameters %>% campsismod::getByIndex(Omega(index=param@index2, index2=param@index2)) %>% campsismod::standardise()
+      omega1 <- parameters %>% campsismod::get_by_index(Omega(index=param@index, index2=param@index)) %>% campsismod::standardise()
+      omega2 <- parameters %>% campsismod::get_by_index(Omega(index=param@index2, index2=param@index2)) %>% campsismod::standardise()
       param@value <- param@value/(sqrt(omega1@value)*sqrt(omega2@value))
       param@type <- "cor"
       model <- model %>% campsismod::replace(param)

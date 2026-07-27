@@ -42,7 +42,7 @@ substituteDuplicateEquationNames <- function(model) {
           
           # Update everywhere
           model <- model %>%
-            replaceAll(original, replacement)
+            replace_all(original, replacement)
         }
       }
       retValue <- retValue %>%
@@ -87,7 +87,7 @@ removeFirstStatement <- function(model) {
 }
 
 removeFirstStatementCore <- function(record, model) {
-  statement <- record@statements %>% getByIndex(1L)
+  statement <- record@statements %>% get_by_index(1L)
   record <- record %>% delete(1L)
   model <- model %>% replace(record)
   record@statements@list <- list()
