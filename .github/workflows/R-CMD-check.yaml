@@ -51,6 +51,7 @@ jobs:
           extra-packages: |
             any::rcmdcheck
             any::progress
+            any::units
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2

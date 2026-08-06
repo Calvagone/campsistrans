@@ -1,60 +1,70 @@
-
 rxode2ParameterToCampsisParameter <- function(x) {
-  if (grepl(pattern="^theta[0-9]+$", x=x)) {
-    index <- as.numeric(gsub(pattern="theta", replacement="", x=x))
-    return(list(Theta(index=index)))
-  } else if (grepl(pattern="^eta[0-9]+$", x=x)) {
-    index <- as.numeric(gsub(pattern="eta", replacement="", x=x))
-    return(list(Omega(index=index, index2=index)))
-  } else if (grepl(pattern="^eps[0-9]+$", x=x)) {
-    index <- as.numeric(gsub(pattern="eps", replacement="", x=x))
-    return(list(Sigma(index=index, index2=index)))
-  } else if (grepl(pattern="^omega\\.[0-9]+\\.[0-9]+$", x=x)) {
-    indexes <- gsub(pattern="omega\\.", replacement="", x=x)
-    indexes <- strsplit(x=indexes, split="\\.")
-    return(list(Omega(index=indexes[[1]][1], index2=indexes[[1]][2], type="covar"),
-                Omega(index=indexes[[1]][2], index2=indexes[[1]][1], type="covar")))
-  } else if (grepl(pattern="^sigma\\.[0-9]+\\.[0-9]+$", x=x)) {
-    indexes <- gsub(pattern="sigma\\.", replacement="", x=x)
-    indexes <- strsplit(x=indexes, split="\\.")
-    return(list(Sigma(index=indexes[[1]][1], index2=indexes[[1]][2], type="covar"),
-                Sigma(index=indexes[[1]][2], index2=indexes[[1]][1], type="covar")))
+  if (grepl(pattern = "^theta[0-9]+$", x = x)) {
+    index <- as.numeric(gsub(pattern = "theta", replacement = "", x = x))
+    return(list(Theta(index = index)))
+  } else if (grepl(pattern = "^eta[0-9]+$", x = x)) {
+    index <- as.numeric(gsub(pattern = "eta", replacement = "", x = x))
+    return(list(Omega(index = index, index2 = index)))
+  } else if (grepl(pattern = "^eps[0-9]+$", x = x)) {
+    index <- as.numeric(gsub(pattern = "eps", replacement = "", x = x))
+    return(list(Sigma(index = index, index2 = index)))
+  } else if (grepl(pattern = "^omega\\.[0-9]+\\.[0-9]+$", x = x)) {
+    indexes <- gsub(pattern = "omega\\.", replacement = "", x = x)
+    indexes <- strsplit(x = indexes, split = "\\.")
+    return(list(
+      Omega(index = indexes[[1]][1], index2 = indexes[[1]][2], type = "covar"),
+      Omega(index = indexes[[1]][2], index2 = indexes[[1]][1], type = "covar")
+    ))
+  } else if (grepl(pattern = "^sigma\\.[0-9]+\\.[0-9]+$", x = x)) {
+    indexes <- gsub(pattern = "sigma\\.", replacement = "", x = x)
+    indexes <- strsplit(x = indexes, split = "\\.")
+    return(list(
+      Sigma(index = indexes[[1]][1], index2 = indexes[[1]][2], type = "covar"),
+      Sigma(index = indexes[[1]][2], index2 = indexes[[1]][1], type = "covar")
+    ))
   } else {
-    stop(sprintf("Non standard parameter name '%s' detected in variance-covariance matrix", x))
+    stop(sprintf(
+      "Non standard parameter name '%s' detected in variance-covariance matrix",
+      x
+    ))
   }
 }
 
 processRxode2Varcov <- function(model, varcov) {
   varcovNames <- colnames(varcov)
-  
-  updatedVarcovNames <- varcovNames %>% purrr::map_chr(.f=function(x) {
-    parameters <- rxode2ParameterToCampsisParameter(x)
-    parameter_ <- NULL
-    
-    for (parameter in parameters) {
-      parameter_ <- model@parameters %>%
-        campsismod::getByIndex(parameter)
-      if (length(parameter_) > 0) {
-        break
-      }
-    }
 
-    if (length(parameter_)==0) {
-      return("")
-    } else {
-      return(parameter_ %>% getName())
-    }
-  })
-  
-  indexes <- which(updatedVarcovNames=="")
+  updatedVarcovNames <- varcovNames %>%
+    purrr::map_chr(.f = function(x) {
+      parameters <- rxode2ParameterToCampsisParameter(x)
+      parameter_ <- NULL
+
+      for (parameter in parameters) {
+        parameter_ <- model@parameters %>%
+          campsismod::get_by_index(parameter)
+        if (length(parameter_) > 0) {
+          break
+        }
+      }
+
+      if (length(parameter_) == 0) {
+        return("")
+      } else {
+        return(parameter_ %>% get_name())
+      }
+    })
+
+  indexes <- which(updatedVarcovNames == "")
   for (index in indexes) {
-    row <- varcov[index,]
-    column <- varcov[,index]
-    if (any(c(row, column)!=0)) {
-      warning(sprintf("Removing non-zero row/column '%s' from variance-covariance matrix", varcovNames[index]))
+    row <- varcov[index, ]
+    column <- varcov[, index]
+    if (any(c(row, column) != 0)) {
+      warning(sprintf(
+        "Removing non-zero row/column '%s' from variance-covariance matrix",
+        varcovNames[index]
+      ))
     }
   }
-  
+
   # Remove empty rows/columns (make sure indexes is not empty!)
   if (length(indexes) > 0) {
     varcov <- varcov[-indexes, -indexes]
@@ -66,17 +76,17 @@ processRxode2Varcov <- function(model, varcov) {
   # Deduce fixed parameters and remove zeroes from variance-covariance matrix
   fixIndexes <- NULL
   for (index in seq_len(nrow(varcov))) {
-    row <- varcov[index,]
-    column <- varcov[,index]
-    if (all(c(row, column)==0)) {
+    row <- varcov[index, ]
+    column <- varcov[, index]
+    if (all(c(row, column) == 0)) {
       fixIndexes <- c(fixIndexes, index)
     }
   }
   if (length(fixIndexes) > 0) {
     fixNames <- row.names(varcov)[fixIndexes]
     model@parameters@list <- model@parameters@list %>%
-      purrr::map(.f=function(parameter) {
-        if (parameter %>% getName() %in% fixNames) {
+      purrr::map(.f = function(parameter) {
+        if (parameter %>% get_name() %in% fixNames) {
           parameter@fix <- TRUE
         }
         return(parameter)
