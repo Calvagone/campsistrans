@@ -44,12 +44,13 @@ Suggests:
 VignetteBuilder: 
     knitr
 Remotes: 
-    Calvagone/campsisqual
+    Calvagone/campsisqual@master
 Config/roxygen2/version: 8.0.0
 Encoding: UTF-8
 Language: en-US
 LazyData: true
 Collate:
+    'check.R'
     'global.R'
     'special_operators.R'
     'requirements.R'

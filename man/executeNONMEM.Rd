@@ -2,7 +2,7 @@
 % Please edit documentation in R/nonmem_qualification_prep.R
 \name{executeNONMEM}
 \alias{executeNONMEM}
-\title{Execute NONMEM. PsN will be called automatically by R. 
+\title{Execute NONMEM. PsN will be called automatically by R.
 Prepared control stream 'model.mod' is executed automatically and NONMEM results
 are returned in the form of a data frame.}
 \usage{
@@ -16,7 +16,7 @@ executeNONMEM(folder, reexecuteNONMEM = T, ctl_name = "model.mod")
 \item{ctl_name}{control stream name, default is 'model.mod'}
 }
 \description{
-Execute NONMEM. PsN will be called automatically by R. 
+Execute NONMEM. PsN will be called automatically by R.
 Prepared control stream 'model.mod' is executed automatically and NONMEM results
 are returned in the form of a data frame.
 }

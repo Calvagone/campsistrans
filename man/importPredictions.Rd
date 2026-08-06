@@ -11,7 +11,7 @@ importPredictions(file, output, table_no = NULL, obs_only = TRUE)
 
 \item{output}{output(s) of interest, character vector}
 
-\item{table_no}{table number to look for the predictions, if NULL, first table 
+\item{table_no}{table number to look for the predictions, if NULL, first table
 containing ID, TIME and the output(s) of interest will be used}
 
 \item{obs_only}{if TRUE, only observations (MDV=0) will be returned, default is TRUE}
