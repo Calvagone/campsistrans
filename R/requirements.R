@@ -1,11 +1,11 @@
 #'
-#' Get the Pharmpy requirements (old version). 
-#' 
+#' Get the Pharmpy requirements (old version).
+#'
 #' @return a character vector
 #' @export
-#' 
+#'
 getPharmpyRequirementsOld <- function() {
-retValue <- "alabaster==0.7.16
+  retValue <- "alabaster==0.7.16
 altair==5.2.0
 appdirs==1.4.4
 attrs==23.2.0
@@ -70,15 +70,15 @@ urllib3==2.2.0
 zict==3.0.0
 zipp==3.17.0
 pharmpy-core @ git+https://github.com/Calvagone/pharmpy@5ef5633ba837cf2f0cede1c90b608064057392ec"
-return(strsplit(retValue, split="\n")[[1]])
+  return(strsplit(retValue, split = "\n")[[1]])
 }
 
 #'
-#' Get the Pharmpy requirements (updated version). 
-#' 
+#' Get the Pharmpy requirements (updated version).
+#'
 #' @return a character vector
 #' @export
-#' 
+#'
 getPharmpyRequirementsUpdated <- function() {
   retValue <- "alabaster==1.0.0
 altair==5.5.0
@@ -199,5 +199,5 @@ tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/downl
 tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp310-cp310-win_amd64.whl ; sys_platform == 'win32' and python_version == '3.10'
 tflite_runtime @ https://github.com/pharmpy/tflite-runtime-wheels/releases/download/v2.15.0-pre/tflite_runtime-2.15.0-cp311-cp311-win_amd64.whl ; sys_platform == 'win32' and python_version == '3.11'
 pharmpy-core @ git+https://github.com/Calvagone/pharmpy@d380b59ab5ec37b8e0d3e8bb359e5c0ddfb2f62f"
-  return(strsplit(retValue, split="\n")[[1]])
+  return(strsplit(retValue, split = "\n")[[1]])
 }

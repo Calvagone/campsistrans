@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Tests on custom model 1")
 
-testFolder <-  file.path(getwd(), test_path())
+testFolder <- file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(modelDir, modelName) {
@@ -22,12 +22,12 @@ test_that("Custom model 1 can be imported well", {
 
   object <- importNONMEM2(modelPath(modelDir, modelName))
   model <- object %>%
-    export(dest="campsis")
-  
+    export(dest = "campsis")
+
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(regFolder))
   }
-  
+
   expect_equal(model, read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
@@ -38,35 +38,40 @@ test_that("Custom model 2 can be imported well (duplicate variables in model)", 
 
   object <- importNONMEM2(modelPath(modelDir, modelName))
   model <- object %>%
-    export(dest="campsis")
-  
+    export(dest = "campsis")
+
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(regFolder))
   }
-  
+
   expect_equal(model, read.campsis(nonRegressionFolderPath(regFolder)))
 })
 
 test_that("Duplicate equations are well replaced", {
-
   regFolder <- "duplicate_equation_names"
 
   model <- CampsisModel() %>%
     add(Equation("MAIN", "5")) %>%
-    add(Equation("ODE", "10"), pos=campsismod::Position(OdeRecord())) %>%
-    add(Equation("ERROR", "15"), pos=campsismod::Position(ErrorRecord()))
+    add(Equation("ODE", "10"), pos = campsismod::Position(OdeRecord())) %>%
+    add(Equation("ERROR", "15"), pos = campsismod::Position(ErrorRecord()))
 
-  model@model@list[[1]]@statements@list <- model@model@list[[1]]@statements@list %>%
+  model@model@list[[1]]@statements@list <- model@model@list[[
+    1
+  ]]@statements@list %>%
     append(Equation("MAIN", "MAIN+1")) %>%
     append(Equation("MAIN", "MAIN+1"))
 
-  model@model@list[[2]]@statements@list <- model@model@list[[2]]@statements@list %>%
+  model@model@list[[2]]@statements@list <- model@model@list[[
+    2
+  ]]@statements@list %>%
     append(Ode("A_1", "0")) %>%
     append(Equation("MAIN", "MAIN+1")) %>%
     append(Equation("ODE", "ODE+1")) %>%
     append(Equation("ODE", "ODE+1"))
 
-  model@model@list[[3]]@statements@list <- model@model@list[[3]]@statements@list %>%
+  model@model@list[[3]]@statements@list <- model@model@list[[
+    3
+  ]]@statements@list %>%
     append(Equation("ODE", "ODE+1")) %>%
     append(Equation("ODE", "ODE+1")) %>%
     append(Equation("ODE_", "99")) %>% # ODE_ already exists
@@ -78,7 +83,7 @@ test_that("Duplicate equations are well replaced", {
   # Renaming should work
   model <- model %>%
     update_compartments() %>%
-    add(InitialCondition(compartment=1, rhs="ODE*MAIN*ERROR"))
+    add(InitialCondition(compartment = 1, rhs = "ODE*MAIN*ERROR"))
 
   model <- substituteDuplicateEquationNames(model)
 
@@ -86,7 +91,10 @@ test_that("Duplicate equations are well replaced", {
     model %>% write(nonRegressionFolderPath(regFolder))
   }
 
-  expect_equal(model, campsismod::read.campsis(nonRegressionFolderPath(regFolder)))
+  expect_equal(
+    model,
+    campsismod::read.campsis(nonRegressionFolderPath(regFolder))
+  )
 })
 
 test_that("Custom model 3 can be imported well (ABBREVIATED REPLACE)", {
@@ -96,11 +104,11 @@ test_that("Custom model 3 can be imported well (ABBREVIATED REPLACE)", {
 
   object <- importNONMEM2(modelPath(modelDir, modelName))
   model <- object %>%
-    export(dest="campsis")
-  
+    export(dest = "campsis")
+
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionFolderPath(regFolder))
   }
-  
+
   expect_equal(model, read.campsis(nonRegressionFolderPath(regFolder)))
 })

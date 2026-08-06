@@ -1,19 +1,18 @@
-
 #' Standardise NONMEM dataset.
 #'
 #' @param dataset NONMEM dataset
 #' @return updated dataset
 #' @export
 standardiseNMDataset <- function(dataset) {
-  mandatoryNMVariables <- c("ID","TIME","DV","AMT")
+  mandatoryNMVariables <- c("ID", "TIME", "DV", "AMT")
   columnNames <- colnames(dataset)
-  
+
   if (!all(mandatoryNMVariables %in% columnNames)) {
     stop("NONMEM dataset must have the mandatory columns ID, TIME, AMT and DV")
   }
 
   if (!("MDV" %in% columnNames)) {
-    dataset$MDV <- ifelse(dataset$AMT==0, 0, 1)
+    dataset$MDV <- ifelse(dataset$AMT == 0, 0, 1)
   }
   if (!("EVID" %in% columnNames)) {
     dataset$EVID <- dataset$MDV
@@ -47,70 +46,95 @@ standardiseNMDataset <- function(dataset) {
 #' @importFrom dplyr all_of relocate rename_at select
 #' @importFrom purrr keep map_chr
 #' @export
-importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas_zero=FALSE, campsis=NULL, campsis_id=FALSE) {
-  
+importDataset <- function(
+  file,
+  covariates = NULL,
+  etas = FALSE,
+  table_no = NULL,
+  etas_zero = FALSE,
+  campsis = NULL,
+  campsis_id = FALSE
+) {
   # NONMEM directory
   nmDir <- dirname(file)
-  
+
   # Read control stream
   ctlLines <- readLines(file) %>%
     removeNONMEMComments()
-  ctl <- paste0(ctlLines, collapse="\n")
+  ctl <- paste0(ctlLines, collapse = "\n")
 
   # Looking at DATA block
-  data <- extractNONMEMBlock(x=ctl, name="DATA")
-  datasetFilename <- gsub(pattern="^(.*?\\.(CSV|csv)).*", replacement="\\1", x=data@content[1])
+  data <- extractNONMEMBlock(x = ctl, name = "DATA")
+  datasetFilename <- gsub(
+    pattern = "^(.*?\\.(CSV|csv)).*",
+    replacement = "\\1",
+    x = data@content[1]
+  )
   datasetPath <- file.path(nmDir, datasetFilename)
   if (!file.exists(datasetPath)) {
-    stop(paste0("Dataset file '", datasetFilename, "' not found in directory: ", nmDir))
+    stop(paste0(
+      "Dataset file '",
+      datasetFilename,
+      "' not found in directory: ",
+      nmDir
+    ))
   }
-  dataset <- read.csv(file=datasetPath)
+  dataset <- read.csv(file = datasetPath)
   columnNames <- colnames(dataset)
   columnNamesLength <- columnNames %>% length()
-  
+
   # Looking at INPUT block
-  input <- extractNONMEMBlock(x=ctl, name="INPUT")
+  input <- extractNONMEMBlock(x = ctl, name = "INPUT")
   options <- extractOptions(input)
   optionsLength <- options %>% length()
-  
+
   if (optionsLength != columnNamesLength) {
-    stop(paste0("INPUT has ", optionsLength, " entries while dataset has ", columnNamesLength, " columns."))
+    stop(paste0(
+      "INPUT has ",
+      optionsLength,
+      " entries while dataset has ",
+      columnNamesLength,
+      " columns."
+    ))
   }
-  
+
   # Overwrite column headers with the keys
   colnames(dataset) <- names(options)
-  
+
   # DROP column indexes
   optionsToDrop <- options %>%
-    purrr::keep(~(!is.na(.x) && .x == "DROP"))
+    purrr::keep(~ (!is.na(.x) && .x == "DROP"))
   dataset <- dataset %>%
     dplyr::select(!dplyr::all_of(names(optionsToDrop)))
-  
+
   # Rename necessary columns
   optionsToRename <- options %>%
-    purrr::keep(~(!is.na(.x) && .x != "DROP"))
+    purrr::keep(~ (!is.na(.x) && .x != "DROP"))
   dataset <- dataset %>%
-    dplyr::rename_at(.vars=names(optionsToRename), .funs=~as.character(optionsToRename))
+    dplyr::rename_at(
+      .vars = names(optionsToRename),
+      .funs = ~ as.character(optionsToRename)
+    )
 
   # First standardise NONMEM dataset
   dataset <- standardiseNMDataset(dataset)
-  
+
   # NONMEM important variables
-  nmVariables <- c("ID","TIME","DV","MDV","EVID","AMT","CMT","RATE")
-  
+  nmVariables <- c("ID", "TIME", "DV", "MDV", "EVID", "AMT", "CMT", "RATE")
+
   # Remove unnecessary columns
   if (!is.null(covariates)) {
     dataset <- dataset %>%
       dplyr::select(dplyr::all_of(c(nmVariables, covariates)))
   }
-  
+
   # Standardise dataset
   dataset <- dataset %>%
     dplyr::relocate(dplyr::any_of(nmVariables))
-  
+
   # Import ETAs if it was required (default is FALSE)
   if (etas) {
-    tables <- extractNONMEMBlock(x=ctl, name="TABLE", first=FALSE)
+    tables <- extractNONMEMBlock(x = ctl, name = "TABLE", first = FALSE)
     etaTable <- NULL
     if (is.null(table_no)) {
       for (table in tables) {
@@ -125,7 +149,9 @@ importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas
       etaTable <- tables[[table_no]]
     }
     if (is.null(etaTable)) {
-      stop("No appropriate table found in control stream with ETAS(1:LAST) option. Please provide argument 'table_no'.")
+      stop(
+        "No appropriate table found in control stream with ETAS(1:LAST) option. Please provide argument 'table_no'."
+      )
     }
     options <- extractOptions(etaTable)
     etaFileFilename <- options$FILE
@@ -134,27 +160,34 @@ importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas
     }
     etaFilePath <- file.path(nmDir, etaFileFilename)
     if (!file.exists(etaFilePath)) {
-      stop(paste0("File with ETAs '", etaFileFilename, "' not found in directory: ", nmDir))
+      stop(paste0(
+        "File with ETAs '",
+        etaFileFilename,
+        "' not found in directory: ",
+        nmDir
+      ))
     }
 
     dataset <- dataset %>%
-      importETAs(file=etaFilePath, model=campsis)
+      importETAs(file = etaFilePath, model = campsis)
   } else {
     # If etas_zero, all ETAs are added to dataset and set to 0
     if (etas_zero && !is.null(campsis)) {
-      for (omega in campsis@parameters %>% campsismod::select("omega") %>% .@list) {
+      for (omega in campsis@parameters %>%
+        campsismod::select("omega") %>%
+        .@list) {
         if (campsismod::is_diag(omega)) {
           dataset[omega %>% campsismod::get_name_in_model()] <- 0
         }
       }
     }
   }
-  
+
   # Simulation ID column
   if (campsis_id) {
     dataset <- dataset %>% addSimulationIDColumn()
   }
-  
+
   return(dataset)
 }
 
@@ -163,15 +196,15 @@ importDataset <- function(file, covariates=NULL, etas=FALSE, table_no=NULL, etas
 #' @param input input NONMEM block (i.e. INPUT, TABLE, etc.)
 #' @return a list of options (key/value form, value=NA if no value is provided)
 #' @export
-#' 
+#'
 extractOptions <- function(input) {
-  inputs <- paste0(input@content, collapse=" ") %>%
-    strsplit(split="\\s+")
+  inputs <- paste0(input@content, collapse = " ") %>%
+    strsplit(split = "\\s+")
   inputs <- inputs[[1]]
   options <- list()
   for (tmpInput in inputs) {
     if (grepl("=", tmpInput)) {
-      parts <- strsplit(tmpInput, split="=")[[1]]
+      parts <- strsplit(tmpInput, split = "=")[[1]]
       key <- parts[1] %>% trimws()
       value <- parts[2] %>% trimws()
       options[[key]] <- value
@@ -192,40 +225,50 @@ extractOptions <- function(input) {
 #' @importFrom dplyr filter filter_at group_by_at left_join pull rename_at row_number select_at ungroup
 #' @importFrom purrr map_chr
 #' @export
-importETAs <- function(x, file, model, id="ID") {
-  
+importETAs <- function(x, file, model, id = "ID") {
   # ID name to map dataset with ETA's
   mappingIDName <- id
-  
+
   # Import estimated subjects
-  tab <- read.nonmem(file=file)[[1]] %>%
+  tab <- read.nonmem(file = file)[[1]] %>%
     dplyr::group_by_at(mappingIDName) %>%
-    dplyr::filter(dplyr::row_number()==1) %>%
+    dplyr::filter(dplyr::row_number() == 1) %>%
     dplyr::ungroup()
-  
+
   # Detect ETAs
   tabNames <- colnames(tab)
   etaNames <- tabNames[grep("^(ET\\d+)|(ETA\\d+)$", tabNames)]
   tab <- tab %>%
     dplyr::select_at(c(mappingIDName, etaNames))
-  
+
   # Standardise ETA names thanks to Campsis model
   if (!is.null(model)) {
-    tab <- tab %>% dplyr::rename_at(.vars=etaNames, .funs=function(etaName) {
-      etaNumber <- as.numeric(sub(pattern = "(ET|ETA)", replacement = "", etaName))
-      retValue <- etaNumber %>% purrr::map_chr(.f = function(eta) {
-        omega <- model@parameters %>% get_by_index(Omega(index=eta, index2=eta))
-        paste0("ETA_", omega@name)
+    tab <- tab %>%
+      dplyr::rename_at(.vars = etaNames, .funs = function(etaName) {
+        etaNumber <- as.numeric(sub(
+          pattern = "(ET|ETA)",
+          replacement = "",
+          etaName
+        ))
+        retValue <- etaNumber %>%
+          purrr::map_chr(.f = function(eta) {
+            omega <- model@parameters %>%
+              get_by_index(Omega(index = eta, index2 = eta))
+            paste0("ETA_", omega@name)
+          })
+        return(retValue)
       })
-      return(retValue)
-    })
   }
 
   # Left join with dataset
   uniqueIDs <- unique(tab %>% dplyr::pull(mappingIDName))
-  x_ <- x %>% dplyr::filter_at(.vars=mappingIDName, .vars_predicate=~.x %in% uniqueIDs) %>%
-    dplyr::left_join(tab, by=mappingIDName)
-  
+  x_ <- x %>%
+    dplyr::filter_at(
+      .vars = mappingIDName,
+      .vars_predicate = ~ .x %in% uniqueIDs
+    ) %>%
+    dplyr::left_join(tab, by = mappingIDName)
+
   return(x_)
 }
 
@@ -238,23 +281,27 @@ importETAs <- function(x, file, model, id="ID") {
 #' @return updated data frame
 #' @importFrom dplyr arrange group_by group_indices rename_at select
 #' @export
-addSimulationIDColumn <- function(dataset, id="ID") {
+addSimulationIDColumn <- function(dataset, id = "ID") {
   if ("ID" %in% colnames(dataset) && id != "ID") {
     dataset <- dataset %>% dplyr::select(-ID)
   }
   # Current ID is renamed into ORIGINAL_ID
   if (!("ORIGINAL_ID" %in% colnames(dataset))) {
     dataset <- dataset %>%
-      dplyr::rename_at(.vars=id, .funs=function(x){"ORIGINAL_ID"})
+      dplyr::rename_at(.vars = id, .funs = function(x) {
+        "ORIGINAL_ID"
+      })
   }
   # Arrange rows by ORIGINAL_ID
   dataset <- dataset %>%
     dplyr::arrange(ORIGINAL_ID)
   # Add simulation ID column
   dataset <- dataset %>%
-    tibble::add_column(ID=dataset %>% dplyr::group_by(ORIGINAL_ID) %>%
-                                              dplyr::group_indices(), .before="ORIGINAL_ID")
+    tibble::add_column(
+      ID = dataset %>% dplyr::group_by(ORIGINAL_ID) %>% dplyr::group_indices(),
+      .before = "ORIGINAL_ID"
+    )
   # Arrange rows by ID
-  dataset <- dataset %>% dplyr::arrange(ID) 
+  dataset <- dataset %>% dplyr::arrange(ID)
   return(dataset)
 }

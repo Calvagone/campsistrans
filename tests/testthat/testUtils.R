@@ -1,4 +1,3 @@
-
 # setwd("C:/prj/campsistrans/")
 # roxygen2::roxygenise()
 # setwd("C:/prj/campsistrans/tests/")
@@ -11,7 +10,7 @@
 
 # # Load Pharmy through reticulate
 # pharmpy <- reticulate::import("pharmpy")
-# 
+#
 # # Check Pharmpy version
 # version <- pharmpy["__version__"]
 
@@ -30,7 +29,7 @@ skipTests <- function(name, default) {
 }
 
 skipPharmpyTests <- function() {
-  return(skipTests(name="SKIP_PHARMPY_TESTS", default=FALSE))
+  return(skipTests(name = "SKIP_PHARMPY_TESTS", default = FALSE))
 }
 
 getCampsistransOption <- function() {

@@ -1,5 +1,4 @@
-
-all_models <- list.files(path="data-raw")
+all_models <- list.files(path = "data-raw")
 
 all_models <- all_models[!(all_models %in% c("dataset.csv", "model_library.R"))]
 
@@ -10,5 +9,4 @@ for (model in all_models) {
   str <- readChar(fileName, file.info(fileName)$size)
   model_library[model] <- str
 }
-usethis::use_data(model_library, overwrite=TRUE)
-
+usethis::use_data(model_library, overwrite = TRUE)

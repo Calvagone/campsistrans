@@ -3,29 +3,45 @@ library(campsismod)
 library(ggplot2)
 
 context("Non-regression test on subroutine conversion")
-testFolder <-  file.path(getwd(), test_path())
+testFolder <- file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
-advanFilename <- function(advan, trans, ext=".txt") {
+advanFilename <- function(advan, trans, ext = ".txt") {
   return(paste0("advan", advan, "_trans", trans, ext))
 }
 
 nonRegressionPharmpyPath <- function(advan, trans) {
-  return(file.path(testFolder, "non_regression", "subroutine", "pharmpy", advanFilename(advan, trans, ext="")))
+  return(file.path(
+    testFolder,
+    "non_regression",
+    "subroutine",
+    "pharmpy",
+    advanFilename(advan, trans, ext = "")
+  ))
 }
 
 nonRegressionNonmem2rxPath <- function(advan, trans) {
-  return(file.path(testFolder, "non_regression", "subroutine", "nonmem2rx", advanFilename(advan, trans, ext="")))
+  return(file.path(
+    testFolder,
+    "non_regression",
+    "subroutine",
+    "nonmem2rx",
+    advanFilename(advan, trans, ext = "")
+  ))
 }
 
-generateModel <- function(advan, trans, mapping=NULL) {
-  object <- importNONMEM(getNONMEMModelTemplate(advan, trans), mapping=mapping, copy_dir=FALSE)
+generateModel <- function(advan, trans, mapping = NULL) {
+  object <- importNONMEM(
+    getNONMEMModelTemplate(advan, trans),
+    mapping = mapping,
+    copy_dir = FALSE
+  )
   model <- object %>%
-    export(dest="campsis") %>%
+    export(dest = "campsis") %>%
     delete(Equation("Y"))
-  
+
   if (overwriteNonRegressionFiles) {
-    model %>% write(file=nonRegressionPharmpyPath(advan, trans))
+    model %>% write(file = nonRegressionPharmpyPath(advan, trans))
   }
   return(model)
 }
@@ -33,24 +49,24 @@ generateModel <- function(advan, trans, mapping=NULL) {
 generateModel2 <- function(advan, trans) {
   ctl <- normalizePath(campsistrans::getNONMEMModelTemplate(advan, trans))
   # print(gsub(pattern="\\\\", replacement="/", x=ctl))
-  object <- importNONMEM2(ctlFile=ctl)
+  object <- importNONMEM2(ctlFile = ctl)
   model <- object@campsis
-  
+
   if (overwriteNonRegressionFiles) {
     model %>% write(nonRegressionNonmem2rxPath(advan, trans))
   }
-  
+
   return(model)
 }
 
 # Import test utils
 source(file.path(testFolder, "testUtils.R"))
 
-getTestName <- function(name, engines=c("Pharmpy", "nonmem2rx")) {
+getTestName <- function(name, engines = c("Pharmpy", "nonmem2rx")) {
   if (skipPharmpyTests()) {
     engines <- engines[engines != "Pharmpy"]
   }
-  return(paste0(name, " (", paste0(engines, collapse="/"), ")"))
+  return(paste0(name, " (", paste0(engines, collapse = "/"), ")"))
 }
 
 test_that(getTestName("ADVAN1 TRANS1"), {
@@ -58,7 +74,11 @@ test_that(getTestName("ADVAN1 TRANS1"), {
   trans <- 1
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(K=1, V=2), omega=c(K=1, V=2), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(K = 1, V = 2),
+      omega = c(K = 1, V = 2),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -72,7 +92,11 @@ test_that(getTestName("ADVAN1 TRANS2"), {
   trans <- 2
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(CL=1, V=2), omega=c(CL=1, V=2), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(CL = 1, V = 2),
+      omega = c(CL = 1, V = 2),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -86,7 +110,11 @@ test_that(getTestName("ADVAN2 TRANS1"), {
   trans <- 1
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, K=2, V=3), omega=c(KA=1, K=2, V=3), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, K = 2, V = 3),
+      omega = c(KA = 1, K = 2, V = 3),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -100,7 +128,11 @@ test_that(getTestName("ADVAN2 TRANS2"), {
   trans <- 2
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, CL=2, V=3), omega=c(KA=1, CL=2, V=3), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, CL = 2, V = 3),
+      omega = c(KA = 1, CL = 2, V = 3),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -114,7 +146,11 @@ test_that(getTestName("ADVAN3 TRANS1"), {
   trans <- 1
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(K=1, V=2, K12=3, K21=4), omega=c(K=1, V=2, K12=3, K21=4), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(K = 1, V = 2, K12 = 3, K21 = 4),
+      omega = c(K = 1, V = 2, K12 = 3, K21 = 4),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -128,7 +164,11 @@ test_that(getTestName("ADVAN3 TRANS3"), {
   trans <- 3
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(CL=1, V=2, Q=3, VSS=4), omega=c(CL=1, V=2, Q=3, VSS=4), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(CL = 1, V = 2, Q = 3, VSS = 4),
+      omega = c(CL = 1, V = 2, Q = 3, VSS = 4),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -142,7 +182,11 @@ test_that(getTestName("ADVAN3 TRANS4"), {
   trans <- 4
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(CL=1, V1=2, V2=3, Q=4), omega=c(CL=1, V1=2, V2=3, Q=4), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(CL = 1, V1 = 2, V2 = 3, Q = 4),
+      omega = c(CL = 1, V1 = 2, V2 = 3, Q = 4),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -156,7 +200,11 @@ test_that(getTestName("ADVAN3 TRANS5"), {
   trans <- 5
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(AOB=1, ALPHA=2, BETA=3), omega=c(AOB=1, ALPHA=2, BETA=3), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(AOB = 1, ALPHA = 2, BETA = 3),
+      omega = c(AOB = 1, ALPHA = 2, BETA = 3),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -170,7 +218,11 @@ test_that(getTestName("ADVAN4 TRANS1"), {
   trans <- 1
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, K=2, V=3, K23=4, K32=5), omega=c(KA=1, K=2, V=3, K23=4, K32=5), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, K = 2, V = 3, K23 = 4, K32 = 5),
+      omega = c(KA = 1, K = 2, V = 3, K23 = 4, K32 = 5),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -184,7 +236,11 @@ test_that(getTestName("ADVAN4 TRANS3"), {
   trans <- 3
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, CL=2, V=3, Q=4, VSS=5), omega=c(KA=1, CL=2, V=3, Q=4, VSS=5), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, CL = 2, V = 3, Q = 4, VSS = 5),
+      omega = c(KA = 1, CL = 2, V = 3, Q = 4, VSS = 5),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -198,7 +254,11 @@ test_that(getTestName("ADVAN4 TRANS4"), {
   trans <- 4
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, CL=2, V2=3, V3=4, Q=5), omega=c(KA=1, CL=2, V2=3, V3=4, Q=5), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, CL = 2, V2 = 3, V3 = 4, Q = 5),
+      omega = c(KA = 1, CL = 2, V2 = 3, V3 = 4, Q = 5),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -212,7 +272,11 @@ test_that(getTestName("ADVAN4 TRANS5"), {
   trans <- 5
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(AOB=1, ALPHA=2, BETA=3, KA=4), omega=c(AOB=1, ALPHA=2, BETA=3, KA=4), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(AOB = 1, ALPHA = 2, BETA = 3, KA = 4),
+      omega = c(AOB = 1, ALPHA = 2, BETA = 3, KA = 4),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -226,7 +290,11 @@ test_that(getTestName("ADVAN11 TRANS4"), {
   trans <- 4
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(CL=1, V1=2, V2=3, V3=4, Q2=5, Q3=6), omega=c(CL=1, V1=2, V2=3, V3=4, Q2=5, Q3=6), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(CL = 1, V1 = 2, V2 = 3, V3 = 4, Q2 = 5, Q3 = 6),
+      omega = c(CL = 1, V1 = 2, V2 = 3, V3 = 4, Q2 = 5, Q3 = 6),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }
@@ -240,7 +308,11 @@ test_that(getTestName("ADVAN12 TRANS4"), {
   trans <- 4
 
   if (!skipPharmpyTests()) {
-    mapping <- mapping(theta=c(KA=1, CL=2, V2=3, V3=4, V4=5, Q3=6, Q4=7), omega=c(KA=1, CL=2, V2=3, V3=4, V4=5, Q3=6, Q4=7), sigma=c(PROP=1))
+    mapping <- mapping(
+      theta = c(KA = 1, CL = 2, V2 = 3, V3 = 4, V4 = 5, Q3 = 6, Q4 = 7),
+      omega = c(KA = 1, CL = 2, V2 = 3, V3 = 4, V4 = 5, Q3 = 6, Q4 = 7),
+      sigma = c(PROP = 1)
+    )
     model1 <- generateModel(advan, trans, mapping)
     expect_equal(model1, read.campsis(nonRegressionPharmpyPath(advan, trans)))
   }

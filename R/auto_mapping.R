@@ -1,10 +1,8 @@
-
-
 #' Check if the given parameter needs to be renamed.
-#' 
+#'
 #' @param parameter a parameter
 #' @return a logical value
-#' 
+#'
 needsAutoRenaming <- function(parameter) {
   cond1 <- is.na(parameter@name)
   cond2 <- TRUE
@@ -15,62 +13,83 @@ needsAutoRenaming <- function(parameter) {
 }
 
 #' Auto-rename parameters based on equations.
-#' 
+#'
 #' @param model Campsis model
 #' @return Campsis model with updated parameters
 #' @importFrom dplyr group_split mutate
 #' @importFrom purrr map_df
 #' @importFrom tibble tibble
-#' 
+#'
 autoRenameParameters <- function(model) {
-
   # Retrieve all unnamed parameters
   unnamedParameters <- model@parameters@list %>%
-    purrr::keep(.p=~.x %>% needsAutoRenaming())
-  
+    purrr::keep(.p = ~ .x %>% needsAutoRenaming())
+
   # Create mapping table
-  mappingTable <- unnamedParameters %>% purrr::map_df(.f=function(x) {
-    nameInModel <- x %>% get_name_in_model()
-    name_ <- searchCandidateName(model, x)
-    return(tibble::tibble(NAME=nameInModel, TYPE=class(x) %>% as.character(), CANDIDATE_NAME=name_))
-  })
-  
+  mappingTable <- unnamedParameters %>%
+    purrr::map_df(.f = function(x) {
+      nameInModel <- x %>% get_name_in_model()
+      name_ <- searchCandidateName(model, x)
+      return(tibble::tibble(
+        NAME = nameInModel,
+        TYPE = class(x) %>% as.character(),
+        CANDIDATE_NAME = name_
+      ))
+    })
+
   # Get rid of TV or ETA_ if there is
   mappingTable <- mappingTable %>%
-    dplyr::mutate(CANDIDATE_NAME=gsub("^(TV|ETA_)", "", CANDIDATE_NAME, ignore.case=TRUE))
-  
+    dplyr::mutate(
+      CANDIDATE_NAME = gsub(
+        "^(TV|ETA_)",
+        "",
+        CANDIDATE_NAME,
+        ignore.case = TRUE
+      )
+    )
+
   # Add indexes if candidate names are identical for the same parameter type
   # Especially useful for IOV
-  mappingTable <- mappingTable %>% dplyr::group_split(TYPE, CANDIDATE_NAME) %>% purrr::map_df(.f=function(x) {
-    if (nrow(x) > 1) {
-      x <- x %>% dplyr::mutate(CANDIDATE_NAME=paste0(CANDIDATE_NAME, "_", seq_len(nrow(x))))
-    }
-    return(x)
-  })
-  
-  # Rename parameters and replace in model
-  model@parameters@list <- model@parameters@list %>% purrr::map(.f=function(x) {
-    if (!(x %>% needsAutoRenaming())) {
+  mappingTable <- mappingTable %>%
+    dplyr::group_split(TYPE, CANDIDATE_NAME) %>%
+    purrr::map_df(.f = function(x) {
+      if (nrow(x) > 1) {
+        x <- x %>%
+          dplyr::mutate(
+            CANDIDATE_NAME = paste0(CANDIDATE_NAME, "_", seq_len(nrow(x)))
+          )
+      }
       return(x)
-    }
-    nameInModel <- x %>% get_name_in_model()
-    mappingRow <- mappingTable %>% dplyr::filter(NAME==nameInModel)
-    candidateName <- mappingRow$CANDIDATE_NAME
-    x@name <- candidateName
-    model <<- model %>% replace_all(pattern=nameInModel, replacement=x %>% get_name_in_model())
-    return(x)
-  })
- 
-  return(model) 
+    })
+
+  # Rename parameters and replace in model
+  model@parameters@list <- model@parameters@list %>%
+    purrr::map(.f = function(x) {
+      if (!(x %>% needsAutoRenaming())) {
+        return(x)
+      }
+      nameInModel <- x %>% get_name_in_model()
+      mappingRow <- mappingTable %>% dplyr::filter(NAME == nameInModel)
+      candidateName <- mappingRow$CANDIDATE_NAME
+      x@name <- candidateName
+      model <<- model %>%
+        replace_all(
+          pattern = nameInModel,
+          replacement = x %>% get_name_in_model()
+        )
+      return(x)
+    })
+
+  return(model)
 }
 
 #' Contains parameter.
-#' 
+#'
 #' @param x any model statement
 #' @param parameter parameter to search for a name in model
 #' @return a logical value
 #' @importFrom campsismod get_name_in_model replace_all VariablePattern
-#' 
+#'
 containsParameter <- function(x, parameter) {
   parameterName <- parameter %>% campsismod::get_name_in_model()
   pattern <- campsismod::VariablePattern(parameterName)
@@ -81,18 +100,18 @@ containsParameter <- function(x, parameter) {
   } else {
     return(FALSE)
   }
-  rhs_ <- rhs %>% campsismod::replace_all(pattern=pattern, replacement="")
+  rhs_ <- rhs %>% campsismod::replace_all(pattern = pattern, replacement = "")
   hasParam <- rhs %>% nchar() != rhs_ %>% nchar()
   return(hasParam)
 }
 
 #' Seach candidate name.
-#' 
+#'
 #' @param model CAMPSIS model
 #' @param parameter parameter to search for a name in model
 #' @return a candidate name or NA if nothing was found
 #' @importFrom purrr detect
-#' 
+#'
 searchCandidateName <- function(model, parameter) {
   if (is(parameter, "sigma")) {
     if (parameter@value == 1) {
@@ -101,7 +120,7 @@ searchCandidateName <- function(model, parameter) {
       return("RSV")
     }
   }
-  
+
   # Retrieve statements from MAIN and ERROR
   list <- list()
   main <- model %>% campsismod::find(MainRecord())
@@ -116,9 +135,9 @@ searchCandidateName <- function(model, parameter) {
   if (!is.null(error)) {
     list <- c(list, error@statements@list)
   }
-  
+
   # Detect first match
-  statement <- list %>% purrr::detect(.f=~containsParameter(.x, parameter))
+  statement <- list %>% purrr::detect(.f = ~ containsParameter(.x, parameter))
   if (is.null(statement)) {
     return(NA)
   } else {

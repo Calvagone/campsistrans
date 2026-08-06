@@ -1,7 +1,7 @@
 Type: Package
 Package: campsistrans
 Title: Campsis Transformation Package (NONMEM/Monolix/rxode2 -> Campsis)
-Version: 1.4.1
+Version: 1.5.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: Imports pharmacometric models from various sources
@@ -44,8 +44,8 @@ Suggests:
 VignetteBuilder: 
     knitr
 Remotes: 
-    github::Calvagone/campsismod,
-    github::Calvagone/campsisqual
+    Calvagone/campsisqual
+Config/roxygen2/version: 8.0.0
 Encoding: UTF-8
 Language: en-US
 LazyData: true
@@ -81,4 +81,3 @@ Collate:
     'import_from_rxode2.R'
     'import_from_monolix.R'
     'import_from_nonmem.R'
-Config/roxygen2/version: 8.0.0

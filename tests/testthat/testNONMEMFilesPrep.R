@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test that NONMEM files can be prepared for the qualification")
 
-testFolder <-  file.path(getwd(), test_path())
+testFolder <- file.path(getwd(), test_path())
 overwriteNonRegressionFiles <- FALSE
 
 modelPath <- function(folder, filename) {
@@ -14,4 +14,3 @@ test_that("Import custom model and prepare files", {
   # Do something useful here
   expect_true(TRUE)
 })
-
