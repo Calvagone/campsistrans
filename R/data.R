@@ -1,4 +1,3 @@
-
 #' Model library.
 #'
 #' A list containing NONMEM control stream templates.

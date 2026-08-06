@@ -1,3 +1,8 @@
+# campsistrans 1.5.0
+
+* Align package on Campsismod v1.4.0 #122
+* Format code with Air #123
+
 # campsistrans 1.4.1
 
 * Method caretToPow not doing anything on compartment properties #115
