@@ -125,8 +125,8 @@ getTestName <- function(name, engines = c("Pharmpy", "nonmem2rx")) {
 # As a consequence, NONMEM auto-detection is incorrect: [F] A_2=F1 (only 1 compartment is detected)
 
 discardLastRifampinODE <- function(model, nonreg_model) {
-  ode <- model@model %>% getByName("ODE")
-  nonreg_ode <- nonreg_model@model %>% getByName("ODE")
+  ode <- model@model %>% get_by_name("ODE")
+  nonreg_ode <- nonreg_model@model %>% get_by_name("ODE")
 
   ode@statements@list <- ode@statements@list %>%
     purrr::discard(~ is(.x, "if_statement") && .x@condition == "t >= TDOS")

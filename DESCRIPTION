@@ -40,7 +40,8 @@ Suggests:
     roxygen2,
     rxode2,
     stringr,
-    testthat
+    testthat,
+    units
 VignetteBuilder: 
     knitr
 Remotes: 
